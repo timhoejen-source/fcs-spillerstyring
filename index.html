@@ -340,30 +340,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <span class="sb-section-title">☁️ Lagring</span>
         <span class="sb-section-chev open">▾</span>
       </div>
-      <div class="sb-section-body open">
-        <div class="fg">
-          <label>GitHub Brugernavn</label>
-          <input type="text" id="cfg-ghuser" placeholder="fx mitbrugernavn" oninput="saveConfig()">
-        </div>
-        <div class="fg">
-          <label>GitHub Repository</label>
-          <input type="text" id="cfg-ghrepo" placeholder="fx fcs-spillerstyring" oninput="saveConfig()">
-        </div>
-        <div class="fg">
-          <label>Personal Access Token</label>
-          <input type="password" id="cfg-ghtoken" placeholder="ghp_…" oninput="saveConfig()">
-        </div>
+      <div class="sb-section-body open" id="sb-github-section">
+        <div class="sheets-status ok" id="sheets-status">Forbundet til GitHub ✓</div>
         <button class="btn-sheets" id="sb-sheets-save" onclick="syncToSheets(true)">☁️ Gem til GitHub</button>
-        <button class="btn-sheets-load" onclick="loadFromSheets()">⬇️ Hent fra GitHub</button>
+        <button class="btn-sheets-load" id="sb-sheets-load" onclick="loadFromSheets()">⬇️ Hent fra GitHub</button>
         <button class="btn-reset" id="sb-reset" onclick="resetAllPlayers()">🗑️ Slet alle spillere</button>
-        <div class="sheets-status" id="sheets-status">Udfyld GitHub-felter ovenfor</div>
-        <div class="info-box">
-          <strong>Sådan sætter du det op:</strong><br>
-          1. Opret et GitHub repo (fx <em>fcs-data</em>)<br>
-          2. Gå til Settings → Developer settings → Tokens<br>
-          3. Generate new token (classic) → flueben ved <em>repo</em><br>
-          4. Indsæt brugernavn, repo-navn og token ovenfor
-        </div>
       </div>
     </div>
 
@@ -626,7 +607,11 @@ window.onerror = function(msg, src, line, col, err){
 
 let players=JSON.parse(localStorage.getItem('fcs-p5')||'null')||[];
 let teams=JSON.parse(localStorage.getItem('fcs-t5')||'null')||['1.holdet','2.holdet'];
-let cfg=JSON.parse(localStorage.getItem('fcs-cfg5')||'{}');
+// GitHub — hardcoded
+const GH_USER='timhoejen-source';
+const GH_REPO='fcs-spillerstyring';
+const GH_TOKEN='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';
+let cfg={ghuser:GH_USER,ghrepo:GH_REPO,ghtoken:GH_TOKEN};
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
 const USERS = {
@@ -644,6 +629,7 @@ function doLogin(){
     sessionStorage.setItem('fcs-auth', user.role);
     document.getElementById('loginOverlay').style.display = 'none';
     applyRole();
+    setTimeout(function(){ loadFromSheets(true); }, 700);
   } else {
     const err = document.getElementById('login-err');
     err.textContent = 'Forkert brugernavn eller adgangskode';
@@ -658,12 +644,13 @@ function applyRole(){
   const isAdmin  = currentRole === 'admin';
   // Flex-elementer
   const flexItems = ['sync-btn-wrap'];
+  // sync-btn-wrap already in flex — hide for viewer
   flexItems.forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.style.display=isViewer?'none':'flex';
   });
   // Block-elementer (sections, buttons)
-  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn'];
+  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn','sb-sheets-load','sb-github-section'];
   blockItems.forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.style.display=isViewer?'none':'block';
@@ -727,9 +714,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     currentRole = '';
     document.getElementById('loginOverlay').style.display='flex';
   }
-  if(cfg.ghuser) document.getElementById('cfg-ghuser').value=cfg.ghuser;
-  if(cfg.ghrepo) document.getElementById('cfg-ghrepo').value=cfg.ghrepo;
-  if(cfg.ghtoken) document.getElementById('cfg-ghtoken').value=cfg.ghtoken;
+  // GitHub credentials hardcoded
   updateStatus();renderTeams();renderSelects();render();
   applyRole();
 });
@@ -744,24 +729,10 @@ function resetAllPlayers(){
   saveAll();render();
   toast('🗑️ Alle spillere slettet — hent fra GitHub for at genindlæse');
 }
-function saveConfig(){
-  cfg={
-    ghuser:document.getElementById('cfg-ghuser').value.trim(),
-    ghrepo:document.getElementById('cfg-ghrepo').value.trim(),
-    ghtoken:document.getElementById('cfg-ghtoken').value.trim()
-  };
-  localStorage.setItem('fcs-cfg5',JSON.stringify(cfg));
-  updateStatus();
-}
+function saveConfig(){ updateStatus(); }
 function updateStatus(){
   const st=document.getElementById('sheets-status');
-  if(cfg.ghuser&&cfg.ghrepo&&cfg.ghtoken){
-    st.textContent='GitHub konfigureret — klar til synkronisering ✓';
-    st.className='sheets-status ok';
-  } else {
-    st.textContent='Udfyld GitHub brugernavn, repo og token';
-    st.className='sheets-status';
-  }
+  if(st){st.textContent='Forbundet til GitHub ✓';st.className='sheets-status ok';}
 }
 function setSyncDot(s){document.getElementById('syncDot').className='sync-dot'+(s?' '+s:'');}
 
@@ -778,8 +749,8 @@ function safeJson(val, fallback=[]){
 }
 
 async function syncToSheets(manual=false){
-  if(currentRole==='viewer'){toast('⚠️ Du har ikke adgang til at gemme');return;}
-  if(!cfg.ghuser||!cfg.ghrepo||!cfg.ghtoken){if(manual)toast('⚠️ Udfyld GitHub brugernavn, repo og token');return;}
+  if(currentRole!=='admin'){toast('⚠️ Kun admin kan gemme til GitHub');return;}
+  if(manual && !confirm('Gem alle data til GitHub?\nDette overskriver eksisterende data.')) return;
   setSyncDot('busy');
   try{
     // Byg data-objekt
@@ -824,8 +795,8 @@ async function syncToSheets(manual=false){
   }
 }
 
-async function loadFromSheets(){
-  if(!cfg.ghuser||!cfg.ghrepo||!cfg.ghtoken){toast('⚠️ Udfyld GitHub brugernavn, repo og token');return;}
+async function loadFromSheets(silent=false){
+  if(!silent && !confirm('Hent data fra GitHub?\nLokal data flettes med GitHub-data.')) return;
   setSyncDot('busy');
   try{
     const apiUrl='https://api.github.com/repos/'+cfg.ghuser+'/'+cfg.ghrepo+'/contents/fcs-data.json';
