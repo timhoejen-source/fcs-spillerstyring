@@ -325,25 +325,32 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <!-- Google Apps Script -->
     <div class="sb-section">
       <div class="sb-section-hdr" onclick="toggleSection(this)">
-        <span class="sb-section-title">☁️ Google Sheets</span>
+        <span class="sb-section-title">☁️ Lagring</span>
         <span class="sb-section-chev open">▾</span>
       </div>
       <div class="sb-section-body open">
         <div class="fg">
-          <label>Apps Script URL</label>
-          <input type="text" id="cfg-url" placeholder="https://script.google.com/macros/s/…/exec" oninput="saveConfig()">
+          <label>GitHub Brugernavn</label>
+          <input type="text" id="cfg-ghuser" placeholder="fx mitbrugernavn" oninput="saveConfig()">
         </div>
-        <button class="btn-sheets" id="sb-sheets-save" onclick="syncToSheets(true)">☁️ Gem til Google Sheets</button>
-        <button class="btn-sheets-load" onclick="loadFromSheets()">⬇️ Hent fra Google Sheets</button>
+        <div class="fg">
+          <label>GitHub Repository</label>
+          <input type="text" id="cfg-ghrepo" placeholder="fx fcs-spillerstyring" oninput="saveConfig()">
+        </div>
+        <div class="fg">
+          <label>Personal Access Token</label>
+          <input type="password" id="cfg-ghtoken" placeholder="ghp_…" oninput="saveConfig()">
+        </div>
+        <button class="btn-sheets" id="sb-sheets-save" onclick="syncToSheets(true)">☁️ Gem til GitHub</button>
+        <button class="btn-sheets-load" onclick="loadFromSheets()">⬇️ Hent fra GitHub</button>
         <button class="btn-reset" id="sb-reset" onclick="resetAllPlayers()">🗑️ Slet alle spillere</button>
-        <div class="sheets-status" id="sheets-status">Indsæt din Apps Script URL ovenfor</div>
+        <div class="sheets-status" id="sheets-status">Udfyld GitHub-felter ovenfor</div>
         <div class="info-box">
-          <strong>Sådan får du URL'en:</strong><br>
-          1. Åbn dit Sheet → Extensions → Apps Script<br>
-          2. Indsæt scriptet fra Claude<br>
-          3. Deploy → New deployment → Web app<br>
-          4. Execute as: Me · Access: Anyone<br>
-          5. Kopiér URL og indsæt ovenfor
+          <strong>Sådan sætter du det op:</strong><br>
+          1. Opret et GitHub repo (fx <em>fcs-data</em>)<br>
+          2. Gå til Settings → Developer settings → Tokens<br>
+          3. Generate new token (classic) → flueben ved <em>repo</em><br>
+          4. Indsæt brugernavn, repo-navn og token ovenfor
         </div>
       </div>
     </div>
@@ -653,7 +660,9 @@ window.addEventListener('DOMContentLoaded',()=>{
     currentRole = '';
     document.getElementById('loginOverlay').style.display='flex';
   }
-  if(cfg.url) document.getElementById('cfg-url').value=cfg.url;
+  if(cfg.ghuser) document.getElementById('cfg-ghuser').value=cfg.ghuser;
+  if(cfg.ghrepo) document.getElementById('cfg-ghrepo').value=cfg.ghrepo;
+  if(cfg.ghtoken) document.getElementById('cfg-ghtoken').value=cfg.ghtoken;
   updateStatus();renderTeams();renderSelects();render();
   applyRole();
 });
@@ -663,14 +672,23 @@ function saveAll(){
   try{localStorage.setItem('fcs-p5',JSON.stringify(players));localStorage.setItem('fcs-t5',JSON.stringify(teams));}catch(e){}
 }
 function saveConfig(){
-  cfg={url:document.getElementById('cfg-url').value.trim()};
+  cfg={
+    ghuser:document.getElementById('cfg-ghuser').value.trim(),
+    ghrepo:document.getElementById('cfg-ghrepo').value.trim(),
+    ghtoken:document.getElementById('cfg-ghtoken').value.trim()
+  };
   localStorage.setItem('fcs-cfg5',JSON.stringify(cfg));
   updateStatus();
 }
 function updateStatus(){
   const st=document.getElementById('sheets-status');
-  if(cfg.url){st.textContent='URL gemt — klar til synkronisering ✓';st.className='sheets-status ok';}
-  else{st.textContent='Indsæt din Apps Script URL ovenfor';st.className='sheets-status';}
+  if(cfg.ghuser&&cfg.ghrepo&&cfg.ghtoken){
+    st.textContent='GitHub konfigureret — klar til synkronisering ✓';
+    st.className='sheets-status ok';
+  } else {
+    st.textContent='Udfyld GitHub brugernavn, repo og token';
+    st.className='sheets-status';
+  }
 }
 function setSyncDot(s){document.getElementById('syncDot').className='sync-dot'+(s?' '+s:'');}
 
@@ -687,172 +705,99 @@ function safeJson(val, fallback=[]){
 }
 
 async function syncToSheets(manual=false){
-  if(currentRole==='viewer'){toast('⚠️ Du har ikke adgang til at gemme til Sheets');return;}
-  if(!cfg.url){if(manual)toast('⚠️ Indsæt din Apps Script URL først');return;}
+  if(currentRole==='viewer'){toast('⚠️ Du har ikke adgang til at gemme');return;}
+  if(!cfg.ghuser||!cfg.ghrepo||!cfg.ghtoken){if(manual)toast('⚠️ Udfyld GitHub brugernavn, repo og token');return;}
   setSyncDot('busy');
   try{
-    // ── SAFE MERGE: hent først fra Sheets, flet lokale ind, gem samlet ──────
-    // Trin 1: hent eksisterende Sheets-data
-    let sheetPlayers=[];
-    let sheetTeams=teams;
+    // Byg data-objekt
+    const payload={
+      players,teams,trainings,
+      savedAt:new Date().toISOString()
+    };
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2))));
+    const apiUrl='https://api.github.com/repos/'+cfg.ghuser+'/'+cfg.ghrepo+'/contents/fcs-data.json';
+    const headers={
+      'Authorization':'token '+cfg.ghtoken,
+      'Content-Type':'application/json',
+      'Accept':'application/vnd.github.v3+json'
+    };
+    // Hent eksisterende SHA (kræves for at opdatere filen)
+    let sha='';
     try{
-      const res=await fetch(cfg.url+'?action=get');
-      const rows=JSON.parse(await res.text());
-      if(Array.isArray(rows)&&rows.length>1){
-        const data=rows.slice(1);
-        const teamRow=data.find(r=>r[0]==='__TEAMS__');
-        if(teamRow){try{sheetTeams=JSON.parse(teamRow[1]);}catch(e){}}
-        sheetPlayers=data.filter(r=>r[0]&&r[0]!=='__TEAMS__'&&r[0]!=='__TRAININGS__').map(r=>({
-          id:r[0],name:r[1]||'',age:parseInt(r[2])||0,
-          team:r[3]||'',cls:r[4]||'B',pos:(r[5]||'').toString().split(',').filter(Boolean),jersey:(r[6]||'').toString(),goal:(r[7]||'').toString(),
-          stats:{matches:safeJson(r[8]),skud:parseInt(r[9])||0,afl:parseInt(r[10])||0,assists:parseInt(r[11])||0,min:parseInt(r[12])||0,vende:parseInt(r[13])||0}
-        }));
+      const existing=await fetch(apiUrl,{headers});
+      if(existing.ok){
+        const data=await existing.json();
+        sha=data.sha||'';
       }
-    }catch(e){ /* Sheets er tom eller fejl — fortsæt med lokale data */ }
-
-    // Trin 2: flet — lokale spillere vinder (nyeste data), Sheets-spillere
-    // der ikke findes lokalt bevares (slettet lokalt = slettet i Sheets IKKE)
-    const localIds=new Set(players.map(p=>p.id));
-    const sheetOnly=sheetPlayers.filter(p=>!localIds.has(p.id));
-    // Slå hold sammen uden dubletter
-    const allTeams=[...new Set([...sheetTeams,...teams])];
-    teams=allTeams;
-    // Endelig spillerliste: lokale + Sheets-spillere der ikke er lokalt
-    const merged=[...players,...sheetOnly];
-    // Deduplikér på ID (kan aldrig ske med uid(), men sikkerhedsnet)
-    const seen=new Set();
-    const deduped=merged.filter(p=>{ if(seen.has(p.id)) return false; seen.add(p.id); return true; });
-
-    // Trin 3: skriv den flettede liste + træninger til Sheets
-    const rows=[
-      HEADERS,
-      ...deduped.map(p=>{const s=p.stats||{};const posStr=Array.isArray(p.pos)?p.pos.join(','):(p.pos||'');return [p.id,p.name,p.age,p.team,p.cls,posStr,(p.jersey||'').toString(),p.goal,JSON.stringify(s.matches||[]),s.skud||0,s.afl||0,s.assists||0,s.min||0,s.vende||0];}),
-      ['__TEAMS__',JSON.stringify(teams)],
-      ['__TRAININGS__',JSON.stringify(trainings)]
-    ];
-    const res=await fetch(cfg.url,{method:'POST',body:JSON.stringify(rows)});
-    const txt=await res.text();
-    const data=JSON.parse(txt);
-    if(data.status==='ok'){
-      // Opdater lokal state med den flettede liste
-      players=deduped;
-      saveAll();renderTeams();renderSelects();render();
-      setSyncDot('ok');
-      if(manual){
-        toast('✅ Gemt til Google Sheets! ('+deduped.length+' spillere, '+trainings.length+' træninger)');
-        document.getElementById('sheets-status').textContent='Sidst gemt: '+new Date().toLocaleTimeString('da-DK');
-        document.getElementById('sheets-status').className='sheets-status ok';
-      }
-    } else throw new Error(data.message||'Ukendt fejl');
+    }catch(e){}
+    // Gem filen
+    const body={message:'FCS data opdateret '+new Date().toLocaleString('da-DK'),content};
+    if(sha) body.sha=sha;
+    const res=await fetch(apiUrl,{method:'PUT',headers,body:JSON.stringify(body)});
+    if(!res.ok){
+      const err=await res.json();
+      throw new Error(err.message||'GitHub fejl '+res.status);
+    }
+    setSyncDot('ok');
+    if(manual){
+      toast('✅ Gemt til GitHub! ('+players.length+' spillere, '+trainings.length+' træninger)');
+      document.getElementById('sheets-status').textContent='Sidst gemt: '+new Date().toLocaleTimeString('da-DK');
+      document.getElementById('sheets-status').className='sheets-status ok';
+    }
   }catch(e){
     setSyncDot('err');
-    if(manual)toast('❌ Fejl ved gem: '+e.message);
+    if(manual)toast('❌ GitHub fejl: '+e.message);
     console.error(e);
   }
-}
-
-
-let mMatchToggle='ja';
-let mMatches=[];
-
-function setMatchToggle(v){
-  mMatchToggle=v;
-  document.getElementById('mt-ja').className=v==='ja'?'sel-ja':'';
-  document.getElementById('mt-nej').className=v==='nej'?'sel-nej':'';
-}
-
-function addMatch(){
-  const name=document.getElementById('m-match-name').value.trim();
-  if(!name) return;
-  mMatches.push({name,udtaget:mMatchToggle});
-  document.getElementById('m-match-name').value='';
-  renderMatchList();
-}
-
-function removeMatch(i){
-  mMatches.splice(i,1);
-  renderMatchList();
-}
-
-function renderMatchList(){
-  const el=document.getElementById('m-match-list');
-  if(!el) return;
-  el.innerHTML=mMatches.map((m,i)=>
-    '<div class="match-row">'+
-    '<span class="match-name">'+m.name+'</span>'+
-    '<span class="match-badge '+m.udtaget+'">'+( m.udtaget==='ja'?'✅ Udtaget':'❌ Ikke udtaget')+'</span>'+
-    '<button class="match-del" onclick="removeMatch('+i+')">×</button>'+
-    '</div>'
-  ).join('');
-}
-function resetAllPlayers(){
-  if(!confirm("Slet ALLE spillere?\nDette kan ikke fortrydes.\n\nBrug \"Hent fra Google Sheets\" bagefter for at genindlæse.")) return;
-  players=[];
-  saveAll();render();
-  toast("🗑️ Alle spillere slettet — hent fra Sheets for at genindlæse");
 }
 
 async function loadFromSheets(){
-  if(!cfg.url){toast('⚠️ Indsæt din Apps Script URL først');return;}
+  if(!cfg.ghuser||!cfg.ghrepo||!cfg.ghtoken){toast('⚠️ Udfyld GitHub brugernavn, repo og token');return;}
   setSyncDot('busy');
   try{
-    const rawTxt=await fetch(cfg.url+'?action=get').then(r=>r.text());
-    // Afvis HTML fejlsider fra Google
-    if(rawTxt.trim().startsWith('<')){throw new Error('Apps Script returnerede HTML — tjek deployment og URL');}
-    const rows=JSON.parse(rawTxt);
-    if(!Array.isArray(rows)||rows.length<2){toast('ℹ️ Ingen data fundet i Sheets');setSyncDot('ok');return;}
-    const data=rows.slice(1);
-    // Hold
-    const teamRow=data.find(r=>String(r[0])==='__TEAMS__');
-    if(teamRow){try{teams=[...new Set([...safeJson(teamRow[1],[]),...teams])];}catch(e){}}
-    // Træninger
-    const trainingsRow=data.find(r=>String(r[0])==='__TRAININGS__');
-    if(trainingsRow){
-      const sheetTrainings=safeJson(trainingsRow[1],[]);
-      if(sheetTrainings.length){
-        // Merge: bevar lokale træninger der ikke er i Sheets, opdater eksisterende
-        const sheetTrIds=new Set(sheetTrainings.map(t=>t.id));
-        const localOnlyTr=trainings.filter(t=>!sheetTrIds.has(t.id));
-        trainings=[...sheetTrainings,...localOnlyTr];
-        saveTrainings();
-        renderTrainings();
-      }
+    const apiUrl='https://api.github.com/repos/'+cfg.ghuser+'/'+cfg.ghrepo+'/contents/fcs-data.json';
+    const headers={
+      'Authorization':'token '+cfg.ghtoken,
+      'Accept':'application/vnd.github.v3+json'
+    };
+    const res=await fetch(apiUrl,{headers});
+    if(!res.ok){
+      if(res.status===404) throw new Error('Ingen data fundet — gem først fra denne enhed');
+      throw new Error('GitHub fejl '+res.status);
     }
-    // Spillere — kolonner: 0=ID 1=Navn 2=Alder 3=Hold 4=Klasse 5=Position 6=Rygnummer 7=Udviklingsmål 8=Kampe 9=Skud 10=Afl 11=Assists 12=Min 13=Vende
-    const incoming=data.filter(r=>r[0]&&String(r[0])!=='__TEAMS__'&&String(r[0])!=='__TRAININGS__').map(r=>({
-      id:String(r[0]),
-      name:String(r[1]||''),
-      age:parseInt(r[2])||0,
-      team:String(r[3]||''),
-      cls:String(r[4]||'B'),
-      pos:String(r[5]||'').split(',').filter(Boolean),
-      jersey:String(r[6]||''),
-      goal:String(r[7]||''),
-      stats:{
-        matches:safeJson(r[8]),
-        skud:parseInt(r[9])||0,
-        afl:parseInt(r[10])||0,
-        assists:parseInt(r[11])||0,
-        min:parseInt(r[12])||0,
-        vende:parseInt(r[13])||0
-      }
-    }));
-    // Flet: Sheets-data opdaterer lokale (Sheets vinder), bevar lokale der ikke er i Sheets
-    const sheetIds=new Set(incoming.map(p=>p.id));
-    const localOnly=players.filter(p=>!sheetIds.has(p.id));
-    const merged=[...incoming,...localOnly];
-    // Deduplikér på ID
-    const seen=new Set();
-    players=merged.filter(p=>{ if(seen.has(p.id)) return false; seen.add(p.id); return true; });
+    const file=await res.json();
+    const raw=decodeURIComponent(escape(atob(file.content.split('\n').join(''))));
+    const payload=JSON.parse(raw);
+    // Indlæs spillere
+    if(Array.isArray(payload.players)&&payload.players.length){
+      const sheetIds=new Set(payload.players.map(p=>p.id));
+      const localOnly=players.filter(p=>!sheetIds.has(p.id));
+      const merged=[...payload.players,...localOnly];
+      const seen=new Set();
+      players=merged.filter(p=>{if(seen.has(p.id))return false;seen.add(p.id);return true;});
+    }
+    // Hold
+    if(Array.isArray(payload.teams)&&payload.teams.length){
+      teams=[...new Set([...payload.teams,...teams])];
+    }
+    // Træninger
+    if(Array.isArray(payload.trainings)&&payload.trainings.length){
+      const sheetTrIds=new Set(payload.trainings.map(t=>t.id));
+      const localOnlyTr=trainings.filter(t=>!sheetTrIds.has(t.id));
+      trainings=[...payload.trainings,...localOnlyTr];
+      saveTrainings();
+      renderTrainings();
+    }
     saveAll();renderTeams();renderSelects();render();
     setSyncDot('ok');
-    toast('✅ '+incoming.length+' spillere hentet — ingen dubletter mulige');
+    toast('✅ '+players.length+' spillere hentet fra GitHub!');
   }catch(e){
     setSyncDot('err');
-    toast('❌ Kunne ikke hente data: '+e.message);
+    toast('❌ '+e.message);
     console.error(e);
   }
 }
+
 
 // ── UI helpers ──────────────────────────────────────────────────────────────
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
