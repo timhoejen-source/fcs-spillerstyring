@@ -565,6 +565,14 @@
     "2.holdet",
     "3.holdet"
   ],
-  "trainings": [],
-  "savedAt": "2026-06-08T11:07:16.674Z"
+  "trainings": [
+    {
+      "id": "mq54rauscn0y15eb5ke",
+      "date": "2026-06-09",
+      "title": "Åben træning",
+      "desc": "",
+      "attendance": {}
+    }
+  ],
+  "savedAt": "2026-06-08T11:31:50.042Z"
 }
