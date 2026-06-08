@@ -634,16 +634,24 @@ function doLogin(){
 
 function applyRole(){
   const isViewer = currentRole === 'viewer';
-  const adminOnly = [
-    'sync-btn-wrap','sb-sheets-save','sb-reset',
-    'sb-import','sb-teams','sb-add-player','modal-save-btn',
-  ];
-  adminOnly.forEach(id=>{
+  const isAdmin  = currentRole === 'admin';
+  // Flex-elementer
+  const flexItems = ['sync-btn-wrap'];
+  flexItems.forEach(id=>{
     const el=document.getElementById(id);
-    if(el) el.style.display=isViewer?'none':'';
+    if(el) el.style.display=isViewer?'none':'flex';
   });
+  // Block-elementer (sections, buttons)
+  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn'];
+  blockItems.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display=isViewer?'none':'block';
+  });
+  // Viewer badge
   const badge=document.getElementById('viewer-badge');
   if(badge) badge.style.display=isViewer?'flex':'none';
+  // Re-render so edit/delete buttons show/hide correctly on cards
+  render();
 }
 let fCls='',fPos=[],mCls='',mPos=[],activeClsFilter='alle',activePosFilter='alle',activeTeamFilter='alle',searchQ='',editId=null,syncTimer=null;
 
