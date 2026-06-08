@@ -270,6 +270,18 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .empty-training{text-align:center;padding:40px 20px;color:var(--g400);}
 .training-stats-bar{display:flex;gap:8px;margin-bottom:4px;flex-wrap:wrap;}
 .training-stat-pill{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;}
+
+.kamp-card{background:var(--white);border:1.5px solid var(--g200);border-radius:var(--r);padding:14px;margin-bottom:10px;transition:all .18s;}
+.kamp-card:hover{border-color:var(--blue);box-shadow:var(--sh);}
+.kamp-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.kamp-name{font-size:14px;font-weight:700;color:var(--navy);flex:1;}
+.kamp-count-badge{background:var(--navy);color:var(--yellow);font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;white-space:nowrap;}
+.kamp-bar-wrap{background:var(--g100);border-radius:4px;height:8px;overflow:hidden;margin-bottom:8px;}
+.kamp-bar{height:8px;background:var(--yellow);border-radius:4px;transition:width .4s;}
+.kamp-players{display:flex;flex-wrap:wrap;gap:5px;}
+.kamp-player-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--ca-bg);color:var(--ca);}
+.kamp-player-tag.nej{background:var(--g100);color:var(--g400);}
+.kamp-empty{text-align:center;padding:50px 20px;color:var(--g400);}
 </style>
 </head>
 <body>
@@ -468,6 +480,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div class="tab-bar">
       <button class="tab-btn active" id="tab-spillere-btn" onclick="switchTab('spillere')">👥 Spillere</button>
       <button class="tab-btn" id="tab-training-btn" onclick="switchTab('training')">⚽ Træning</button>
+      <button class="tab-btn" id="tab-kampe-btn" onclick="switchTab('kampe')">🏆 Kampe</button>
     </div>
 
     <!-- Spillere panel -->
@@ -525,6 +538,14 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       </div>
       <div class="training-list" id="training-list"></div>
     </div><!-- end tab-training -->
+
+    <!-- Kampe panel -->
+    <div class="tab-panel" id="tab-kampe">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);">Kampoversigt <span id="kampe-count" style="font-size:11px;font-weight:600;color:var(--text-soft);"></span></div>
+      </div>
+      <div id="kampe-list"></div>
+    </div><!-- end tab-kampe -->
 
   </div><!-- end main -->
 </div>
@@ -1227,6 +1248,7 @@ function switchTab(tab){
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
   if(tab==='training') renderTrainings();
+  if(tab==='kampe') renderKampe();
 }
 
 function toggleNewTrainingForm(){
@@ -1493,6 +1515,7 @@ function switchTab(tab){
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
   if(tab==='training') renderTrainings();
+  if(tab==='kampe') renderKampe();
 }
 
 function toggleNewTrainingForm(){
@@ -1573,6 +1596,59 @@ function toggleTrainingBody(id){
   const open=body.classList.toggle('open');
   chev.classList.toggle('open',open);
 }
+// ── Kampe tab ─────────────────────────────────────────────────────────────────
+function renderKampe(){
+  const list = document.getElementById('kampe-list');
+  const cnt  = document.getElementById('kampe-count');
+  if(!list) return;
+
+  // Collect all unique match names across all players
+  const kampeMap = {}; // kampName -> { ja:[], nej:[] }
+  players.forEach(p => {
+    const matches = (p.stats && p.stats.matches) ? p.stats.matches : [];
+    matches.forEach(m => {
+      if(!kampeMap[m.name]) kampeMap[m.name] = {ja:[], nej:[]};
+      if(m.udtaget === 'ja')  kampeMap[m.name].ja.push(p);
+      if(m.udtaget === 'nej') kampeMap[m.name].nej.push(p);
+    });
+  });
+
+  const kampNames = Object.keys(kampeMap);
+  if(cnt) cnt.textContent = '(' + kampNames.length + ')';
+
+  if(!kampNames.length){
+    list.innerHTML = '<div class="kamp-empty"><div style="font-size:32px;margin-bottom:10px;">🏆</div><div style="font-size:14px;font-weight:600;color:var(--g600);margin-bottom:4px;">Ingen kampe registreret</div><div style="font-size:12px;">Tilføj kampudtagelse på spillerne under ✏️ redigering</div></div>';
+    return;
+  }
+
+  // Sort by most recent (preserve insertion order) then by most players
+  list.innerHTML = kampNames.map(name => {
+    const k = kampeMap[name];
+    const total = players.length;
+    const udtaget = k.ja.length;
+    const pct = total > 0 ? Math.round(udtaget / total * 100) : 0;
+
+    const jaTags = k.ja.map(p =>
+      '<span class="kamp-player-tag">' + (p.jersey ? '#'+p.jersey+' ' : '') + p.name + '</span>'
+    ).join('');
+
+    const nejTags = k.nej.map(p =>
+      '<span class="kamp-player-tag nej">' + (p.jersey ? '#'+p.jersey+' ' : '') + p.name + '</span>'
+    ).join('');
+
+    return '<div class="kamp-card">' +
+      '<div class="kamp-header">' +
+        '<span class="kamp-name">🏆 ' + name + '</span>' +
+        '<span class="kamp-count-badge">✅ ' + udtaget + ' udtaget</span>' +
+      '</div>' +
+      '<div class="kamp-bar-wrap"><div class="kamp-bar" style="width:' + pct + '%"></div></div>' +
+      '<div style="font-size:10px;color:var(--text-soft);margin-bottom:8px;">' + udtaget + ' ud af ' + total + ' spillere udtaget (' + pct + '%)</div>' +
+      (jaTags ? '<div style="font-size:9px;font-weight:700;color:var(--ca);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Udtaget</div><div class="kamp-players" style="margin-bottom:10px;">' + jaTags + '</div>' : '') +
+      (nejTags ? '<div style="font-size:9px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Ikke udtaget</div><div class="kamp-players">' + nejTags + '</div>' : '') +
+    '</div>';
+  }).join('');
+}
+
 </script>
 </body>
 </html>
