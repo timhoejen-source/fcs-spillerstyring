@@ -655,6 +655,44 @@ function applyRole(){
 }
 let fCls='',fPos=[],mCls='',mPos=[],activeClsFilter='alle',activePosFilter='alle',activeTeamFilter='alle',searchQ='',editId=null,syncTimer=null;
 
+let mMatchToggle='ja';
+let mMatches=[];
+
+function setMatchToggle(v){
+  mMatchToggle=v;
+  const ja=document.getElementById('mt-ja');
+  const nej=document.getElementById('mt-nej');
+  if(ja) ja.className=v==='ja'?'sel-ja':'';
+  if(nej) nej.className=v==='nej'?'sel-nej':'';
+}
+
+function addMatch(){
+  const inp=document.getElementById('m-match-name');
+  if(!inp) return;
+  const name=inp.value.trim();
+  if(!name) return;
+  mMatches.push({name,udtaget:mMatchToggle});
+  inp.value='';
+  renderMatchList();
+}
+
+function removeMatch(i){
+  mMatches.splice(i,1);
+  renderMatchList();
+}
+
+function renderMatchList(){
+  const el=document.getElementById('m-match-list');
+  if(!el) return;
+  el.innerHTML=mMatches.map((m,i)=>
+    '<div class="match-row">'+
+    '<span class="match-name">'+m.name+'</span>'+
+    '<span class="match-badge '+m.udtaget+'">'+(m.udtaget==='ja'?'✅ Udtaget':'❌ Ikke udtaget')+'</span>'+
+    '<button class="match-del" onclick="removeMatch('+i+')">×</button>'+
+    '</div>'
+  ).join('');
+}
+
 // Starter tom — hent data fra Google Sheets
 
 window.addEventListener('DOMContentLoaded',()=>{
