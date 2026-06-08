@@ -31,7 +31,12 @@
       "jersey": "",
       "goal": "- Agilitet\n- Nærkamp",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum-Næsby/574639",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -51,7 +56,12 @@
       "jersey": "",
       "goal": "- Nærkamp\n- Overblik\n- Ro",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum-Næsby/574639",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -134,7 +144,12 @@
       "jersey": "",
       "goal": "- Agilitet\n- Hurtighed",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum-Næsby/574639",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -155,7 +170,12 @@
       "jersey": "",
       "goal": "- Ro\n- ligge af og løb igen",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum-Næsby/574639",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -315,7 +335,12 @@
       "jersey": "",
       "goal": "- Kig op\n- Ro\n- Afleveringer\n- Vende spillet",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum-Næsby/574639",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -335,7 +360,12 @@
       "jersey": "",
       "goal": "- Nærkamp\n- Overblik\n- Ro",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum-Næsby/574639",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -355,7 +385,12 @@
       "jersey": "",
       "goal": "- Afleveringer (manglende)\n- Tempo\n- Hastighed\n- Agilitet",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum-Næsby/574639",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -482,7 +517,12 @@
       "jersey": "",
       "goal": "- Ro\n- ligge af\n- Aflever",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum-Næsby/574639",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -503,7 +543,12 @@
       "jersey": "",
       "goal": "- Vende spillet begge veje\n- Mere højreorienteret",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum-Næsby/574639",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -629,5 +674,5 @@
       "attendance": {}
     }
   ],
-  "savedAt": "2026-06-08T12:09:33.208Z"
+  "savedAt": "2026-06-08T12:17:53.769Z"
 }
