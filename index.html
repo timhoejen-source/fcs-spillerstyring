@@ -341,7 +341,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <span class="sb-section-chev open">▾</span>
       </div>
       <div class="sb-section-body open" id="sb-github-section">
-        <div class="sheets-status ok" id="sheets-status">timhoejen-source / fcs-spillerstyring</div>
+        <div class="sheets-status ok" id="sheets-status">✓ Hent: ingen token · Gem: token kræves</div>
         <div class="fg" style="margin-top:8px;">
           <label>GitHub Token</label>
           <input type="password" id="cfg-ghtoken" placeholder="ghp_…" oninput="saveToken()" autocomplete="off">
@@ -349,6 +349,18 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <button class="btn-sheets" id="sb-sheets-save" onclick="syncToSheets(true)">☁️ Gem til GitHub</button>
         <button class="btn-sheets-load" id="sb-sheets-load" onclick="loadFromSheets()">⬇️ Hent fra GitHub</button>
         <button class="btn-reset" id="sb-reset" onclick="resetAllPlayers()">🗑️ Slet alle spillere</button>
+      </div>
+    </div>
+
+    <!-- Hent for viewer -->
+    <div class="sb-section" id="sb-hent-viewer">
+      <div class="sb-section-hdr" onclick="toggleSection(this)">
+        <span class="sb-section-title">⬇️ Opdater data</span>
+        <span class="sb-section-chev open">▾</span>
+      </div>
+      <div class="sb-section-body open">
+        <button class="btn-sheets-load" onclick="loadFromSheets()">⬇️ Hent fra GitHub</button>
+        <div class="import-note" style="margin-top:6px;">Henter seneste data uden login</div>
       </div>
     </div>
 
@@ -632,7 +644,7 @@ function doLogin(){
     sessionStorage.setItem('fcs-auth', user.role);
     document.getElementById('loginOverlay').style.display = 'none';
     applyRole();
-    // Token skal indtastes manuelt — auto-hent deaktiveret
+    setTimeout(function(){ loadFromSheets(true); }, 700);
   } else {
     const err = document.getElementById('login-err');
     err.textContent = 'Forkert brugernavn eller adgangskode';
@@ -653,7 +665,12 @@ function applyRole(){
     if(el) el.style.display=isViewer?'none':'flex';
   });
   // Block-elementer (sections, buttons)
-  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn','sb-sheets-load','sb-github-section'];
+  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn'];
+  // Show/hide correct sections per role
+  const ghSection=document.getElementById('sb-github-section');
+  if(ghSection) ghSection.style.display=isViewer?'none':'block';
+  const hentViewer=document.getElementById('sb-hent-viewer');
+  if(hentViewer) hentViewer.style.display=isViewer?'block':'none';
   blockItems.forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.style.display=isViewer?'none':'block';
@@ -806,24 +823,17 @@ async function syncToSheets(manual=false){
 }
 
 async function loadFromSheets(silent=false){
-  cfg.ghtoken=(document.getElementById('cfg-ghtoken')||{}).value||cfg.ghtoken||'';
-  if(!cfg.ghtoken){toast('⚠️ Indsæt dit GitHub token først');return;}
   if(!silent && !confirm('Hent data fra GitHub?\nLokal data flettes med GitHub-data.')) return;
   setSyncDot('busy');
   try{
-    const apiUrl='https://api.github.com/repos/'+cfg.ghuser+'/'+cfg.ghrepo+'/contents/fcs-data.json';
-    const headers={
-      'Authorization':'token '+cfg.ghtoken,
-      'Accept':'application/vnd.github.v3+json'
-    };
-    const res=await fetch(apiUrl,{headers});
+    // Brug raw URL — ingen token kræves for public repo
+    const rawUrl='https://raw.githubusercontent.com/'+cfg.ghuser+'/'+cfg.ghrepo+'/main/fcs-data.json?nocache='+Date.now();
+    const res=await fetch(rawUrl);
     if(!res.ok){
-      if(res.status===404) throw new Error('Ingen data fundet — gem først fra denne enhed');
+      if(res.status===404) throw new Error('Ingen data fundet — gem til GitHub fra admin først');
       throw new Error('GitHub fejl '+res.status);
     }
-    const file=await res.json();
-    const raw=decodeURIComponent(escape(atob(file.content.split('\n').join(''))));
-    const payload=JSON.parse(raw);
+    const payload=await res.json();
     // Indlæs spillere
     if(Array.isArray(payload.players)&&payload.players.length){
       const sheetIds=new Set(payload.players.map(p=>p.id));
