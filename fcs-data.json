@@ -565,17 +565,6 @@
     "2.holdet",
     "3.holdet"
   ],
-  "trainings": [
-    {
-      "id": "mq53uriit8c6fhive4o",
-      "date": "2026-06-08",
-      "title": "asdf",
-      "desc": "asdsf",
-      "attendance": {
-        "mq4rdodj0njfxaks1fun": "ja",
-        "mq4rdodjte78cpjrbd8": "nej"
-      }
-    }
-  ],
-  "savedAt": "2026-06-08T11:06:09.355Z"
+  "trainings": [],
+  "savedAt": "2026-06-08T11:07:16.674Z"
 }
