@@ -1626,7 +1626,8 @@ function renderKampe(){
     const k = kampeMap[name];
     const total = players.length;
     const udtaget = k.ja.length;
-    const pct = total > 0 ? Math.round(udtaget / total * 100) : 0;
+    const maxKamp = 14;
+    const pct = Math.round(udtaget / maxKamp * 100);
 
     const jaTags = k.ja.map(p =>
       '<span class="kamp-player-tag">' + (p.jersey ? '#'+p.jersey+' ' : '') + p.name + '</span>'
@@ -1642,7 +1643,7 @@ function renderKampe(){
         '<span class="kamp-count-badge">✅ ' + udtaget + ' udtaget</span>' +
       '</div>' +
       '<div class="kamp-bar-wrap"><div class="kamp-bar" style="width:' + pct + '%"></div></div>' +
-      '<div style="font-size:10px;color:var(--text-soft);margin-bottom:8px;">' + udtaget + ' ud af ' + total + ' spillere udtaget (' + pct + '%)</div>' +
+      '<div style="font-size:10px;color:var(--text-soft);margin-bottom:8px;">' + udtaget + ' ud af 14 mulige udtaget (' + pct + '%)</div>' +
       (jaTags ? '<div style="font-size:9px;font-weight:700;color:var(--ca);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Udtaget</div><div class="kamp-players" style="margin-bottom:10px;">' + jaTags + '</div>' : '') +
       (nejTags ? '<div style="font-size:9px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Ikke udtaget</div><div class="kamp-players">' + nejTags + '</div>' : '') +
     '</div>';
