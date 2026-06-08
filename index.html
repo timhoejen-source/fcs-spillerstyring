@@ -679,6 +679,12 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function saveAll(){
   try{localStorage.setItem('fcs-p5',JSON.stringify(players));localStorage.setItem('fcs-t5',JSON.stringify(teams));}catch(e){}
 }
+function resetAllPlayers(){
+  if(!confirm('Slet ALLE spillere?\nDette kan ikke fortrydes.\n\nHent fra GitHub bagefter for at genindlæse.')) return;
+  players=[];
+  saveAll();render();
+  toast('🗑️ Alle spillere slettet — hent fra GitHub for at genindlæse');
+}
 function saveConfig(){
   cfg={
     ghuser:document.getElementById('cfg-ghuser').value.trim(),
