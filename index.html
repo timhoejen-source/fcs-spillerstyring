@@ -341,7 +341,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <span class="sb-section-chev open">▾</span>
       </div>
       <div class="sb-section-body open" id="sb-github-section">
-        <div class="sheets-status ok" id="sheets-status">Forbundet til GitHub ✓</div>
+        <div class="sheets-status ok" id="sheets-status">timhoejen-source / fcs-spillerstyring</div>
+        <div class="fg" style="margin-top:8px;">
+          <label>GitHub Token</label>
+          <input type="password" id="cfg-ghtoken" placeholder="ghp_…" oninput="saveToken()" autocomplete="off">
+        </div>
         <button class="btn-sheets" id="sb-sheets-save" onclick="syncToSheets(true)">☁️ Gem til GitHub</button>
         <button class="btn-sheets-load" id="sb-sheets-load" onclick="loadFromSheets()">⬇️ Hent fra GitHub</button>
         <button class="btn-reset" id="sb-reset" onclick="resetAllPlayers()">🗑️ Slet alle spillere</button>
@@ -607,11 +611,10 @@ window.onerror = function(msg, src, line, col, err){
 
 let players=JSON.parse(localStorage.getItem('fcs-p5')||'null')||[];
 let teams=JSON.parse(localStorage.getItem('fcs-t5')||'null')||['1.holdet','2.holdet'];
-// GitHub — hardcoded
+// GitHub — bruger og repo hardcoded, token indtastes manuelt
 const GH_USER='timhoejen-source';
 const GH_REPO='fcs-spillerstyring';
-const GH_TOKEN='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';
-let cfg={ghuser:GH_USER,ghrepo:GH_REPO,ghtoken:GH_TOKEN};
+let cfg={ghuser:GH_USER,ghrepo:GH_REPO,ghtoken:''};
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
 const USERS = {
@@ -629,7 +632,7 @@ function doLogin(){
     sessionStorage.setItem('fcs-auth', user.role);
     document.getElementById('loginOverlay').style.display = 'none';
     applyRole();
-    setTimeout(function(){ loadFromSheets(true); }, 700);
+    // Token skal indtastes manuelt — auto-hent deaktiveret
   } else {
     const err = document.getElementById('login-err');
     err.textContent = 'Forkert brugernavn eller adgangskode';
@@ -730,9 +733,14 @@ function resetAllPlayers(){
   toast('🗑️ Alle spillere slettet — hent fra GitHub for at genindlæse');
 }
 function saveConfig(){ updateStatus(); }
+function saveToken(){
+  cfg.ghtoken = document.getElementById('cfg-ghtoken').value.trim();
+}
 function updateStatus(){
   const st=document.getElementById('sheets-status');
-  if(st){st.textContent='Forbundet til GitHub ✓';st.className='sheets-status ok';}
+  if(!st) return;
+  st.textContent='timhoejen-source / fcs-spillerstyring';
+  st.className='sheets-status ok';
 }
 function setSyncDot(s){document.getElementById('syncDot').className='sync-dot'+(s?' '+s:'');}
 
@@ -750,6 +758,8 @@ function safeJson(val, fallback=[]){
 
 async function syncToSheets(manual=false){
   if(currentRole!=='admin'){toast('⚠️ Kun admin kan gemme til GitHub');return;}
+  cfg.ghtoken=(document.getElementById('cfg-ghtoken')||{}).value||cfg.ghtoken||'';
+  if(!cfg.ghtoken){toast('⚠️ Indsæt dit GitHub token først');return;}
   if(manual && !confirm('Gem alle data til GitHub?\nDette overskriver eksisterende data.')) return;
   setSyncDot('busy');
   try{
@@ -796,6 +806,8 @@ async function syncToSheets(manual=false){
 }
 
 async function loadFromSheets(silent=false){
+  cfg.ghtoken=(document.getElementById('cfg-ghtoken')||{}).value||cfg.ghtoken||'';
+  if(!cfg.ghtoken){toast('⚠️ Indsæt dit GitHub token først');return;}
   if(!silent && !confirm('Hent data fra GitHub?\nLokal data flettes med GitHub-data.')) return;
   setSyncDot('busy');
   try{
