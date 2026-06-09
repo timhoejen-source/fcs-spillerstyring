@@ -29,7 +29,7 @@
         "VK"
       ],
       "jersey": "",
-      "goal": "- Agilitet\n- Nærkamp",
+      "goal": "nærkampe, 1v1, skud på mål, stige",
       "stats": {
         "matches": [
           {
@@ -54,7 +54,7 @@
         "OM"
       ],
       "jersey": "",
-      "goal": "- Nærkamp\n- Overblik\n- Ro",
+      "goal": "nærkamp, stige, ro og overblik, holde på bolden.",
       "stats": {
         "matches": [
           {
@@ -80,7 +80,7 @@
         "A"
       ],
       "jersey": "",
-      "goal": "- Nærkamp\n- Overblik\n- Ro",
+      "goal": "nærkamp, Overblik, holde på bolden, ligge af",
       "stats": {
         "matches": [
           {
@@ -674,5 +674,5 @@
       "attendance": {}
     }
   ],
-  "savedAt": "2026-06-08T12:17:53.769Z"
+  "savedAt": "2026-06-09T06:28:53.203Z"
 }
