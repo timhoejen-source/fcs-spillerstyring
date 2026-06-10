@@ -615,11 +615,18 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <button class="btn-cancel" style="margin-top:6px;width:100%;text-align:center;" onclick="document.getElementById('kamp-import-form').style.display='none'">Luk</button>
       </div>
 
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
         <div style="font-size:13px;font-weight:700;color:var(--navy);">Kampoversigt <span id="kampe-count" style="font-size:11px;font-weight:600;color:var(--text-soft);"></span></div>
         <div style="display:flex;gap:6px;" id="kampe-admin-btns">
           <button class="btn-primary" style="width:auto;padding:7px 12px;margin-top:0;font-size:11px;" onclick="toggleNewKampForm()">+ Ny kamp</button>
           <button class="btn-sheets-load" style="width:auto;padding:7px 12px;font-size:11px;" onclick="document.getElementById('kamp-import-form').style.display='block'">📂 Importer</button>
+        </div>
+      </div>
+      <div class="filters" style="margin-bottom:14px;" id="kampe-filters">
+        <div class="filter-row">
+          <span class="filter-label">Hold</span>
+          <button class="filter-btn active" id="kf-alle" onclick="setKampFilter('alle',this)">Alle</button>
+          <span id="kamp-hold-filters"></span>
         </div>
       </div>
       <div id="kampe-list"></div>
@@ -747,7 +754,7 @@ window.onerror = function(msg, src, line, col, err){
 };
 
 let players=JSON.parse(localStorage.getItem('fcs-p5')||'null')||[];
-let teams=JSON.parse(localStorage.getItem('fcs-t5')||'null')||['1.holdet','2.holdet'];
+let teams=JSON.parse(localStorage.getItem('fcs-t5')||'null')||['U15 Liga2','U14 Liga2'];
 // GitHub — bruger og repo hardcoded, token indtastes manuelt
 const GH_USER='timhoejen-source';
 const GH_REPO='fcs-spillerstyring';
@@ -862,6 +869,19 @@ window.addEventListener('DOMContentLoaded',()=>{
   // GitHub credentials hardcoded
   updateStatus();renderTeams();renderSelects();render();
   applyRole();
+
+  // Persistent event delegation for kampe-list
+  document.addEventListener('click', function(e){
+    var list=document.getElementById('kampe-list');
+    if(!list||!list.contains(e.target)) return;
+    // Attendance buttons
+    var btn=e.target.closest('.att-btn[data-kn]');
+    if(btn){ setKampAttendance(btn.getAttribute('data-kn'),btn.getAttribute('data-pid'),btn.getAttribute('data-val')); return; }
+    // Toggle kamp detail
+    var hdr=e.target.closest('[data-ktoggle]');
+    if(hdr){ toggleKampDetail(hdr.getAttribute('data-ktoggle')); return; }
+    // Delete kamp — removed from UI but guard just in case
+  });
   // Event delegation for modal kamp attendance buttons
   document.getElementById('modal').addEventListener('click',function(e){
     var btn=e.target.closest('.katt-modal');
@@ -1396,7 +1416,8 @@ function exportAllPdf(){
 
 // ── Training ──────────────────────────────────────────────────────────────────
 let trainings = JSON.parse(localStorage.getItem('fcs-trainings')||'[]');
-let matches = JSON.parse(localStorage.getItem('fcs-matches')||'[]'); // DBU imported matches
+let matches = JSON.parse(localStorage.getItem('fcs-matches')||'[]');
+let activeKampFilter = 'alle';
 
 function saveTrainings(){
   try{localStorage.setItem('fcs-trainings',JSON.stringify(trainings));}catch(e){}
@@ -1768,6 +1789,15 @@ function renderKampe(){
   var adminBtns=document.getElementById('kampe-admin-btns');
   if(adminBtns) adminBtns.style.display=currentRole==='admin'?'flex':'none';
 
+  // Render hold filter buttons
+  var holdFilters=document.getElementById('kamp-hold-filters');
+  if(holdFilters){
+    var kampHolds=[...new Set(matches.filter(function(m){return m.hold;}).map(function(m){return m.hold;}))].sort();
+    holdFilters.innerHTML=kampHolds.map(function(h){
+      return '<button class="filter-btn kamp-hold-btn'+(activeKampFilter===h?' active':'')+'" data-hold="'+h+'">'+h+'</button>';
+    }).join('');
+  }
+
   // Merge: matches from matches array + any from player stats not in matches array
   var allNames={};
   matches.forEach(function(m){ allNames[m.name]=m; });
@@ -1778,6 +1808,9 @@ function renderKampe(){
   });
 
   var allKampe=Object.values(allNames).sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  if(activeKampFilter!=='alle'){
+    allKampe=allKampe.filter(function(k){ return (k.hold||'')=== activeKampFilter; });
+  }
   if(cnt) cnt.textContent='('+allKampe.length+')';
 
   if(!allKampe.length){
@@ -1810,8 +1843,7 @@ function renderKampe(){
       '</div>';
     }).join('');
 
-    var isLegacy=kamp.id&&kamp.id.startsWith('legacy-');
-    var deleteBtn=(!isLegacy&&currentRole==='admin')?'<button class="btn-training-del" data-delkamp="'+kamp.id+'" style="margin-left:auto;">🗑️ Slet</button>':'';
+    // Slet-knap fjernet — slet kampe via administrer hold
 
     return '<div class="kamp-card">'+
       '<div class="kamp-header" data-ktoggle="'+name+'" style="cursor:pointer;">'+
@@ -1834,20 +1866,11 @@ function renderKampe(){
       '<div class="kamp-detail" id="kd-'+name+'">'+
         '<div style="font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Fremmøde — vælg for alle spillere</div>'+
         '<div class="kamp-att-grid">'+attRows+'</div>'+
-        '<div style="display:flex;gap:6px;margin-top:10px;">'+deleteBtn+'</div>'+
-      '</div>'+
+        '</div>'+
     '</div>';
   }).join('');
 
-  // Event delegation for kamp attendance + toggles
-  list.addEventListener('click', function handler(e){
-    var btn=e.target.closest('.att-btn[data-kn]');
-    if(btn){ setKampAttendance(btn.getAttribute('data-kn'),btn.getAttribute('data-pid'),btn.getAttribute('data-val')); return; }
-    var hdr=e.target.closest('[data-ktoggle]');
-    if(hdr&&hdr.closest('#kampe-list')){ toggleKampDetail(hdr.getAttribute('data-ktoggle')); return; }
-    var del=e.target.closest('[data-delkamp]');
-    if(del){ deleteKamp(del.getAttribute('data-delkamp')); return; }
-  },{once:true});
+  // Event delegation handled by persistent listener in DOMContentLoaded
 }
 
 // ── Board / Opstilling ────────────────────────────────────────────────────────
@@ -2076,6 +2099,13 @@ function getBoardGroupColor(grp){
 
 // ── Kampe (DBU import + manual) ───────────────────────────────────────────────
 
+function setKampFilter(f,btn){
+  activeKampFilter=f;
+  document.querySelectorAll('#kampe-filters .filter-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderKampe();
+}
+
 function toggleNewKampForm(){
   var f=document.getElementById('new-kamp-form');
   var visible=f.style.display!=='none';
@@ -2132,8 +2162,10 @@ function importKampXlsx(input){
         var timeRaw  = row[3]||'';
         var hjemme   = String(row[4]||'').trim();
         var ude      = String(row[5]||'').trim();
-        var scoreH   = String(row[6]||'').trim();
-        var scoreU   = String(row[7]||'').trim();
+        // Score — handle both numeric 0 and text, only skip if truly empty
+        var rawScoreH = row[6]; var rawScoreU = row[7];
+        var scoreH = (rawScoreH!==''&&rawScoreH!==null&&rawScoreH!==undefined) ? String(rawScoreH).trim() : '';
+        var scoreU = (rawScoreU!==''&&rawScoreU!==null&&rawScoreU!==undefined) ? String(rawScoreU).trim() : '';
         var sted     = String(row[8]||'').trim();
 
         if(!hjemme && !ude) return; // tom række
@@ -2159,7 +2191,7 @@ function importKampXlsx(input){
         if(matches.find(function(m){ return m.opponent===modstander&&m.date===dateStr; })){skipped++;return;}
 
         var timeStr=String(timeRaw).replace(/[^0-9:]/g,'').slice(0,5);
-        var score=(scoreH!==''&&scoreU!=='')?scoreH+'-'+scoreU:'';
+        var score=(scoreH!==''||scoreU!=='')?scoreH+'-'+scoreU:'';
         var dateLabel=dateStr?new Date(dateStr).toLocaleDateString('da-DK',{day:'numeric',month:'short'}):'';
         var kamp={
           id:uid(),
