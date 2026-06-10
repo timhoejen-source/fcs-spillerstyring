@@ -453,7 +453,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <div class="form-row">
           <div class="fg full"><label>Navn</label><input type="text" id="f-name" placeholder="Fulde navn"></div>
           <div class="fg"><label>Alder</label><input type="number" id="f-age" placeholder="14" min="8" max="99"></div>
-          <div class="fg"><label>Hold</label><select id="f-team"><option value="">– Vælg hold –</option></select></div>
+          <div class="fg"><label>Hold</label><div id="f-team-checks" style="display:flex;flex-direction:column;gap:4px;"></div></div>
           <div class="fg full"><label>Rygnummer</label><select id="f-jersey"><option value="">– Intet –</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option><option value="60">60</option><option value="61">61</option><option value="62">62</option><option value="63">63</option><option value="64">64</option><option value="65">65</option><option value="66">66</option><option value="67">67</option><option value="68">68</option><option value="69">69</option><option value="70">70</option><option value="71">71</option><option value="72">72</option><option value="73">73</option><option value="74">74</option><option value="75">75</option><option value="76">76</option><option value="77">77</option><option value="78">78</option><option value="79">79</option><option value="80">80</option><option value="81">81</option><option value="82">82</option><option value="83">83</option><option value="84">84</option><option value="85">85</option><option value="86">86</option><option value="87">87</option><option value="88">88</option><option value="89">89</option><option value="90">90</option><option value="91">91</option><option value="92">92</option><option value="93">93</option><option value="94">94</option><option value="95">95</option><option value="96">96</option><option value="97">97</option><option value="98">98</option><option value="99">99</option></select></div>
         </div>
         <div class="fg">
@@ -704,7 +704,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div class="form-row">
       <div class="fg full"><label>Navn</label><input type="text" id="m-name"></div>
       <div class="fg"><label>Alder</label><input type="number" id="m-age" min="8" max="99"></div>
-      <div class="fg"><label>Hold</label><select id="m-team"><option value="">– Vælg hold –</option></select></div>
+      <div class="fg"><label>Hold</label><div id="m-team-checks" style="display:flex;flex-direction:column;gap:4px;"></div></div>
       <div class="fg full"><label>Rygnummer</label><select id="m-jersey"><option value="">– Intet –</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option><option value="60">60</option><option value="61">61</option><option value="62">62</option><option value="63">63</option><option value="64">64</option><option value="65">65</option><option value="66">66</option><option value="67">67</option><option value="68">68</option><option value="69">69</option><option value="70">70</option><option value="71">71</option><option value="72">72</option><option value="73">73</option><option value="74">74</option><option value="75">75</option><option value="76">76</option><option value="77">77</option><option value="78">78</option><option value="79">79</option><option value="80">80</option><option value="81">81</option><option value="82">82</option><option value="83">83</option><option value="84">84</option><option value="85">85</option><option value="86">86</option><option value="87">87</option><option value="88">88</option><option value="89">89</option><option value="90">90</option><option value="91">91</option><option value="92">92</option><option value="93">93</option><option value="94">94</option><option value="95">95</option><option value="96">96</option><option value="97">97</option><option value="98">98</option><option value="99">99</option></select></div>
     </div>
     <div class="fg"><label>Klassifikation</label>
@@ -1068,9 +1068,38 @@ function toggleSection(hdr){
 
 // ── Teams ───────────────────────────────────────────────────────────────────
 function addTeam(){const inp=document.getElementById('new-team-inp');const name=inp.value.trim();if(!name)return;if(teams.includes(name)){toast('⚠️ Holdet findes allerede');return;}teams.push(name);inp.value='';saveAll();renderTeams();renderSelects();render();toast('✅ Hold oprettet: '+name);}
-function deleteTeam(name){if(!confirm('Slet hold "'+name+'"?\nSpillere på holdet mister holdtildeling.'))return;teams=teams.filter(t=>t!==name);players.forEach(p=>{if(p.team===name)p.team='';});saveAll();renderTeams();renderSelects();render();toast('🗑️ Hold slettet');}
+function deleteTeam(name){if(!confirm('Slet hold "'+name+'"?\nSpillere på holdet mister holdtildeling.'))return;teams=teams.filter(t=>t!==name);players.forEach(p=>{if(Array.isArray(p.team))p.team=p.team.filter(function(t){return t!==name;});else if(p.team===name)p.team=[];});saveAll();renderTeams();renderSelects();render();toast('🗑️ Hold slettet');}
 function renderTeams(){document.getElementById('team-mgr-list').innerHTML=teams.length?teams.map(t=>'<div class="team-item"><span class="team-item-name">🏟️ '+t+'</span><button class="team-del" onclick="deleteTeam(\''+t+'\')">🗑️ Slet</button></div>').join(''):'<div style="font-size:12px;color:var(--g400);text-align:center;padding:6px 0;">Ingen hold oprettet</div>';}
-function renderSelects(){const opts='<option value="">– Vælg hold –</option>'+teams.map(t=>'<option value="'+t+'">'+t+'</option>').join('');document.getElementById('f-team').innerHTML=opts;const ms=document.getElementById('m-team'),cur=ms.value;ms.innerHTML=opts;if(teams.includes(cur))ms.value=cur;}
+function getCheckedTeams(containerId){
+  var el=document.getElementById(containerId);
+  if(!el) return [];
+  return Array.from(el.querySelectorAll('input[type=checkbox]:checked')).map(function(cb){return cb.value;});
+}
+function setCheckedTeams(containerId, selectedTeams){
+  var el=document.getElementById(containerId);
+  if(!el) return;
+  el.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+    cb.checked=(selectedTeams||[]).includes(cb.value);
+  });
+}
+function renderSelects(){
+  var renderChecks=function(containerId, selectedTeams){
+    var el=document.getElementById(containerId);
+    if(!el) return;
+    el.innerHTML=teams.map(function(t){
+      var checked=(selectedTeams||[]).includes(t)?'checked':'';
+      return '<label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;cursor:pointer;">'+
+        '<input type="checkbox" value="'+t+'" '+checked+' style="width:14px;height:14px;accent-color:var(--navy);cursor:pointer;">'+
+        t+'</label>';
+    }).join('');
+  };
+  renderChecks('f-team-checks',[]);
+  var mChecks=document.getElementById('m-team-checks');
+  if(mChecks) renderChecks('m-team-checks',[]);
+  // Also update kamp-hold select
+  var kampHoldSel=document.getElementById('kamp-hold');
+  if(kampHoldSel) kampHoldSel.innerHTML='<option value="">– Vælg –</option>'+teams.map(function(t){return '<option value="'+t+'">'+t+'</option>';}).join('');
+}
 
 // ── Pickers ─────────────────────────────────────────────────────────────────
 function pickCls(c,btn,scope){
@@ -1097,14 +1126,14 @@ function addPlayer(){
   if(currentRole==='viewer'){toast('⚠️ Du har ikke adgang til at tilføje spillere');return;}
   const name=document.getElementById('f-name').value.trim();
   const age=document.getElementById('f-age').value.trim();
-  const team=document.getElementById('f-team').value;
+  const team=getCheckedTeams('f-team-checks');
   const jersey=document.getElementById('f-jersey').value;
   const goal=document.getElementById('f-goal').value.trim();
   if(!name||!age||!fCls){toast('⚠️ Udfyld navn, alder og klassifikation');return;}
   players.push({id:uid(),name,age:parseInt(age),team,jersey:jersey||'',cls:fCls,pos:fPos.slice(),goal});
   saveAll();
   document.getElementById('f-name').value='';document.getElementById('f-age').value='';
-  document.getElementById('f-team').value='';document.getElementById('f-jersey').value='';document.getElementById('f-goal').value='';
+  setCheckedTeams('f-team-checks',[]);document.getElementById('f-jersey').value='';document.getElementById('f-goal').value='';
   document.querySelectorAll('.sb-section-body .cls-btn').forEach(b=>b.className='cls-btn');
   document.querySelectorAll('#f-pos-grid .pos-btn').forEach(b=>b.classList.remove('active'));
   fPos=[];
@@ -1117,7 +1146,9 @@ function openEdit(id){
   editId=id;mCls=p.cls;mPos=Array.isArray(p.pos)?p.pos.slice():(p.pos?[p.pos]:[]);
   document.getElementById('m-name').value=p.name;
   document.getElementById('m-age').value=p.age;
-  renderSelects();document.getElementById('m-team').value=p.team||'';
+  renderSelects();
+  var pTeams=Array.isArray(p.team)?p.team:(p.team?[p.team]:[]);
+  setTimeout(function(){setCheckedTeams('m-team-checks',pTeams);},0);
   document.getElementById('m-jersey').value=p.jersey||'';
   document.getElementById('m-goal').value=p.goal||'';
   // Stats
@@ -1159,7 +1190,7 @@ function saveEdit(){
   if(!editId)return;
   const name=document.getElementById('m-name').value.trim();
   const age=document.getElementById('m-age').value.trim();
-  const team=document.getElementById('m-team').value;
+  const team=getCheckedTeams('m-team-checks');
   const jersey=document.getElementById('m-jersey').value;
   const goal=document.getElementById('m-goal').value.trim();
   if(!name||!age||!mCls){toast('⚠️ Udfyld navn, alder og klassifikation');return;}
@@ -1195,10 +1226,12 @@ function setTeamFilter(f,btn){
 function searchFilter(q){searchQ=q.toLowerCase();render();}
 function filtered(){return players.filter(p=>{
   const mc = activeClsFilter==='alle' || p.cls===activeClsFilter;
-  const mt = activeTeamFilter==='alle' || p.team===activeTeamFilter;
+  const pTeams=Array.isArray(p.team)?p.team:(p.team?[p.team]:[]);
+  const mt = activeTeamFilter==='alle' || pTeams.includes(activeTeamFilter);
   const pArr=Array.isArray(p.pos)?p.pos:(p.pos?[p.pos]:[]);
   const mp = activePosFilter==='alle' || pArr.includes(activePosFilter);
-  const ms = !searchQ || p.name.toLowerCase().includes(searchQ) || (p.team||'').toLowerCase().includes(searchQ);
+  const teamStr=(Array.isArray(p.team)?p.team.join(' '):(p.team||'')).toLowerCase();
+  const ms = !searchQ || p.name.toLowerCase().includes(searchQ) || teamStr.includes(searchQ);
   return mc&&mt&&mp&&ms;
 });}
 
@@ -1307,7 +1340,12 @@ function render(){
   const fp=filtered(),list=document.getElementById('player-list');
   if(!fp.length){list.innerHTML='<div class="empty"><div class="empty-icon">⚽</div><div class="empty-t">'+(players.length?'Ingen resultater':'Ingen spillere endnu')+'</div><div class="empty-s">'+(players.length?'Prøv en anden søgning':'Importer eller tilføj manuelt')+'</div></div>';return;}
   const withTeam={},noTeam=[];
-  fp.forEach(p=>{if(p.team){if(!withTeam[p.team])withTeam[p.team]=[];withTeam[p.team].push(p);}else noTeam.push(p);});
+  fp.forEach(p=>{
+    var pTeams=Array.isArray(p.team)?p.team.filter(Boolean):(p.team?[p.team]:[]);
+    if(pTeams.length){
+      pTeams.forEach(function(t){if(!withTeam[t])withTeam[t]=[];withTeam[t].push(p);});
+    } else { noTeam.push(p); }
+  });
   const cards=plist=>plist.map(p=>{
     const pArr=Array.isArray(p.pos)?p.pos.filter(Boolean):(p.pos?[p.pos]:[]);
     const posTag=pArr.length?pArr.map(pos=>'<span class="tag tag-pos" title="'+(POS_LABELS[pos]||pos)+'">'+pos+'</span>').join(''):'<span class="tag tag-missing">Pos. mangler</span>';
@@ -1325,7 +1363,7 @@ function render(){
       '</div>'+
       (matches.length?'<div class="card-matches">'+matches.map(m=>'<div class="card-match-row"><span class="card-match-name">'+m.name+'</span><span class="card-match-badge '+m.udtaget+'">'+(m.udtaget==='ja'?'✅ Udtaget':'❌ Ikke udtaget')+'</span></div>').join('')+'</div>':''):'';
     const jerseyTag=p.jersey?'<span class="tag tag-jersey">#'+p.jersey+'</span>':'';
-    return '<div class="card"><div class="card-top"><div class="avatar">'+(p.jersey?'#'+p.jersey:initials(p.name))+'</div><div class="card-info"><div class="card-name">'+p.name+'</div><div class="card-meta">'+p.age+' år'+(p.team?' · '+p.team:'')+'</div></div><div class="card-acts"><button class="cbtn" onclick="openEdit(\''+p.id+'\')">✏️</button><button class="cbtn del" onclick="deletePlayer(\''+p.id+'\')">🗑️</button></div></div><div class="tags"><span class="tag tag-'+p.cls.toLowerCase()+'">'+p.cls+'-spiller</span>'+posTag+'</div>'+statsHtml+goalHtml+'</div>';
+    return '<div class="card"><div class="card-top"><div class="avatar">'+(p.jersey?'#'+p.jersey:initials(p.name))+'</div><div class="card-info"><div class="card-name">'+p.name+'</div><div class="card-meta">'+p.age+' år'+((Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).length?' · '+(Array.isArray(p.team)?p.team.join(', '):p.team):'')+'</div></div><div class="card-acts"><button class="cbtn" onclick="openEdit(\''+p.id+'\')">✏️</button><button class="cbtn del" onclick="deletePlayer(\''+p.id+'\')">🗑️</button></div></div><div class="tags"><span class="tag tag-'+p.cls.toLowerCase()+'">'+p.cls+'-spiller</span>'+posTag+'</div>'+statsHtml+goalHtml+'</div>';
   }).join('');
   let html='';
   teams.filter(t=>withTeam[t]).forEach(t=>{html+='<div class="group-hdr"><span class="group-name">'+t+'</span><span class="group-cnt">'+withTeam[t].length+'</span><div class="group-line"></div></div><div class="cards">'+cards(withTeam[t])+'</div>';});
@@ -1403,7 +1441,7 @@ function exportSinglePdf(){
   var trainingSection=playerTrainings.length?'<div><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3mm;">⚽ Træningsdeltagelse ('+playerTrainings.length+' registrerede)</div><table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Dato</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Træning</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Indhold</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Status</th></tr></thead><tbody>'+trRows+'</tbody></table></div>':'';
 
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=DM+Mono:wght@500&display=swap\');@page{size:A4 portrait;margin:12mm 14mm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.page{display:flex;flex-direction:column;gap:6mm;}.header{display:flex;align-items:center;justify-content:space-between;padding-bottom:5mm;border-bottom:3px solid #F5C400;}.avatar{width:16mm;height:16mm;border-radius:50%;background:#0A2342;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#F5C400;flex-shrink:0;margin-right:5mm;}.stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;}.stat-box{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:5px 4px;text-align:center;}.stat-val{font-size:18px;font-weight:700;color:#0A2342;font-family:\'DM Mono\',monospace;line-height:1.1;}.stat-lbl{font-size:7px;color:#5A7A9F;text-transform:uppercase;letter-spacing:.05em;margin-top:1px;}table tr:nth-child(even) td{background:#F8FAFC;}</style></head><body><div class="page">';
-  html+='<div class="header"><div style="display:flex;align-items:center;"><div class="avatar">'+ava+'</div><div><div style="font-size:20px;font-weight:700;">'+p.name+'</div><div style="font-size:10px;color:#5A7A9F;margin-top:2px;">'+p.age+' år'+(p.team?' · '+p.team:'')+'</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:3mm;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;">'+p.cls+'-spiller</span>'+jerseyBadge+posBadges+'</div></div></div><div style="text-align:right;"><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.1em;">FC Skanderborg</div><div style="font-size:11px;font-weight:700;color:#0A2342;">Pigeudvalg</div></div></div>';
+  html+='<div class="header"><div style="display:flex;align-items:center;"><div class="avatar">'+ava+'</div><div><div style="font-size:20px;font-weight:700;">'+p.name+'</div><div style="font-size:10px;color:#5A7A9F;margin-top:2px;">'+p.age+' år'+((Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).length?' · '+(Array.isArray(p.team)?p.team.join(', '):p.team):'')+'</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:3mm;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;">'+p.cls+'-spiller</span>'+jerseyBadge+posBadges+'</div></div></div><div style="text-align:right;"><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.1em;">FC Skanderborg</div><div style="font-size:11px;font-weight:700;color:#0A2342;">Pigeudvalg</div></div></div>';
   html+='<div><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3mm;">📊 Sæsonstatistik</div><div class="stats-grid"><div class="stat-box"><div class="stat-val">'+matches.length+'</div><div class="stat-lbl">Kampe</div></div><div class="stat-box" style="background:'+(udtaget>0?'#DCFCE7':'#F8FAFC')+';border-color:'+(udtaget>0?'#86efac':'#E2E8F0')+'"><div class="stat-val" style="color:'+(udtaget>0?'#16A34A':'#0A2342')+'">'+udtaget+'</div><div class="stat-lbl">Udtaget</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.skud)+'</div><div class="stat-lbl">Skud på mål</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.afl)+'</div><div class="stat-lbl">Afleveringer</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.assists)+'</div><div class="stat-lbl">Assists</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.min)+'</div><div class="stat-lbl">Min. spillet</div></div></div></div>';
   html+=matchSection+trainingSection+goalSection;
   html+='<div style="margin-top:auto;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;"><span style="font-size:8px;color:#94A3B8;">FC Skanderborg · Pigeudvalg · Genereret '+new Date().toLocaleDateString('da-DK')+'</span><span style="font-size:8px;font-weight:700;color:#0A2342;">'+p.name+'</span></div>';
@@ -1678,7 +1716,7 @@ function exportSinglePdf(){
   var trainingSection=playerTrainings.length?'<div><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3mm;">⚽ Træningsdeltagelse ('+playerTrainings.length+' registrerede)</div><table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Dato</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Træning</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Indhold</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Status</th></tr></thead><tbody>'+trRows+'</tbody></table></div>':'';
 
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=DM+Mono:wght@500&display=swap\');@page{size:A4 portrait;margin:12mm 14mm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.page{display:flex;flex-direction:column;gap:6mm;}.header{display:flex;align-items:center;justify-content:space-between;padding-bottom:5mm;border-bottom:3px solid #F5C400;}.avatar{width:16mm;height:16mm;border-radius:50%;background:#0A2342;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#F5C400;flex-shrink:0;margin-right:5mm;}.stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;}.stat-box{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:5px 4px;text-align:center;}.stat-val{font-size:18px;font-weight:700;color:#0A2342;font-family:\'DM Mono\',monospace;line-height:1.1;}.stat-lbl{font-size:7px;color:#5A7A9F;text-transform:uppercase;letter-spacing:.05em;margin-top:1px;}table tr:nth-child(even) td{background:#F8FAFC;}</style></head><body><div class="page">';
-  html+='<div class="header"><div style="display:flex;align-items:center;"><div class="avatar">'+ava+'</div><div><div style="font-size:20px;font-weight:700;">'+p.name+'</div><div style="font-size:10px;color:#5A7A9F;margin-top:2px;">'+p.age+' år'+(p.team?' · '+p.team:'')+'</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:3mm;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;">'+p.cls+'-spiller</span>'+jerseyBadge+posBadges+'</div></div></div><div style="text-align:right;"><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.1em;">FC Skanderborg</div><div style="font-size:11px;font-weight:700;color:#0A2342;">Pigeudvalg</div></div></div>';
+  html+='<div class="header"><div style="display:flex;align-items:center;"><div class="avatar">'+ava+'</div><div><div style="font-size:20px;font-weight:700;">'+p.name+'</div><div style="font-size:10px;color:#5A7A9F;margin-top:2px;">'+p.age+' år'+((Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).length?' · '+(Array.isArray(p.team)?p.team.join(', '):p.team):'')+'</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:3mm;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;">'+p.cls+'-spiller</span>'+jerseyBadge+posBadges+'</div></div></div><div style="text-align:right;"><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.1em;">FC Skanderborg</div><div style="font-size:11px;font-weight:700;color:#0A2342;">Pigeudvalg</div></div></div>';
   html+='<div><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3mm;">📊 Sæsonstatistik</div><div class="stats-grid"><div class="stat-box"><div class="stat-val">'+matches.length+'</div><div class="stat-lbl">Kampe</div></div><div class="stat-box" style="background:'+(udtaget>0?'#DCFCE7':'#F8FAFC')+';border-color:'+(udtaget>0?'#86efac':'#E2E8F0')+'"><div class="stat-val" style="color:'+(udtaget>0?'#16A34A':'#0A2342')+'">'+udtaget+'</div><div class="stat-lbl">Udtaget</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.skud)+'</div><div class="stat-lbl">Skud på mål</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.afl)+'</div><div class="stat-lbl">Afleveringer</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.assists)+'</div><div class="stat-lbl">Assists</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.min)+'</div><div class="stat-lbl">Min. spillet</div></div></div></div>';
   html+=matchSection+trainingSection+goalSection;
   html+='<div style="margin-top:auto;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;"><span style="font-size:8px;color:#94A3B8;">FC Skanderborg · Pigeudvalg · Genereret '+new Date().toLocaleDateString('da-DK')+'</span><span style="font-size:8px;font-weight:700;color:#0A2342;">'+p.name+'</span></div>';
