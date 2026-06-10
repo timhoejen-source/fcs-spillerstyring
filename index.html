@@ -325,6 +325,14 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .kamp-info-pill{background:var(--g100);padding:2px 8px;border-radius:10px;font-weight:600;}
 .kamp-info-pill.home{background:var(--ca-bg);color:var(--ca);}
 .kamp-info-pill.away{background:var(--cb-bg);color:var(--cb);}
+
+.sb-kamp-item{background:var(--g50);border:1px solid var(--g200);border-radius:7px;padding:8px 10px;}
+.sb-kamp-item-top{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.sb-kamp-item-name{font-size:12px;font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sb-kamp-del{width:24px;height:24px;border:1px solid #fecaca;background:#fff;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.sb-kamp-del:hover{background:#FEE2E2;}
+.sb-kamp-hold-row{display:flex;gap:5px;align-items:center;}
+.sb-kamp-hold-row select{flex:1;font-size:11px;padding:4px 6px;}
 </style>
 </head>
 <body>
@@ -505,6 +513,20 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <div style="margin-top:12px;border-top:1px solid var(--g200);padding-top:10px;">
           <button class="btn-export" onclick="exportAllPdf()" style="color:#0369a1;border-color:#bae6fd;">📊 Eksporter alle spillere</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Administrer kampe -->
+    <div class="sb-section" id="sb-kampe-admin">
+      <div class="sb-section-hdr" onclick="toggleSection(this)">
+        <span class="sb-section-title">🏆 Administrer kampe</span>
+        <span class="sb-section-chev">▾</span>
+      </div>
+      <div class="sb-section-body">
+        <div style="font-size:11px;color:var(--text-soft);margin-bottom:10px;line-height:1.5;">Rediger og slet eksisterende kampe, eller tildel hold til importerede kampe.</div>
+        <div id="sb-kampe-list" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;"></div>
+        <div style="font-size:10px;color:var(--text-soft);text-align:center;margin-top:6px;" id="sb-kampe-empty" style="display:none;">Ingen kampe oprettet</div>
+        <button class="btn-primary" style="margin-top:10px;" onclick="switchTab('kampe')">→ Gå til kampfane</button>
       </div>
     </div>
 
@@ -797,7 +819,7 @@ function applyRole(){
     if(el) el.style.display=isViewer?'none':'flex';
   });
   // Block-elementer (sections, buttons)
-  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn'];
+  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn','sb-kampe-admin'];
   // Show/hide correct sections per role
   const ghSection=document.getElementById('sb-github-section');
   if(ghSection) ghSection.style.display=isViewer?'none':'block';
@@ -1038,7 +1060,11 @@ const isMobile=()=>window.innerWidth<=700;
 function toggleMobile(){const sb=document.getElementById('sidebar'),ov=document.getElementById('sbOverlay'),mb=document.getElementById('menuBtn');const open=sb.classList.toggle('mobile-open');ov.classList.toggle('active',open);mb.classList.toggle('open',open);}
 function collapseDesktop(){document.getElementById('sidebar').classList.add('collapsed');document.getElementById('expandBtn').classList.add('show');}
 function expandDesktop(){document.getElementById('sidebar').classList.remove('collapsed');document.getElementById('expandBtn').classList.remove('show');}
-function toggleSection(hdr){const body=hdr.nextElementSibling,chev=hdr.querySelector('.sb-section-chev');const open=body.classList.toggle('open');chev.classList.toggle('open',open);}
+function toggleSection(hdr){
+  // Refresh kampe admin list when that section opens
+  if(hdr.querySelector('#sb-kampe-admin') || hdr.closest('#sb-kampe-admin')){
+    setTimeout(renderSbKampe,0);
+  }const body=hdr.nextElementSibling,chev=hdr.querySelector('.sb-section-chev');const open=body.classList.toggle('open');chev.classList.toggle('open',open);}
 
 // ── Teams ───────────────────────────────────────────────────────────────────
 function addTeam(){const inp=document.getElementById('new-team-inp');const name=inp.value.trim();if(!name)return;if(teams.includes(name)){toast('⚠️ Holdet findes allerede');return;}teams.push(name);inp.value='';saveAll();renderTeams();renderSelects();render();toast('✅ Hold oprettet: '+name);}
@@ -2136,6 +2162,7 @@ function saveNewKamp(){
   saveAll();
   toggleNewKampForm();
   renderKampe();
+  renderSbKampe();
   toast('✅ Kamp oprettet: '+opponent);
 }
 
@@ -2211,7 +2238,7 @@ function importKampXlsx(input){
         added++;
       });
       matches.sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
-      saveAll();renderKampe();
+      saveAll();renderKampe();renderSbKampe();
       document.getElementById('kamp-import-form').style.display='none';
       toast('✅ '+added+' kampe importeret'+(skipped?' · '+skipped+' dubletter sprunget over':''));
     }catch(err){ toast('❌ Kunne ikke læse filen: '+err.message); }
@@ -2261,6 +2288,61 @@ function toggleKampDetail(id){
   if(chev) chev.classList.toggle('open',open);
 }
 
+
+// ── Sidebar kampe admin ───────────────────────────────────────────────────────
+function renderSbKampe(){
+  var el=document.getElementById('sb-kampe-list');
+  var empty=document.getElementById('sb-kampe-empty');
+  if(!el) return;
+
+  if(!matches.length){
+    el.innerHTML='';
+    if(empty) empty.style.display='block';
+    return;
+  }
+  if(empty) empty.style.display='none';
+
+  var teamOpts='<option value="">– Intet hold –</option>'+teams.map(function(t){
+    return '<option value="'+t+'">'+t+'</option>';
+  }).join('');
+
+  el.innerHTML=[].concat(matches).sort(function(a,b){
+    return (a.date||'').localeCompare(b.date||'');
+  }).map(function(kamp){
+    var dateStr=kamp.date?new Date(kamp.date).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'}):'';
+    return '<div class="sb-kamp-item" data-kid="'+kamp.id+'">'+
+      '<div class="sb-kamp-item-top">'+
+        '<span class="sb-kamp-item-name">'+kamp.opponent+'</span>'+
+        '<span style="font-size:10px;color:var(--text-soft);white-space:nowrap;">'+dateStr+'</span>'+
+        '<button class="sb-kamp-del" data-delkamp="'+kamp.id+'" title="Slet kamp">🗑️</button>'+
+      '</div>'+
+      '<div class="sb-kamp-hold-row">'+
+        '<select data-holdkamp="'+kamp.id+'">'+
+          teamOpts.replace('value="'+(kamp.hold||'')+'"','value="'+(kamp.hold||'')+'" selected')+
+        '</select>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  // Event listeners
+  el.querySelectorAll('[data-delkamp]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id=this.getAttribute('data-delkamp');
+      if(!confirm('Slet kampen "'+( matches.find(function(m){return m.id===id;})||{}).opponent+'"?')) return;
+      matches=matches.filter(function(m){return m.id!==id;});
+      saveAll();renderSbKampe();renderKampe();
+      toast('🗑️ Kamp slettet');
+    });
+  });
+
+  el.querySelectorAll('[data-holdkamp]').forEach(function(sel){
+    sel.addEventListener('change', function(){
+      var id=this.getAttribute('data-holdkamp');
+      var kamp=matches.find(function(m){return m.id===id;});
+      if(kamp){ kamp.hold=this.value; saveAll(); renderKampe(); }
+    });
+  });
+}
 
 </script>
 </body>
