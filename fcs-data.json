@@ -191,7 +191,7 @@
       "cls": "C",
       "pos": [],
       "jersey": "",
-      "goal": "",
+      "goal": "Alt taktisk og boldkontrol",
       "stats": {
         "matches": [],
         "skud": 0,
@@ -260,7 +260,7 @@
       "cls": "C",
       "pos": [],
       "jersey": "",
-      "goal": "",
+      "goal": "Lyst til fodbold",
       "stats": {
         "matches": [],
         "skud": 0,
@@ -406,7 +406,7 @@
       "cls": "C",
       "pos": [],
       "jersey": "",
-      "goal": "",
+      "goal": "Agilitet\nAgressivitet\nOp på tæerne\nBoldkontrol",
       "stats": {
         "matches": [],
         "skud": 0,
@@ -703,5 +703,5 @@
       }
     }
   ],
-  "savedAt": "2026-06-09T22:13:58.935Z"
+  "savedAt": "2026-06-10T04:45:36.825Z"
 }
