@@ -608,7 +608,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <div class="new-training-form" id="kamp-import-form" style="display:none;background:var(--blue-light);border:1px solid #bfdbfe;">
         <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">📂 Importer kampprogram fra Excel</div>
         <div class="import-note" style="text-align:left;margin-bottom:10px;color:var(--text-mid);">
-          Kolonner: <strong>A: Dato</strong> (dd-mm-åååå) · <strong>B: Tidspunkt</strong> (HH:MM) · <strong>C: Modstander</strong> · <strong>D: H/U/N</strong> · <strong>E: Hold</strong>
+          <strong>A:</strong> Kampnr · <strong>B:</strong> Ugedag · <strong>C:</strong> Dato · <strong>D:</strong> Tidspunkt · <strong>E:</strong> Hjemmebane · <strong>F:</strong> Udebane · <strong>G:</strong> Score hjemme · <strong>H:</strong> Score ude · <strong>I:</strong> Spillested
         </div>
         <button class="btn-import" onclick="document.getElementById('kamp-xlsx-inp').click()" style="background:var(--white);">📂 Vælg .xlsx fil</button>
         <input type="file" id="kamp-xlsx-inp" accept=".xlsx,.xls" onchange="importKampXlsx(this)" style="display:none">
@@ -1821,6 +1821,9 @@ function renderKampe(){
             (dateStr?'<span class="kamp-info-pill">'+dateStr+(kamp.time?' '+kamp.time:'')+'</span>':'')+
             (kamp.venue?'<span class="kamp-info-pill '+venueCls+'">'+venueLabel+'</span>':'')+
             (kamp.hold?'<span class="kamp-info-pill">'+kamp.hold+'</span>':'')+
+            (kamp.sted?'<span class="kamp-info-pill">📍 '+kamp.sted+'</span>':'')+
+            (kamp.score?'<span class="kamp-info-pill" style="background:#FEF9C3;color:#854D0E;">⚽ '+kamp.score+'</span>':'')+
+            (kamp.kampnr?'<span class="kamp-info-pill">Kamp '+kamp.kampnr+'</span>':'')+
           '</div>'+
         '</div>'+
         '<span id="kbadge-'+name+'" class="kamp-count-badge">✅ '+udtaget+' udtaget</span>'+
@@ -2123,37 +2126,63 @@ function importKampXlsx(input){
       var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
       var added=0,skipped=0;
       rows.forEach(function(row){
-        var dateRaw=row[0],timeRaw=row[1]||'',opponent=String(row[2]||'').trim(),venue=String(row[3]||'H').trim().toUpperCase(),hold=String(row[4]||'').trim();
-        if(!opponent) return;
-        // Parse date
+        // A=0:kampnr  B=1:ugedag  C=2:dato  D=3:tid  E=4:hjemme  F=5:ude  G=6:scoreHjemme  H=7:scoreUde  I=8:spillested
+        var kampnr   = String(row[0]||'').trim();
+        var dateRaw  = row[2];
+        var timeRaw  = row[3]||'';
+        var hjemme   = String(row[4]||'').trim();
+        var ude      = String(row[5]||'').trim();
+        var scoreH   = String(row[6]||'').trim();
+        var scoreU   = String(row[7]||'').trim();
+        var sted     = String(row[8]||'').trim();
+
+        if(!hjemme && !ude) return; // tom række
+
+        // Bestem hjemme/ude — hvis FC Skanderborg er hjemmehold
+        var fcsNames = ['fc skanderborg','fcs','skanderborg'];
+        var hjemmeLow = hjemme.toLowerCase();
+        var erHjemme = fcsNames.some(function(n){ return hjemmeLow.includes(n); });
+        var venue = erHjemme ? 'H' : 'U';
+        var modstander = erHjemme ? ude : hjemme;
+
+        // Parse dato
         var dateStr='';
         if(dateRaw instanceof Date){
           dateStr=dateRaw.toISOString().slice(0,10);
         } else {
-          var s=String(dateRaw);
+          var s=String(dateRaw||'');
           var pts=s.match(/(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{4})/);
           if(pts) dateStr=pts[3]+'-'+pts[2].padStart(2,'0')+'-'+pts[1].padStart(2,'0');
         }
-        // Skip duplicate (same date+opponent)
-        if(matches.find(function(m){return m.opponent===opponent&&m.date===dateStr;})){skipped++;return;}
-        var timeStr=String(timeRaw||'').replace(/[^0-9:]/g,'');
+
+        // Spring over dublet
+        if(matches.find(function(m){ return m.opponent===modstander&&m.date===dateStr; })){skipped++;return;}
+
+        var timeStr=String(timeRaw).replace(/[^0-9:]/g,'').slice(0,5);
+        var score=(scoreH!==''&&scoreU!=='')?scoreH+'-'+scoreU:'';
+        var dateLabel=dateStr?new Date(dateStr).toLocaleDateString('da-DK',{day:'numeric',month:'short'}):'';
         var kamp={
           id:uid(),
+          kampnr,
           date:dateStr,
           time:timeStr,
-          opponent,
-          venue:['H','U','N'].includes(venue)?venue:'H',
-          hold,
-          name:opponent+(dateStr?' ('+new Date(dateStr).toLocaleDateString('da-DK',{day:'numeric',month:'short'})+')':'')
+          opponent:modstander,
+          hjemme,
+          ude,
+          venue,
+          sted,
+          score,
+          hold:'',
+          name:modstander+(dateLabel?' ('+dateLabel+')':'')
         };
         matches.unshift(kamp);
         added++;
       });
-      matches.sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
+      matches.sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
       saveAll();renderKampe();
       document.getElementById('kamp-import-form').style.display='none';
       toast('✅ '+added+' kampe importeret'+(skipped?' · '+skipped+' dubletter sprunget over':''));
-    }catch(err){toast('❌ Kunne ikke læse filen: '+err.message);}
+    }catch(err){ toast('❌ Kunne ikke læse filen: '+err.message); }
     input.value='';
   };
   reader.readAsBinaryString(file);
