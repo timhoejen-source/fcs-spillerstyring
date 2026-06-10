@@ -4,7 +4,7 @@
       "id": "mq4rdodj0njfxaks1fun",
       "name": "Alberte Kyed",
       "age": 15,
-      "team": "2.holdet",
+      "team": "",
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -22,7 +22,7 @@
       "id": "mq4rdodjl0908sxnbk",
       "name": "Alma Ingemann Elgaard",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "HK",
@@ -31,12 +31,7 @@
       "jersey": "",
       "goal": "nærkampe, 1v1, skud på mål, stige",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "nej"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -48,7 +43,7 @@
       "id": "mq4rdodjte78cpjrbd8",
       "name": "Caroline Pultz",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "B",
       "pos": [
         "OM"
@@ -56,12 +51,7 @@
       "jersey": "",
       "goal": "nærkamp, stige, ro og overblik, holde på bolden.",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -73,7 +63,7 @@
       "id": "mq4rdodj2bdm175960h",
       "name": "Dicte Mellergaard",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "OM",
@@ -82,12 +72,7 @@
       "jersey": "",
       "goal": "nærkamp, Overblik, holde på bolden, ligge af",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -99,7 +84,7 @@
       "id": "mq4rdodjcijpk2cwa9m",
       "name": "Ella Kallehave",
       "age": 13,
-      "team": "2.holdet",
+      "team": "",
       "cls": "B",
       "pos": [],
       "jersey": "",
@@ -117,7 +102,7 @@
       "id": "mq4rdodj085iq1n9c95d",
       "name": "Filippa Knudsen",
       "age": 13,
-      "team": "2.holdet",
+      "team": "",
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -135,7 +120,7 @@
       "id": "mq4rdodjhw1h8xwmdgm",
       "name": "Frederikke Bang Nielsen",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "DM",
@@ -144,12 +129,7 @@
       "jersey": "",
       "goal": "- Agilitet\n- Hurtighed",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "nej"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -161,7 +141,7 @@
       "id": "mq4rdodj5856a8dde4o",
       "name": "Freja Celine Elmstrøm Brøckner",
       "age": 13,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "VK",
@@ -170,12 +150,7 @@
       "jersey": "",
       "goal": "- Ro\n- ligge af og løb igen",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "nej"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -187,7 +162,7 @@
       "id": "mq4rdodj07icnpsqkzif",
       "name": "Islam Moubachir",
       "age": 15,
-      "team": "2.holdet",
+      "team": "",
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -205,7 +180,7 @@
       "id": "mq4rdodj2cgix7j2jz8",
       "name": "Jinda Ali",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "B",
       "pos": [
         "HB",
@@ -214,12 +189,7 @@
       "jersey": "",
       "goal": "- Tæmninger\n- Afleveringer inderside",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -231,7 +201,7 @@
       "id": "mq4rdodjmm8xblygcs",
       "name": "Kaja Stevens",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "OM"
@@ -239,12 +209,7 @@
       "jersey": "",
       "goal": "- Agilitet\n- Tempo\n- Afslutninger",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -256,7 +221,7 @@
       "id": "mq4rdodjldiuuabgdgi",
       "name": "Laura Hardorff",
       "age": 13,
-      "team": "2.holdet",
+      "team": "",
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -274,7 +239,7 @@
       "id": "mq4rdodjunxf94vgzw",
       "name": "Leonora Schmidt Hansen",
       "age": 15,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "DM",
@@ -283,12 +248,7 @@
       "jersey": "",
       "goal": "- Positivitet\n- Dirigent",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -300,7 +260,7 @@
       "id": "mq4rdodj2p61syd2m28",
       "name": "Liva Bak Vad",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "A",
@@ -309,12 +269,7 @@
       "jersey": "",
       "goal": "- Rigtige løb\n- Afslutninger\n- Ligge af",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -326,7 +281,7 @@
       "id": "mq4rdodjcww4yz9olkb",
       "name": "Liva Friis Hallberg",
       "age": 15,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "OM",
@@ -335,12 +290,7 @@
       "jersey": "",
       "goal": "- Kig op\n- Ro\n- Afleveringer\n- Vende spillet",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "nej"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -352,7 +302,7 @@
       "id": "mq4rdodj5j7yktc3q8f",
       "name": "Liva Hollesen Lundgaard",
       "age": 13,
-      "team": "1.holdet",
+      "team": "",
       "cls": "B",
       "pos": [
         "VB"
@@ -360,12 +310,7 @@
       "jersey": "",
       "goal": "- Nærkamp\n- Overblik\n- Ro",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "nej"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -377,7 +322,7 @@
       "id": "mq4rdodjcibqin1j1rq",
       "name": "Mais Mohammad Okla",
       "age": 13,
-      "team": "1.holdet",
+      "team": "",
       "cls": "B",
       "pos": [
         "A"
@@ -385,12 +330,7 @@
       "jersey": "",
       "goal": "- Afleveringer (manglende)\n- Tempo\n- Hastighed\n- Agilitet",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "nej"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -402,7 +342,7 @@
       "id": "mq4rdodjb5bgjtigmh7",
       "name": "Marie Bøgh Høncke",
       "age": 15,
-      "team": "2.holdet",
+      "team": "",
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -420,7 +360,7 @@
       "id": "mq4rdodjt8c1epp5m8g",
       "name": "Mathilde Brandt-Clausen",
       "age": 13,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "CB",
@@ -429,12 +369,7 @@
       "jersey": "",
       "goal": "- Selvtillid\n- Hurtigere beslutninger",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -446,7 +381,7 @@
       "id": "mq4rdodjru64dehr3xb",
       "name": "Nora Borgholm Buskop",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "HK",
@@ -455,12 +390,7 @@
       "jersey": "",
       "goal": "- Agilitet\n- Kondition\n- Selvtillid",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -472,7 +402,7 @@
       "id": "mq4rdodjp5czdg4eprc",
       "name": "Nora Sofie Wetke Kronborg",
       "age": 13,
-      "team": "2.holdet",
+      "team": "",
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -490,7 +420,7 @@
       "id": "mq4rdodj8z8mbxa08jp",
       "name": "Silje Thomsen",
       "age": 13,
-      "team": "2.holdet",
+      "team": "",
       "cls": "B",
       "pos": [],
       "jersey": "",
@@ -508,7 +438,7 @@
       "id": "mq4rdodjf4oeaovcoiq",
       "name": "Sofie Carolina Elmstrøm Brøckner",
       "age": 13,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "MM",
@@ -517,12 +447,7 @@
       "jersey": "",
       "goal": "- Ro\n- ligge af\n- Aflever",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "nej"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -534,7 +459,7 @@
       "id": "mq4rdodjwgaeo0u6p6h",
       "name": "Solbjørk Thygesen Peltonen",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "CB",
@@ -543,12 +468,7 @@
       "jersey": "",
       "goal": "- Vende spillet begge veje\n- Mere højreorienteret",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "nej"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -560,7 +480,7 @@
       "id": "mq4rdodj3dko74qwk7c",
       "name": "Tilde Andersen",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "A"
@@ -568,12 +488,7 @@
       "jersey": "",
       "goal": "- Mere koncentration\n- Førsteberøringer\n- skader",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -585,7 +500,7 @@
       "id": "mq4rdodjn00ufiqe0ls",
       "name": "Tilde Haugaard Rasmussen",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "B",
       "pos": [
         "HB",
@@ -594,12 +509,7 @@
       "jersey": "",
       "goal": "- Nærkamp\n- Overblik\n- Ro",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -611,7 +521,7 @@
       "id": "mq4rdodjyjmnpj7iuao",
       "name": "Tilde Liestmann",
       "age": 14,
-      "team": "1.holdet",
+      "team": "",
       "cls": "B",
       "pos": [
         "CB",
@@ -620,12 +530,7 @@
       "jersey": "",
       "goal": "- Tæmninger\n- Agilitet\n- førstegangsberøringer",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -637,7 +542,7 @@
       "id": "mq4rdodjkfd21t4l0es",
       "name": "Vilma Bruhn",
       "age": 13,
-      "team": "1.holdet",
+      "team": "",
       "cls": "A",
       "pos": [
         "OM",
@@ -646,12 +551,7 @@
       "jersey": "",
       "goal": "- Komme mere ind på holdet\n- Mere lyd på",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum-Næsby/574639",
-            "udtaget": "ja"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -661,9 +561,8 @@
     }
   ],
   "teams": [
-    "1.holdet",
-    "2.holdet",
-    "3.holdet"
+    "U14 liga 2",
+    "U15 liga 2"
   ],
   "trainings": [
     {
@@ -703,5 +602,7 @@
       }
     }
   ],
-  "savedAt": "2026-06-10T04:56:50.287Z"
+  "matches": [],
+  "boardLineups": {},
+  "savedAt": "2026-06-10T12:31:31.391Z"
 }
