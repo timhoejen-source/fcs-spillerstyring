@@ -313,6 +313,18 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   .board-layout{grid-template-columns:1fr;}
   .board-setup{margin-bottom:16px;}
 }
+
+.kamp-detail{margin-top:10px;display:none;}
+.kamp-detail.open{display:block;}
+.kamp-chev{font-size:12px;color:var(--g400);transition:transform .2s;margin-left:4px;}
+.kamp-chev.open{transform:rotate(180deg);}
+.kamp-att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:5px;margin-top:8px;}
+.kamp-att-row{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--g50);border:1px solid var(--g200);border-radius:6px;}
+.kamp-att-name{flex:1;font-size:11px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.kamp-info-row{display:flex;gap:10px;font-size:11px;color:var(--text-soft);margin-bottom:8px;flex-wrap:wrap;}
+.kamp-info-pill{background:var(--g100);padding:2px 8px;border-radius:10px;font-weight:600;}
+.kamp-info-pill.home{background:var(--ca-bg);color:var(--ca);}
+.kamp-info-pill.away{background:var(--cb-bg);color:var(--cb);}
 </style>
 </head>
 <body>
@@ -570,8 +582,45 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
     <!-- Kampe panel -->
     <div class="tab-panel" id="tab-kampe">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <!-- New match form -->
+      <div class="new-training-form" id="new-kamp-form" style="display:none;">
+        <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;">Opret kamp manuelt</div>
+        <div class="form-row">
+          <div class="fg"><label>Dato</label><input type="date" id="kamp-date"></div>
+          <div class="fg"><label>Tidspunkt</label><input type="time" id="kamp-time" placeholder="15:00"></div>
+        </div>
+        <div class="form-row">
+          <div class="fg full"><label>Modstander</label><input type="text" id="kamp-opponent" placeholder="fx Viborg FF U17"></div>
+          <div class="fg"><label>Hjemme/Ude</label>
+            <select id="kamp-venue"><option value="H">Hjemme</option><option value="U">Ude</option><option value="N">Neutral</option></select>
+          </div>
+          <div class="fg"><label>Hold</label>
+            <select id="kamp-hold"><option value="">– Vælg –</option></select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn-primary" style="margin-top:0;" onclick="saveNewKamp()">Gem kamp</button>
+          <button class="btn-cancel" onclick="toggleNewKampForm()">Annuller</button>
+        </div>
+      </div>
+
+      <!-- Import from xlsx -->
+      <div class="new-training-form" id="kamp-import-form" style="display:none;background:var(--blue-light);border:1px solid #bfdbfe;">
+        <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">📂 Importer kampprogram fra Excel</div>
+        <div class="import-note" style="text-align:left;margin-bottom:10px;color:var(--text-mid);">
+          Kolonner: <strong>A: Dato</strong> (dd-mm-åååå) · <strong>B: Tidspunkt</strong> (HH:MM) · <strong>C: Modstander</strong> · <strong>D: H/U/N</strong> · <strong>E: Hold</strong>
+        </div>
+        <button class="btn-import" onclick="document.getElementById('kamp-xlsx-inp').click()" style="background:var(--white);">📂 Vælg .xlsx fil</button>
+        <input type="file" id="kamp-xlsx-inp" accept=".xlsx,.xls" onchange="importKampXlsx(this)" style="display:none">
+        <button class="btn-cancel" style="margin-top:6px;width:100%;text-align:center;" onclick="document.getElementById('kamp-import-form').style.display='none'">Luk</button>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
         <div style="font-size:13px;font-weight:700;color:var(--navy);">Kampoversigt <span id="kampe-count" style="font-size:11px;font-weight:600;color:var(--text-soft);"></span></div>
+        <div style="display:flex;gap:6px;" id="kampe-admin-btns">
+          <button class="btn-primary" style="width:auto;padding:7px 12px;margin-top:0;font-size:11px;" onclick="toggleNewKampForm()">+ Ny kamp</button>
+          <button class="btn-sheets-load" style="width:auto;padding:7px 12px;font-size:11px;" onclick="document.getElementById('kamp-import-form').style.display='block'">📂 Importer</button>
+        </div>
       </div>
       <div id="kampe-list"></div>
     </div><!-- end tab-kampe -->
@@ -671,6 +720,10 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <button id="mt-nej" onclick="setMatchToggle('nej')">❌ Nej</button>
       </div>
       <button class="btn-add-match" onclick="addMatch()">+ Tilføj</button>
+    </div>
+    <div id="m-dbu-kampe-section" style="margin-top:10px;display:none;">
+      <div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">🏆 Importerede kampe</div>
+      <div id="m-dbu-kampe-list"></div>
     </div>
     <div class="modal-acts">
       <button class="btn-cancel" onclick="closeModal()">Annuller</button>
@@ -809,11 +862,28 @@ window.addEventListener('DOMContentLoaded',()=>{
   // GitHub credentials hardcoded
   updateStatus();renderTeams();renderSelects();render();
   applyRole();
+  // Event delegation for modal kamp attendance buttons
+  document.getElementById('modal').addEventListener('click',function(e){
+    var btn=e.target.closest('.katt-modal');
+    if(!btn) return;
+    var kn=btn.getAttribute('data-kn');
+    var pid=btn.getAttribute('data-pid');
+    var val=btn.getAttribute('data-val');
+    var kid=btn.getAttribute('data-kid');
+    setKampAttendance(kn,pid,val);
+    // Update sibling buttons
+    var jaBtn=document.getElementById('modal-katt-ja-'+pid+'-'+kid);
+    var nejBtn=document.getElementById('modal-katt-nej-'+pid+'-'+kid);
+    var p2=players.find(function(x){return x.id===pid;});
+    var cur=p2?(((p2.stats||{}).matches||[]).find(function(m){return m.name===kn;})||{}).udtaget:'';
+    if(jaBtn) jaBtn.className='att-btn katt-modal'+(cur==='ja'?' sel-ja':'');
+    if(nejBtn) nejBtn.className='att-btn katt-modal'+(cur==='nej'?' sel-nej':'');
+  });
 });
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
 function saveAll(){
-  try{localStorage.setItem('fcs-p5',JSON.stringify(players));localStorage.setItem('fcs-t5',JSON.stringify(teams));}catch(e){}
+  try{localStorage.setItem('fcs-p5',JSON.stringify(players));localStorage.setItem('fcs-t5',JSON.stringify(teams));localStorage.setItem('fcs-matches',JSON.stringify(matches));}catch(e){}
 }
 function resetAllPlayers(){
   if(!confirm('Slet ALLE spillere?\nDette kan ikke fortrydes.\n\nHent fra GitHub bagefter for at genindlæse.')) return;
@@ -854,7 +924,7 @@ async function syncToSheets(manual=false){
   try{
     // Byg data-objekt
     const payload={
-      players,teams,trainings,
+      players,teams,trainings,matches,
       boardLineups:window._boardLineups||{},
       savedAt:new Date().toISOString()
     };
@@ -917,6 +987,8 @@ async function loadFromSheets(silent=false){
     }
     // Board lineups
     if(payload.boardLineups) window._boardLineups=payload.boardLineups;
+    // Matches
+    if(Array.isArray(payload.matches)) matches=payload.matches;
     // Hold
     if(Array.isArray(payload.teams)&&payload.teams.length){
       teams=[...new Set([...payload.teams,...teams])];
@@ -1015,6 +1087,25 @@ function openEdit(id){
   document.querySelectorAll('#m-cls-picker .cls-btn').forEach(b=>{b.className='cls-btn';if(b.dataset.c===p.cls)b.classList.add('act-'+p.cls.toLowerCase());});
   document.querySelectorAll('#m-pos-grid .pos-btn').forEach(b=>{b.classList.remove('active');const pArr=Array.isArray(p.pos)?p.pos:(p.pos?[p.pos]:[]);if(pArr.includes(b.textContent.trim()))b.classList.add('active');});
   document.getElementById('modal').classList.add('open');
+  // Show imported DBU matches for this player
+  var dbuSec=document.getElementById('m-dbu-kampe-section');
+  var dbuList=document.getElementById('m-dbu-kampe-list');
+  if(dbuSec&&dbuList&&matches.length){
+    dbuSec.style.display='block';
+    dbuList.innerHTML=matches.map(function(kamp){
+      var name=kamp.name||kamp.opponent;
+      var existing=(p.stats&&p.stats.matches||[]).find(function(m){return m.name===name;});
+      var v=existing?existing.udtaget:'';
+      var dateStr=kamp.date?new Date(kamp.date).toLocaleDateString('da-DK',{day:'numeric',month:'short'}):'';
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;background:var(--g50);border:1px solid var(--g200);border-radius:6px;padding:6px 10px;">'+
+        '<span style="flex:1;font-size:12px;font-weight:600;color:var(--text);">'+name+(dateStr?' <span style=\'font-weight:400;color:var(--text-soft);\'>('+dateStr+')</span>':'')+'</span>'+
+        '<div class="att-toggle">'+
+          '<button id="modal-katt-ja-'+p.id+'-'+kamp.id+'" class="att-btn katt-modal'+(v==='ja'?' sel-ja':'')+'" data-kn="'+name+'" data-pid="'+p.id+'" data-val="ja" data-kid="'+kamp.id+'">✅</button>'+
+          '<button id="modal-katt-nej-'+p.id+'-'+kamp.id+'" class="att-btn katt-modal'+(v==='nej'?' sel-nej':'')+'" data-kn="'+name+'" data-pid="'+p.id+'" data-val="nej" data-kid="'+kamp.id+'">❌</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  } else if(dbuSec){ dbuSec.style.display='none'; }
 }
 function closeModal(){document.getElementById('modal').classList.remove('open');editId=null;}
 function saveEdit(){
@@ -1305,6 +1396,7 @@ function exportAllPdf(){
 
 // ── Training ──────────────────────────────────────────────────────────────────
 let trainings = JSON.parse(localStorage.getItem('fcs-trainings')||'[]');
+let matches = JSON.parse(localStorage.getItem('fcs-matches')||'[]'); // DBU imported matches
 
 function saveTrainings(){
   try{localStorage.setItem('fcs-trainings',JSON.stringify(trainings));}catch(e){}
@@ -1668,56 +1760,91 @@ function toggleTrainingBody(id){
 }
 // ── Kampe tab ─────────────────────────────────────────────────────────────────
 function renderKampe(){
-  const list = document.getElementById('kampe-list');
-  const cnt  = document.getElementById('kampe-count');
+  var list=document.getElementById('kampe-list');
+  var cnt=document.getElementById('kampe-count');
   if(!list) return;
 
-  // Collect all unique match names across all players
-  const kampeMap = {}; // kampName -> { ja:[], nej:[] }
-  players.forEach(p => {
-    const matches = (p.stats && p.stats.matches) ? p.stats.matches : [];
-    matches.forEach(m => {
-      if(!kampeMap[m.name]) kampeMap[m.name] = {ja:[], nej:[]};
-      if(m.udtaget === 'ja')  kampeMap[m.name].ja.push(p);
-      if(m.udtaget === 'nej') kampeMap[m.name].nej.push(p);
+  // Hide admin buttons for viewer
+  var adminBtns=document.getElementById('kampe-admin-btns');
+  if(adminBtns) adminBtns.style.display=currentRole==='admin'?'flex':'none';
+
+  // Merge: matches from matches array + any from player stats not in matches array
+  var allNames={};
+  matches.forEach(function(m){ allNames[m.name]=m; });
+  players.forEach(function(p){
+    ((p.stats||{}).matches||[]).forEach(function(m){
+      if(!allNames[m.name]) allNames[m.name]={id:'legacy-'+m.name,name:m.name,date:'',opponent:m.name,venue:'',hold:'',time:''};
     });
   });
 
-  const kampNames = Object.keys(kampeMap);
-  if(cnt) cnt.textContent = '(' + kampNames.length + ')';
+  var allKampe=Object.values(allNames).sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  if(cnt) cnt.textContent='('+allKampe.length+')';
 
-  if(!kampNames.length){
-    list.innerHTML = '<div class="kamp-empty"><div style="font-size:32px;margin-bottom:10px;">🏆</div><div style="font-size:14px;font-weight:600;color:var(--g600);margin-bottom:4px;">Ingen kampe registreret</div><div style="font-size:12px;">Tilføj kampudtagelse på spillerne under ✏️ redigering</div></div>';
+  if(!allKampe.length){
+    list.innerHTML='<div class="kamp-empty"><div style="font-size:32px;margin-bottom:10px;">🏆</div><div style="font-size:14px;font-weight:600;color:var(--g600);margin-bottom:4px;">Ingen kampe endnu</div><div style="font-size:12px;">Opret en kamp manuelt eller importer fra Excel</div></div>';
     return;
   }
 
-  // Sort by most recent (preserve insertion order) then by most players
-  list.innerHTML = kampNames.map(name => {
-    const k = kampeMap[name];
-    const total = players.length;
-    const udtaget = k.ja.length;
-    const maxKamp = 14;
-    const pct = Math.round(udtaget / maxKamp * 100);
+  list.innerHTML=allKampe.map(function(kamp){
+    var name=kamp.name||kamp.opponent;
+    var dateStr=kamp.date?new Date(kamp.date).toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'short',year:'numeric'}):'';
+    var venueLabel=kamp.venue==='H'?'Hjemme':kamp.venue==='U'?'Ude':'Neutral';
+    var venueCls=kamp.venue==='H'?'home':kamp.venue==='U'?'away':'';
 
-    const jaTags = k.ja.map(p =>
-      '<span class="kamp-player-tag">' + (p.jersey ? '#'+p.jersey+' ' : '') + p.name + '</span>'
-    ).join('');
+    var jaList=players.filter(function(p){ var m=((p.stats||{}).matches||[]).find(function(m){return m.name===name;}); return m&&m.udtaget==='ja'; });
+    var nejList=players.filter(function(p){ var m=((p.stats||{}).matches||[]).find(function(m){return m.name===name;}); return m&&m.udtaget==='nej'; });
+    var noneList=players.filter(function(p){ var m=((p.stats||{}).matches||[]).find(function(m){return m.name===name;}); return !m||!m.udtaget; });
+    var udtaget=jaList.length;
+    var pct=Math.round(udtaget/14*100);
 
-    const nejTags = k.nej.map(p =>
-      '<span class="kamp-player-tag nej">' + (p.jersey ? '#'+p.jersey+' ' : '') + p.name + '</span>'
-    ).join('');
+    // Attendance rows for ALL players
+    var attRows=[].concat(players).sort(function(a,b){return a.name.localeCompare(b.name,'da');}).map(function(p){
+      var existing=((p.stats||{}).matches||[]).find(function(m){return m.name===name;});
+      var v=existing?existing.udtaget:'';
+      return '<div class="kamp-att-row">'+
+        '<span class="kamp-att-name">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+'</span>'+
+        '<div class="att-toggle">'+
+          '<button id="katt-ja-'+p.id+'" class="att-btn'+(v==='ja'?' sel-ja':'')+'" data-kn="'+name+'" data-pid="'+p.id+'" data-val="ja">✅</button>'+
+          '<button id="katt-nej-'+p.id+'" class="att-btn'+(v==='nej'?' sel-nej':'')+'" data-kn="'+name+'" data-pid="'+p.id+'" data-val="nej">❌</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
 
-    return '<div class="kamp-card">' +
-      '<div class="kamp-header">' +
-        '<span class="kamp-name">🏆 ' + name + '</span>' +
-        '<span class="kamp-count-badge">✅ ' + udtaget + ' udtaget</span>' +
-      '</div>' +
-      '<div class="kamp-bar-wrap"><div class="kamp-bar" style="width:' + pct + '%"></div></div>' +
-      '<div style="font-size:10px;color:var(--text-soft);margin-bottom:8px;">' + udtaget + ' ud af 14 mulige udtaget (' + pct + '%)</div>' +
-      (jaTags ? '<div style="font-size:9px;font-weight:700;color:var(--ca);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Udtaget</div><div class="kamp-players" style="margin-bottom:10px;">' + jaTags + '</div>' : '') +
-      (nejTags ? '<div style="font-size:9px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Ikke udtaget</div><div class="kamp-players">' + nejTags + '</div>' : '') +
+    var isLegacy=kamp.id&&kamp.id.startsWith('legacy-');
+    var deleteBtn=(!isLegacy&&currentRole==='admin')?'<button class="btn-training-del" data-delkamp="'+kamp.id+'" style="margin-left:auto;">🗑️ Slet</button>':'';
+
+    return '<div class="kamp-card">'+
+      '<div class="kamp-header" data-ktoggle="'+name+'" style="cursor:pointer;">'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div class="kamp-name">🏆 '+name+'</div>'+
+          '<div class="kamp-info-row" style="margin-top:4px;margin-bottom:0;">'+
+            (dateStr?'<span class="kamp-info-pill">'+dateStr+(kamp.time?' '+kamp.time:'')+'</span>':'')+
+            (kamp.venue?'<span class="kamp-info-pill '+venueCls+'">'+venueLabel+'</span>':'')+
+            (kamp.hold?'<span class="kamp-info-pill">'+kamp.hold+'</span>':'')+
+          '</div>'+
+        '</div>'+
+        '<span id="kbadge-'+name+'" class="kamp-count-badge">✅ '+udtaget+' udtaget</span>'+
+        '<span class="kamp-chev" id="kchev-'+name+'">▾</span>'+
+      '</div>'+
+      '<div class="kamp-bar-wrap" style="margin-top:8px;"><div class="kamp-bar" style="width:'+pct+'%"></div></div>'+
+      '<div style="font-size:10px;color:var(--text-soft);margin:4px 0 8px;">'+udtaget+' ud af 14 mulige udtaget ('+pct+'%)</div>'+
+      '<div class="kamp-detail" id="kd-'+name+'">'+
+        '<div style="font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Fremmøde — vælg for alle spillere</div>'+
+        '<div class="kamp-att-grid">'+attRows+'</div>'+
+        '<div style="display:flex;gap:6px;margin-top:10px;">'+deleteBtn+'</div>'+
+      '</div>'+
     '</div>';
   }).join('');
+
+  // Event delegation for kamp attendance + toggles
+  list.addEventListener('click', function handler(e){
+    var btn=e.target.closest('.att-btn[data-kn]');
+    if(btn){ setKampAttendance(btn.getAttribute('data-kn'),btn.getAttribute('data-pid'),btn.getAttribute('data-val')); return; }
+    var hdr=e.target.closest('[data-ktoggle]');
+    if(hdr&&hdr.closest('#kampe-list')){ toggleKampDetail(hdr.getAttribute('data-ktoggle')); return; }
+    var del=e.target.closest('[data-delkamp]');
+    if(del){ deleteKamp(del.getAttribute('data-delkamp')); return; }
+  },{once:true});
 }
 
 // ── Board / Opstilling ────────────────────────────────────────────────────────
@@ -1941,6 +2068,136 @@ function exportBoardPdf(){
 function getBoardGroupColor(grp){
   var map={MV:'#1A6EC0',DEF:'#16A34A',DM:'#d97706',MID:'#7c3aed',ANG:'#dc2626'};
   return map[grp]||'#0A2342';
+}
+
+
+// ── Kampe (DBU import + manual) ───────────────────────────────────────────────
+
+function toggleNewKampForm(){
+  var f=document.getElementById('new-kamp-form');
+  var visible=f.style.display!=='none';
+  f.style.display=visible?'none':'block';
+  if(!visible){
+    document.getElementById('kamp-date').value=new Date().toISOString().slice(0,10);
+    document.getElementById('kamp-time').value='';
+    document.getElementById('kamp-opponent').value='';
+    // Populate hold select
+    var sel=document.getElementById('kamp-hold');
+    sel.innerHTML='<option value="">– Vælg –</option>'+teams.map(function(t){return '<option value="'+t+'">'+t+'</option>';}).join('');
+  }
+}
+
+function saveNewKamp(){
+  var date=document.getElementById('kamp-date').value;
+  var time=document.getElementById('kamp-time').value;
+  var opponent=document.getElementById('kamp-opponent').value.trim();
+  var venue=document.getElementById('kamp-venue').value;
+  var hold=document.getElementById('kamp-hold').value;
+  if(!date||!opponent){toast('⚠️ Udfyld dato og modstander');return;}
+  var kamp={
+    id:uid(),
+    date,time,opponent,venue,hold,
+    name:opponent+(date?' ('+new Date(date).toLocaleDateString('da-DK',{day:'numeric',month:'short'})+')':'')
+  };
+  matches.unshift(kamp);
+  saveAll();
+  toggleNewKampForm();
+  renderKampe();
+  toast('✅ Kamp oprettet: '+opponent);
+}
+
+function deleteKamp(id){
+  if(!confirm('Slet denne kamp?')) return;
+  matches=matches.filter(function(m){return m.id!==id;});
+  saveAll();renderKampe();
+  toast('🗑️ Kamp slettet');
+}
+
+function importKampXlsx(input){
+  var file=input.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var wb=XLSX.read(e.target.result,{type:'binary',cellDates:true});
+      var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      var added=0,skipped=0;
+      rows.forEach(function(row){
+        var dateRaw=row[0],timeRaw=row[1]||'',opponent=String(row[2]||'').trim(),venue=String(row[3]||'H').trim().toUpperCase(),hold=String(row[4]||'').trim();
+        if(!opponent) return;
+        // Parse date
+        var dateStr='';
+        if(dateRaw instanceof Date){
+          dateStr=dateRaw.toISOString().slice(0,10);
+        } else {
+          var s=String(dateRaw);
+          var pts=s.match(/(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{4})/);
+          if(pts) dateStr=pts[3]+'-'+pts[2].padStart(2,'0')+'-'+pts[1].padStart(2,'0');
+        }
+        // Skip duplicate (same date+opponent)
+        if(matches.find(function(m){return m.opponent===opponent&&m.date===dateStr;})){skipped++;return;}
+        var timeStr=String(timeRaw||'').replace(/[^0-9:]/g,'');
+        var kamp={
+          id:uid(),
+          date:dateStr,
+          time:timeStr,
+          opponent,
+          venue:['H','U','N'].includes(venue)?venue:'H',
+          hold,
+          name:opponent+(dateStr?' ('+new Date(dateStr).toLocaleDateString('da-DK',{day:'numeric',month:'short'})+')':'')
+        };
+        matches.unshift(kamp);
+        added++;
+      });
+      matches.sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
+      saveAll();renderKampe();
+      document.getElementById('kamp-import-form').style.display='none';
+      toast('✅ '+added+' kampe importeret'+(skipped?' · '+skipped+' dubletter sprunget over':''));
+    }catch(err){toast('❌ Kunne ikke læse filen: '+err.message);}
+    input.value='';
+  };
+  reader.readAsBinaryString(file);
+}
+
+function setKampAttendance(kampName, playerId, val){
+  var p=players.find(function(x){return x.id===playerId;});
+  if(!p) return;
+  if(!p.stats) p.stats={};
+  if(!p.stats.matches) p.stats.matches=[];
+  var existing=p.stats.matches.find(function(m){return m.name===kampName;});
+  if(existing){
+    if(existing.udtaget===val) existing.udtaget=''; // toggle off
+    else existing.udtaget=val;
+  } else {
+    p.stats.matches.push({name:kampName, udtaget:val});
+  }
+  saveAll();
+  // Update buttons
+  var jaBtn=document.getElementById('katt-ja-'+playerId);
+  var nejBtn=document.getElementById('katt-nej-'+playerId);
+  var current=p.stats.matches.find(function(m){return m.name===kampName;});
+  var curVal=current?current.udtaget:'';
+  if(jaBtn) jaBtn.className='att-btn'+(curVal==='ja'?' sel-ja':'');
+  if(nejBtn) nejBtn.className='att-btn'+(curVal==='nej'?' sel-nej':'');
+  // Update summary badge
+  updateKampSummary(kampName);
+}
+
+function updateKampSummary(kampName){
+  var jaCount=players.filter(function(p){
+    var m=((p.stats||{}).matches||[]).find(function(m){return m.name===kampName;});
+    return m&&m.udtaget==='ja';
+  }).length;
+  var badge=document.getElementById('kbadge-'+CSS.escape(kampName));
+  if(badge) badge.textContent='✅ '+jaCount+' udtaget';
+}
+
+function toggleKampDetail(id){
+  var detail=document.getElementById('kd-'+id);
+  var chev=document.getElementById('kchev-'+id);
+  if(!detail) return;
+  var open=detail.classList.toggle('open');
+  if(chev) chev.classList.toggle('open',open);
 }
 
 
