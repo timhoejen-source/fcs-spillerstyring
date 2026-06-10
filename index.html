@@ -935,7 +935,8 @@ function resetAllPlayers(){
 }
 function saveConfig(){ updateStatus(); }
 function saveToken(){
-  cfg.ghtoken = document.getElementById('cfg-ghtoken').value.trim();
+  var el=document.getElementById('cfg-ghtoken');
+  if(el) cfg.ghtoken=el.value.trim();
 }
 function updateStatus(){
   const st=document.getElementById('sheets-status');
@@ -1026,6 +1027,8 @@ async function loadFromSheets(silent=false){
       const merged=[...payload.players,...localOnly];
       const seen=new Set();
       players=merged.filter(p=>{if(seen.has(p.id))return false;seen.add(p.id);return true;});
+      // Normalise team field
+      players=players.map(function(p){if(typeof p.team==='string')p.team=p.team?[p.team]:[];if(!Array.isArray(p.team))p.team=[];return p;});
     }
     // Board lineups
     if(payload.boardLineups) window._boardLineups=payload.boardLineups;
@@ -1133,7 +1136,7 @@ function addPlayer(){
   players.push({id:uid(),name,age:parseInt(age),team,jersey:jersey||'',cls:fCls,pos:fPos.slice(),goal});
   saveAll();
   document.getElementById('f-name').value='';document.getElementById('f-age').value='';
-  setCheckedTeams('f-team-checks',[]);document.getElementById('f-jersey').value='';document.getElementById('f-goal').value='';
+  if(document.getElementById('f-team-checks')) setCheckedTeams('f-team-checks',[]);document.getElementById('f-jersey').value='';document.getElementById('f-goal').value='';
   document.querySelectorAll('.sb-section-body .cls-btn').forEach(b=>b.className='cls-btn');
   document.querySelectorAll('#f-pos-grid .pos-btn').forEach(b=>b.classList.remove('active'));
   fPos=[];
@@ -1336,7 +1339,7 @@ function render(){
     '<button class="filter-btn'+(activeTeamFilter==='alle'?' active':'')+'" onclick="setTeamFilter(\'alle\',this)">Alle</button>'+
     teams.map(t=>'<button class="filter-btn'+(activeTeamFilter===t?' active':'')+'" onclick="setTeamFilter(\''+t+'\',this)">'+t+'</button>').join('');
   const opts='<option value="">– Vælg hold –</option>'+teams.map(t=>'<option value="'+t+'">'+t+'</option>').join('');
-  document.getElementById('f-team').innerHTML=opts;
+  renderSelects(); // rebuild team checkboxes
   const fp=filtered(),list=document.getElementById('player-list');
   if(!fp.length){list.innerHTML='<div class="empty"><div class="empty-icon">⚽</div><div class="empty-t">'+(players.length?'Ingen resultater':'Ingen spillere endnu')+'</div><div class="empty-s">'+(players.length?'Prøv en anden søgning':'Importer eller tilføj manuelt')+'</div></div>';return;}
   const withTeam={},noTeam=[];
