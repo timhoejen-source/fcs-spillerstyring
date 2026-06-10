@@ -4,7 +4,7 @@
       "id": "mq4rdodj0njfxaks1fun",
       "name": "Alberte Kyed",
       "age": 15,
-      "team": "",
+      "team": [],
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -22,7 +22,10 @@
       "id": "mq4rdodjl0908sxnbk",
       "name": "Alma Ingemann Elgaard",
       "age": 14,
-      "team": "",
+      "team": [
+        "U14 liga 2",
+        "U15 liga 2"
+      ],
       "cls": "A",
       "pos": [
         "HK",
@@ -43,7 +46,10 @@
       "id": "mq4rdodjte78cpjrbd8",
       "name": "Caroline Pultz",
       "age": 14,
-      "team": "",
+      "team": [
+        "U14 liga 2",
+        "U15 liga 2"
+      ],
       "cls": "B",
       "pos": [
         "OM"
@@ -63,7 +69,10 @@
       "id": "mq4rdodj2bdm175960h",
       "name": "Dicte Mellergaard",
       "age": 14,
-      "team": "",
+      "team": [
+        "U14 liga 2",
+        "U15 liga 2"
+      ],
       "cls": "A",
       "pos": [
         "OM",
@@ -84,7 +93,7 @@
       "id": "mq4rdodjcijpk2cwa9m",
       "name": "Ella Kallehave",
       "age": 13,
-      "team": "",
+      "team": [],
       "cls": "B",
       "pos": [],
       "jersey": "",
@@ -102,7 +111,7 @@
       "id": "mq4rdodj085iq1n9c95d",
       "name": "Filippa Knudsen",
       "age": 13,
-      "team": "",
+      "team": [],
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -120,7 +129,7 @@
       "id": "mq4rdodjhw1h8xwmdgm",
       "name": "Frederikke Bang Nielsen",
       "age": 14,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "DM",
@@ -141,7 +150,7 @@
       "id": "mq4rdodj5856a8dde4o",
       "name": "Freja Celine Elmstrøm Brøckner",
       "age": 13,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "VK",
@@ -162,7 +171,7 @@
       "id": "mq4rdodj07icnpsqkzif",
       "name": "Islam Moubachir",
       "age": 15,
-      "team": "",
+      "team": [],
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -180,7 +189,7 @@
       "id": "mq4rdodj2cgix7j2jz8",
       "name": "Jinda Ali",
       "age": 14,
-      "team": "",
+      "team": [],
       "cls": "B",
       "pos": [
         "HB",
@@ -201,7 +210,7 @@
       "id": "mq4rdodjmm8xblygcs",
       "name": "Kaja Stevens",
       "age": 14,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "OM"
@@ -221,7 +230,7 @@
       "id": "mq4rdodjldiuuabgdgi",
       "name": "Laura Hardorff",
       "age": 13,
-      "team": "",
+      "team": [],
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -239,7 +248,7 @@
       "id": "mq4rdodjunxf94vgzw",
       "name": "Leonora Schmidt Hansen",
       "age": 15,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "DM",
@@ -260,7 +269,7 @@
       "id": "mq4rdodj2p61syd2m28",
       "name": "Liva Bak Vad",
       "age": 14,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "A",
@@ -281,7 +290,7 @@
       "id": "mq4rdodjcww4yz9olkb",
       "name": "Liva Friis Hallberg",
       "age": 15,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "OM",
@@ -302,7 +311,7 @@
       "id": "mq4rdodj5j7yktc3q8f",
       "name": "Liva Hollesen Lundgaard",
       "age": 13,
-      "team": "",
+      "team": [],
       "cls": "B",
       "pos": [
         "VB"
@@ -322,7 +331,7 @@
       "id": "mq4rdodjcibqin1j1rq",
       "name": "Mais Mohammad Okla",
       "age": 13,
-      "team": "",
+      "team": [],
       "cls": "B",
       "pos": [
         "A"
@@ -342,7 +351,7 @@
       "id": "mq4rdodjb5bgjtigmh7",
       "name": "Marie Bøgh Høncke",
       "age": 15,
-      "team": "",
+      "team": [],
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -360,7 +369,7 @@
       "id": "mq4rdodjt8c1epp5m8g",
       "name": "Mathilde Brandt-Clausen",
       "age": 13,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "CB",
@@ -381,7 +390,7 @@
       "id": "mq4rdodjru64dehr3xb",
       "name": "Nora Borgholm Buskop",
       "age": 14,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "HK",
@@ -402,7 +411,7 @@
       "id": "mq4rdodjp5czdg4eprc",
       "name": "Nora Sofie Wetke Kronborg",
       "age": 13,
-      "team": "",
+      "team": [],
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -420,7 +429,7 @@
       "id": "mq4rdodj8z8mbxa08jp",
       "name": "Silje Thomsen",
       "age": 13,
-      "team": "",
+      "team": [],
       "cls": "B",
       "pos": [],
       "jersey": "",
@@ -438,7 +447,7 @@
       "id": "mq4rdodjf4oeaovcoiq",
       "name": "Sofie Carolina Elmstrøm Brøckner",
       "age": 13,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "MM",
@@ -459,7 +468,7 @@
       "id": "mq4rdodjwgaeo0u6p6h",
       "name": "Solbjørk Thygesen Peltonen",
       "age": 14,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "CB",
@@ -480,7 +489,7 @@
       "id": "mq4rdodj3dko74qwk7c",
       "name": "Tilde Andersen",
       "age": 14,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "A"
@@ -500,7 +509,7 @@
       "id": "mq4rdodjn00ufiqe0ls",
       "name": "Tilde Haugaard Rasmussen",
       "age": 14,
-      "team": "",
+      "team": [],
       "cls": "B",
       "pos": [
         "HB",
@@ -521,7 +530,7 @@
       "id": "mq4rdodjyjmnpj7iuao",
       "name": "Tilde Liestmann",
       "age": 14,
-      "team": "",
+      "team": [],
       "cls": "B",
       "pos": [
         "CB",
@@ -542,7 +551,7 @@
       "id": "mq4rdodjkfd21t4l0es",
       "name": "Vilma Bruhn",
       "age": 13,
-      "team": "",
+      "team": [],
       "cls": "A",
       "pos": [
         "OM",
@@ -604,5 +613,5 @@
   ],
   "matches": [],
   "boardLineups": {},
-  "savedAt": "2026-06-10T12:33:42.663Z"
+  "savedAt": "2026-06-10T13:52:38.587Z"
 }
