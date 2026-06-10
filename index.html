@@ -282,6 +282,37 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .kamp-player-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--ca-bg);color:var(--ca);}
 .kamp-player-tag.nej{background:var(--g100);color:var(--g400);}
 .kamp-empty{text-align:center;padding:50px 20px;color:var(--g400);}
+
+/* ── Board / Opstilling ─────────────────────────────────────── */
+.board-layout{display:grid;grid-template-columns:260px 1fr;gap:16px;min-height:500px;}
+.board-setup{display:flex;flex-direction:column;}
+.board-setup-top{margin-bottom:8px;}
+.board-slot{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.board-slot-label{font-size:10px;font-weight:700;color:var(--white);background:var(--navy);padding:2px 7px;border-radius:4px;width:28px;text-align:center;flex-shrink:0;}
+.board-slot select{flex:1;font-size:11px;padding:5px 8px;}
+.board-pitch-wrap{display:flex;flex-direction:column;align-items:center;}
+.pitch{width:100%;max-width:400px;aspect-ratio:0.65;background:#3a8c3a;border-radius:8px;position:relative;border:3px solid #2d6e2d;box-shadow:var(--sh);overflow:hidden;}
+.pitch::before{content:'';position:absolute;inset:8px;border:2px solid rgba(255,255,255,.35);border-radius:4px;pointer-events:none;}
+/* Centre circle */
+.pitch-centre{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:18%;padding-bottom:18%;border-radius:50%;border:2px solid rgba(255,255,255,.35);}
+/* Centre line */
+.pitch-midline{position:absolute;left:8px;right:8px;top:50%;height:2px;background:rgba(255,255,255,.35);}
+/* Penalty areas */
+.pitch-box-top{position:absolute;left:22%;right:22%;top:8px;height:16%;border:2px solid rgba(255,255,255,.35);border-top:none;}
+.pitch-box-bot{position:absolute;left:22%;right:22%;bottom:8px;height:16%;border:2px solid rgba(255,255,255,.35);border-bottom:none;}
+/* Player dots on pitch */
+.pitch-player{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;cursor:default;}
+.pitch-dot{width:32px;height:32px;border-radius:50%;background:var(--yellow);border:2.5px solid var(--navy);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--navy);line-height:1;}
+.pitch-dot.empty{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.5);}
+.pitch-name{font-size:8px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8);margin-top:2px;white-space:nowrap;max-width:48px;overflow:hidden;text-overflow:ellipsis;text-align:center;}
+.pitch-sub{background:rgba(10,35,66,.85);border-radius:6px;padding:6px 10px;margin-top:8px;width:100%;max-width:400px;}
+.pitch-sub-title{font-size:9px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.pitch-sub-players{display:flex;flex-wrap:wrap;gap:4px;}
+.pitch-sub-tag{font-size:9px;font-weight:600;color:#fff;background:rgba(255,255,255,.15);padding:2px 7px;border-radius:3px;}
+@media(max-width:700px){
+  .board-layout{grid-template-columns:1fr;}
+  .board-setup{margin-bottom:16px;}
+}
 </style>
 </head>
 <body>
@@ -478,6 +509,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <button class="tab-btn active" id="tab-spillere-btn" onclick="switchTab('spillere')">👥 Spillere</button>
       <button class="tab-btn" id="tab-training-btn" onclick="switchTab('training')">⚽ Træning</button>
       <button class="tab-btn" id="tab-kampe-btn" onclick="switchTab('kampe')">🏆 Kampe</button>
+      <button class="tab-btn" id="tab-board-btn" onclick="switchTab('board')">📋 Opstilling</button>
     </div>
 
     <!-- Spillere panel -->
@@ -543,6 +575,46 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       </div>
       <div id="kampe-list"></div>
     </div><!-- end tab-kampe -->
+
+    <!-- Opstilling panel -->
+    <div class="tab-panel" id="tab-board">
+      <div class="board-layout">
+        <!-- Left: setup column -->
+        <div class="board-setup" id="board-setup">
+          <div class="board-setup-top">
+            <div class="fg" style="margin-bottom:8px;">
+              <label>Vælg kamp</label>
+              <select id="board-kamp-sel" onchange="boardSelectKamp(this.value)">
+                <option value="">– Vælg kamp –</option>
+              </select>
+            </div>
+            <div class="fg" style="margin-bottom:8px;">
+              <label>Formation</label>
+              <select id="board-formation" onchange="boardSetFormation(this.value)">
+                <option value="4-3-3">4-3-3</option>
+                <option value="4-4-2">4-4-2</option>
+                <option value="4-2-3-1">4-2-3-1</option>
+                <option value="3-5-2">3-5-2</option>
+                <option value="5-3-2">5-3-2</option>
+                <option value="4-1-4-1">4-1-4-1</option>
+              </select>
+            </div>
+          </div>
+          <div style="font-size:10px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Tildel spillere</div>
+          <div id="board-slots"></div>
+          <div style="margin-top:10px;display:flex;gap:6px;">
+            <button class="btn-primary" style="margin-top:0;" onclick="saveBoardSetup()">💾 Gem opstilling</button>
+          </div>
+        </div>
+        <!-- Right: pitch visualization -->
+        <div class="board-pitch-wrap">
+          <div class="pitch" id="board-pitch"></div>
+          <div style="text-align:center;margin-top:8px;">
+            <button class="btn-export" onclick="exportBoardPdf()" style="width:auto;padding:7px 16px;display:inline-flex;">📄 Eksporter opstilling</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- end tab-board -->
 
   </div><!-- end main -->
 </div>
@@ -783,6 +855,7 @@ async function syncToSheets(manual=false){
     // Byg data-objekt
     const payload={
       players,teams,trainings,
+      boardLineups:window._boardLineups||{},
       savedAt:new Date().toISOString()
     };
     const content=btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2))));
@@ -842,6 +915,8 @@ async function loadFromSheets(silent=false){
       const seen=new Set();
       players=merged.filter(p=>{if(seen.has(p.id))return false;seen.add(p.id);return true;});
     }
+    // Board lineups
+    if(payload.boardLineups) window._boardLineups=payload.boardLineups;
     // Hold
     if(Array.isArray(payload.teams)&&payload.teams.length){
       teams=[...new Set([...payload.teams,...teams])];
@@ -1242,6 +1317,7 @@ function switchTab(tab){
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
   if(tab==='training') renderTrainings();
   if(tab==='kampe') renderKampe();
+  if(tab==='board') renderBoard();
 }
 
 function toggleNewTrainingForm(){
@@ -1509,6 +1585,7 @@ function switchTab(tab){
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
   if(tab==='training') renderTrainings();
   if(tab==='kampe') renderKampe();
+  if(tab==='board') renderBoard();
 }
 
 function toggleNewTrainingForm(){
@@ -1642,6 +1719,230 @@ function renderKampe(){
     '</div>';
   }).join('');
 }
+
+// ── Board / Opstilling ────────────────────────────────────────────────────────
+const FORMATIONS = {
+  '4-3-3':   {MV:[[50,92]],DEF:[[15,72],[38,72],[62,72],[85,72]],MID:[[25,50],[50,50],[75,50]],ANG:[[20,20],[50,15],[80,20]]},
+  '4-4-2':   {MV:[[50,92]],DEF:[[15,72],[38,72],[62,72],[85,72]],MID:[[15,50],[38,50],[62,50],[85,50]],ANG:[[35,18],[65,18]]},
+  '4-2-3-1': {MV:[[50,92]],DEF:[[15,72],[38,72],[62,72],[85,72]],DM:[[35,60],[65,60]],MID:[[20,40],[50,38],[80,40]],ANG:[[50,18]]},
+  '3-5-2':   {MV:[[50,92]],DEF:[[25,75],[50,72],[75,75]],MID:[[10,52],[30,50],[50,48],[70,50],[90,52]],ANG:[[35,18],[65,18]]},
+  '5-3-2':   {MV:[[50,92]],DEF:[[10,72],[28,72],[50,72],[72,72],[90,72]],MID:[[25,50],[50,48],[75,50]],ANG:[[35,20],[65,20]]},
+  '4-1-4-1': {MV:[[50,92]],DEF:[[15,72],[38,72],[62,72],[85,72]],DM:[[50,62]],MID:[[15,45],[38,45],[62,45],[85,45]],ANG:[[50,18]]}
+};
+
+const POS_LABELS_SHORT={MV:'MV',DEF:'FB',DM:'DM',MID:'CM',ANG:'ANG'};
+let currentBoard = { kampName:'', formation:'4-3-3', lineup:{}, subs:[] };
+let boardKamps = []; // derived from players stats
+
+function renderBoard(){
+  // Build kamp list from player match data
+  const kampMap = {};
+  players.forEach(p=>{
+    ((p.stats||{}).matches||[]).forEach(m=>{
+      if(!kampMap[m.name]) kampMap[m.name]={name:m.name};
+    });
+  });
+  boardKamps = Object.values(kampMap);
+
+  // Populate kamp select
+  var sel = document.getElementById('board-kamp-sel');
+  if(!sel) return;
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">– Vælg kamp –</option>' +
+    boardKamps.map(function(k){ return '<option value="'+k.name+'"'+(k.name===currentBoard.kampName?' selected':'')+'>'+k.name+'</option>'; }).join('');
+  if(cur) sel.value = cur;
+
+  // Formation select
+  var fsel = document.getElementById('board-formation');
+  if(fsel) fsel.value = currentBoard.formation;
+
+  renderBoardSlots();
+  renderPitch();
+}
+
+function boardSelectKamp(name){
+  currentBoard.kampName = name;
+  // Load saved lineup if exists
+  var saved = (window._boardLineups||{})[name];
+  if(saved){ currentBoard.lineup=saved.lineup||{}; currentBoard.formation=saved.formation||'4-3-3'; currentBoard.subs=saved.subs||[]; }
+  else { currentBoard.lineup={}; currentBoard.subs=[]; }
+  var fsel=document.getElementById('board-formation');
+  if(fsel) fsel.value = currentBoard.formation;
+  renderBoardSlots();
+  renderPitch();
+}
+
+function boardSetFormation(f){
+  currentBoard.formation = f;
+  renderBoardSlots();
+  renderPitch();
+}
+
+function getBoardSlots(){
+  var f = FORMATIONS[currentBoard.formation] || FORMATIONS['4-3-3'];
+  var slots = [];
+  Object.keys(f).forEach(function(grp){
+    f[grp].forEach(function(pos, idx){
+      slots.push({id:grp+'_'+idx, label:grp+(f[grp].length>1?idx+1:''), grp:grp, pos:pos});
+    });
+  });
+  return slots;
+}
+
+function renderBoardSlots(){
+  var slots = getBoardSlots();
+  var el = document.getElementById('board-slots');
+  if(!el) return;
+
+  // Get udtagne spillere for den valgte kamp
+  var udtagne = [];
+  if(currentBoard.kampName){
+    udtagne = players.filter(function(p){
+      var m = ((p.stats||{}).matches||[]).find(function(m){ return m.name===currentBoard.kampName; });
+      return m && m.udtaget==='ja';
+    });
+  } else {
+    udtagne = players.slice();
+  }
+  udtagne.sort(function(a,b){ return a.name.localeCompare(b.name,'da'); });
+
+  var opts = '<option value="">– –</option>' +
+    udtagne.map(function(p){ return '<option value="'+p.id+'">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</option>'; }).join('');
+
+  el.innerHTML = slots.map(function(slot){
+    var val = currentBoard.lineup[slot.id]||'';
+    return '<div class="board-slot">'+
+      '<span class="board-slot-label">'+slot.label+'</span>'+
+      '<select onchange="boardAssign(\''+slot.id+'\',this.value)">'+opts.replace('value="'+val+'"','value="'+val+'" selected')+
+      '</select>'+
+    '</div>';
+  }).join('') +
+  // Subs section
+  '<div style="margin-top:10px;font-size:10px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Indskiftere</div>'+
+  '<div id="board-subs-list">'+renderSubsList()+'</div>'+
+  '<div style="display:flex;gap:6px;margin-top:4px;">'+
+    '<select id="board-sub-add-sel" style="flex:1;font-size:11px;">'+
+      '<option value="">+ Tilføj indskifter</option>'+
+      udtagne.map(function(p){ return '<option value="'+p.id+'">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</option>'; }).join('')+
+    '</select>'+
+    '<button class="btn-add-team" onclick="boardAddSub()" style="padding:6px 10px;font-size:11px;">+</button>'+
+  '</div>';
+}
+
+function renderSubsList(){
+  return currentBoard.subs.map(function(pid, i){
+    var p = players.find(function(x){ return x.id===pid; });
+    if(!p) return '';
+    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;background:var(--g50);border:1px solid var(--g200);border-radius:5px;padding:5px 8px;">'+
+      '<span style="flex:1;font-size:11px;font-weight:600;">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</span>'+
+      '<button onclick="boardRemoveSub('+i+')" style="border:none;background:none;cursor:pointer;color:var(--g400);font-size:14px;">×</button>'+
+    '</div>';
+  }).join('');
+}
+
+function boardAddSub(){
+  var sel = document.getElementById('board-sub-add-sel');
+  if(!sel||!sel.value) return;
+  if(!currentBoard.subs.includes(sel.value)) currentBoard.subs.push(sel.value);
+  sel.value='';
+  document.getElementById('board-subs-list').innerHTML=renderSubsList();
+  renderPitch();
+}
+
+function boardRemoveSub(i){
+  currentBoard.subs.splice(i,1);
+  document.getElementById('board-subs-list').innerHTML=renderSubsList();
+  renderPitch();
+}
+
+function boardAssign(slotId, playerId){
+  currentBoard.lineup[slotId] = playerId;
+  renderPitch();
+}
+
+function renderPitch(){
+  var pitch = document.getElementById('board-pitch');
+  if(!pitch) return;
+  var slots = getBoardSlots();
+
+  var dots = slots.map(function(slot){
+    var pid = currentBoard.lineup[slot.id];
+    var p = pid ? players.find(function(x){ return x.id===pid; }) : null;
+    var label = p ? (p.jersey||initials(p.name)) : '?';
+    var name  = p ? p.name.split(' ')[0] : slot.label;
+    var empty = !p ? ' empty' : '';
+    return '<div class="pitch-player" style="left:'+slot.pos[0]+'%;top:'+slot.pos[1]+'%;">'+
+      '<div class="pitch-dot'+empty+'">'+label+'</div>'+
+      '<div class="pitch-name">'+name+'</div>'+
+    '</div>';
+  }).join('');
+
+  // Subs bar
+  var subHtml = '';
+  if(currentBoard.subs.length){
+    var subTags = currentBoard.subs.map(function(pid){
+      var p = players.find(function(x){ return x.id===pid; });
+      return p ? '<span class="pitch-sub-tag">'+(p.jersey?'#'+p.jersey+' ':'')+p.name.split(' ')[0]+'</span>' : '';
+    }).join('');
+    subHtml = '<div class="pitch-sub"><div class="pitch-sub-title">Indskiftere</div><div class="pitch-sub-players">'+subTags+'</div></div>';
+  }
+
+  // Pitch markings
+  pitch.innerHTML =
+    '<div class="pitch-midline"></div>'+
+    '<div class="pitch-centre"></div>'+
+    '<div class="pitch-box-top"></div>'+
+    '<div class="pitch-box-bot"></div>'+
+    dots;
+
+  // Insert subs below pitch
+  var subEl = document.getElementById('board-sub-display');
+  if(!subEl){
+    subEl = document.createElement('div');
+    subEl.id='board-sub-display';
+    pitch.parentNode.insertBefore(subEl, pitch.nextSibling);
+  }
+  subEl.innerHTML = subHtml;
+}
+
+function saveBoardSetup(){
+  if(!currentBoard.kampName){ toast('⚠️ Vælg en kamp først'); return; }
+  if(!window._boardLineups) window._boardLineups={};
+  window._boardLineups[currentBoard.kampName]={
+    formation:currentBoard.formation,
+    lineup:Object.assign({},currentBoard.lineup),
+    subs:currentBoard.subs.slice()
+  };
+  toast('✅ Opstilling gemt for '+currentBoard.kampName);
+  syncToSheets(false); // auto-gem til GitHub
+}
+
+function exportBoardPdf(){
+  if(!currentBoard.kampName){ toast('⚠️ Vælg en kamp først'); return; }
+  var slots=getBoardSlots();
+  var rows=slots.map(function(slot){
+    var pid=currentBoard.lineup[slot.id];
+    var p=pid?players.find(function(x){return x.id===pid;}):null;
+    var name=p?(p.jersey?'#'+p.jersey+' ':'')+p.name:'–';
+    return '<tr><td style="background:'+getBoardGroupColor(slot.grp)+';color:#fff;font-weight:700;padding:4px 8px;font-size:9px;">'+slot.label+'</td><td style="padding:4px 10px;font-size:11px;">'+name+'</td></tr>';
+  }).join('');
+  var subRows=currentBoard.subs.map(function(pid){
+    var p=players.find(function(x){return x.id===pid;});
+    return p?'<tr><td style="background:#5A7A9F;color:#fff;font-weight:700;padding:4px 8px;font-size:9px;">IND</td><td style="padding:4px 10px;font-size:11px;">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</td></tr>':'';
+  }).join('');
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page{size:A4 portrait;margin:12mm 14mm;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:4mm;border-bottom:3px solid #F5C400;margin-bottom:5mm;}table{width:100%;border-collapse:collapse;}tbody tr:nth-child(even) td{background:#F8FAFC;}</style></head><body>';
+  html+='<div class="hdr"><div><div style="font-size:18px;font-weight:700;">'+currentBoard.kampName+'</div><div style="font-size:11px;color:#5A7A9F;margin-top:2px;">FC Skanderborg · Startopstilling · Formation: '+currentBoard.formation+'</div></div><div style="font-size:9px;color:#94A3B8;text-align:right;">'+new Date().toLocaleDateString('da-DK')+'</div></div>';
+  html+='<table><thead><tr><th style="background:#0A2342;color:#F5C400;padding:5px 8px;text-align:left;font-size:9px;text-transform:uppercase;width:15%">Pos.</th><th style="background:#0A2342;color:#F5C400;padding:5px 8px;text-align:left;font-size:9px;text-transform:uppercase;">Spiller</th></tr></thead><tbody>'+rows+subRows+'</tbody></table>';
+  html+='</body></html>';
+  openPdfWindow(html);
+}
+
+function getBoardGroupColor(grp){
+  var map={MV:'#1A6EC0',DEF:'#16A34A',DM:'#d97706',MID:'#7c3aed',ANG:'#dc2626'};
+  return map[grp]||'#0A2342';
+}
+
 
 </script>
 </body>
