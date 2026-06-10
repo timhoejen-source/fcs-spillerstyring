@@ -668,7 +668,22 @@
       }
     }
   ],
-  "matches": [],
+  "matches": [
+    {
+      "id": "mq8jxz4elijizwo9w1g",
+      "kampnr": "574639",
+      "date": "2026-06-13",
+      "time": "11:00",
+      "opponent": "Dalum/Næsby",
+      "hjemme": "Dalum/Næsby",
+      "ude": "Harlev/Skanderborg",
+      "venue": "U",
+      "sted": "ALPI Arena Næsby",
+      "score": "",
+      "hold": "",
+      "name": "Dalum/Næsby (13. jun.)"
+    }
+  ],
   "boardLineups": {},
-  "savedAt": "2026-06-10T20:55:45.713Z"
+  "savedAt": "2026-06-10T21:01:33.562Z"
 }
