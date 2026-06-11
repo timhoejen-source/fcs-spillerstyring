@@ -344,6 +344,27 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .pdf-view-btn:hover{background:var(--ca-bg);}
 .pdf-del-btn{font-size:13px;cursor:pointer;color:var(--g400);background:none;border:none;padding:0 2px;}
 .pdf-del-btn:hover{color:#dc2626;}
+
+.cup-card{background:var(--white);border:1.5px solid var(--g200);border-radius:var(--r);margin-bottom:12px;overflow:hidden;}
+.cup-card-hdr{display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;background:var(--white);}
+.cup-card-hdr:hover{background:var(--g50);}
+.cup-title{font-size:14px;font-weight:700;color:var(--navy);flex:1;}
+.cup-meta{font-size:10px;color:var(--text-soft);}
+.cup-body{border-top:1px solid var(--g200);padding:14px;display:none;}
+.cup-body.open{display:block;}
+.cup-hold-section{background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:12px;margin-bottom:10px;}
+.cup-hold-title{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.cup-player-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:5px;margin-bottom:8px;}
+.cup-player-tag{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--white);border:1px solid var(--g200);border-radius:6px;font-size:11px;font-weight:600;color:var(--text);}
+.cup-player-tag.loanee{background:#EBF2FB;border-color:#bfdbfe;color:#1A6EC0;}
+.cup-player-remove{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--g400);font-size:13px;padding:0 2px;}
+.cup-player-remove:hover{color:#dc2626;}
+.cup-add-hold-row{display:flex;gap:6px;margin-top:8px;}
+.btn-cup-add-hold{padding:7px 12px;background:var(--navy);color:var(--yellow);border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.cup-del-btn{padding:5px 10px;background:var(--white);color:#dc2626;border:1.5px solid #fecaca;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;}
+.cup-del-btn:hover{background:#FEE2E2;}
+.loanee-form{background:#EBF2FB;border:1px solid #bfdbfe;border-radius:7px;padding:10px;margin-top:8px;}
+.loanee-form-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;}
 </style>
 </head>
 <body>
@@ -588,6 +609,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <button class="tab-btn" id="tab-kampe-btn" onclick="switchTab('kampe')">🏆 Kampe</button>
       <button class="tab-btn" id="tab-board-btn" onclick="switchTab('board')">📋 Opstilling</button>
       <button class="tab-btn" id="tab-stilling-btn" onclick="switchTab('stilling')">📊 Stilling</button>
+      <button class="tab-btn" id="tab-cup-btn" onclick="switchTab('cup')">🏅 Cup</button>
     </div>
 
     <!-- Spillere panel -->
@@ -784,6 +806,32 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <div id="stilling-list"></div>
     </div><!-- end tab-stilling -->
 
+    <!-- Cup panel -->
+    <div class="tab-panel" id="tab-cup">
+      <!-- New cup form -->
+      <div class="new-training-form" id="new-cup-form" style="display:none;">
+        <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;">Opret ny cup</div>
+        <div class="form-row">
+          <div class="fg full"><label>Cup navn</label><input type="text" id="cup-name" placeholder="fx Rema 1000 Cup 2026"></div>
+          <div class="fg"><label>Startdato</label><input type="date" id="cup-date-from"></div>
+          <div class="fg"><label>Slutdato</label><input type="date" id="cup-date-to"></div>
+        </div>
+        <div class="fg"><label>Sted / By</label><input type="text" id="cup-location" placeholder="fx Silkeborg"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn-primary" style="margin-top:0;" onclick="saveNewCup()">Gem cup</button>
+          <button class="btn-cancel" onclick="toggleNewCupForm()">Annuller</button>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);">Cup tilmeldinger <span id="cup-count" style="font-size:11px;font-weight:600;color:var(--text-soft);"></span></div>
+        <div id="cup-admin-btns" style="display:flex;gap:6px;">
+          <button class="btn-primary" style="width:auto;padding:7px 14px;margin-top:0;font-size:11px;" onclick="toggleNewCupForm()">+ Ny cup</button>
+        </div>
+      </div>
+      <div id="cup-list"></div>
+    </div><!-- end tab-cup -->
+
   </div><!-- end main -->
 </div>
 
@@ -913,7 +961,7 @@ function applyRole(){
     if(el) el.style.display=isViewer?'none':'flex';
   });
   // Block-elementer (sections, buttons)
-  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn','sb-kampe-admin','sb-dbu'];
+  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn','sb-kampe-admin','sb-dbu','cup-admin-btns'];
   // Show/hide correct sections per role
   const ghSection=document.getElementById('sb-github-section');
   if(ghSection) ghSection.style.display=isViewer?'none':'block';
@@ -1112,6 +1160,7 @@ async function syncToSheets(manual=false){
   try{
     // Byg data-objekt
     const payload={
+      cups,
       players: players.map(function(p){ return p; }),
       teams,
       trainings: trainings.map(function(t){
@@ -1193,6 +1242,8 @@ async function loadFromSheets(silent=false){
     if(payload.boardLineups) window._boardLineups=payload.boardLineups;
     // DBU stilling
     if(Array.isArray(payload.dbuStilling)) dbuStilling=payload.dbuStilling;
+    // Cups
+    if(Array.isArray(payload.cups)) cups=payload.cups;
     // Matches
     if(Array.isArray(payload.matches)) matches=payload.matches;
     // Hold
@@ -1666,6 +1717,8 @@ function switchTab(tab){
   if(tab==='kampe'){renderKampe();populateExportSelectors();}
   if(tab==='board'){renderBoard();renderLoaneeList();populateExportSelectors();}
   if(tab==='stilling'){renderStilling();}
+  if(tab==='cup'){renderCups();}
+  if(tab==='cup'){renderCups();}
 }
 
 function toggleNewTrainingForm(){
@@ -1954,6 +2007,8 @@ function switchTab(tab){
   if(tab==='kampe'){renderKampe();populateExportSelectors();}
   if(tab==='board'){renderBoard();renderLoaneeList();populateExportSelectors();}
   if(tab==='stilling'){renderStilling();}
+  if(tab==='cup'){renderCups();}
+  if(tab==='cup'){renderCups();}
 }
 
 function toggleNewTrainingForm(){
@@ -3084,6 +3139,277 @@ function renderPdfSection(trainingId){
     sec.appendChild(btn);
   }
 }
+
+// ── Cup tilmeldinger ──────────────────────────────────────────────────────────
+
+function saveCups(){
+  try{ localStorage.setItem('fcs-cups', JSON.stringify(cups)); }catch(e){}
+  if(currentRole==='admin' && cfg.ghtoken){
+    clearTimeout(syncTimer);
+    syncTimer=setTimeout(function(){ syncToSheets(false); }, 2000);
+  }
+}
+
+function toggleNewCupForm(){
+  var f=document.getElementById('new-cup-form');
+  var visible=f.style.display!=='none';
+  f.style.display=visible?'none':'block';
+  if(!visible){
+    document.getElementById('cup-name').value='';
+    document.getElementById('cup-date-from').value='';
+    document.getElementById('cup-date-to').value='';
+    document.getElementById('cup-location').value='';
+  }
+}
+
+function saveNewCup(){
+  var name=document.getElementById('cup-name').value.trim();
+  var dateFrom=document.getElementById('cup-date-from').value;
+  var dateTo=document.getElementById('cup-date-to').value;
+  var location=document.getElementById('cup-location').value.trim();
+  if(!name){ toast('⚠️ Skriv cup navn'); return; }
+  cups.unshift({
+    id:uid(), name, dateFrom, dateTo, location,
+    holds:[] // [{id, name, players:[playerId], loanees:[{id,name,team,dob,contact}]}]
+  });
+  saveCups();
+  toggleNewCupForm();
+  renderCups();
+  toast('✅ Cup oprettet: '+name);
+}
+
+function deleteCup(cupId){
+  if(!confirm('Slet denne cup?')) return;
+  cups=cups.filter(function(c){ return c.id!==cupId; });
+  saveCups(); renderCups();
+  toast('🗑️ Cup slettet');
+}
+
+function toggleCupBody(cupId){
+  var body=document.getElementById('cup-body-'+cupId);
+  var chev=document.getElementById('cup-chev-'+cupId);
+  if(!body) return;
+  var open=body.classList.toggle('open');
+  if(chev) chev.classList.toggle('open', open);
+}
+
+function addCupHold(cupId){
+  var inp=document.getElementById('cup-hold-inp-'+cupId);
+  if(!inp) return;
+  var holdName=inp.value.trim();
+  if(!holdName){ toast('⚠️ Skriv holdnavn'); return; }
+  var cup=cups.find(function(c){ return c.id===cupId; });
+  if(!cup) return;
+  cup.holds.push({id:uid(), name:holdName, players:[], loanees:[]});
+  saveCups(); renderCupBody(cupId);
+  inp.value='';
+  toast('✅ Hold tilføjet: '+holdName);
+}
+
+function deleteCupHold(cupId, holdId){
+  var cup=cups.find(function(c){ return c.id===cupId; });
+  if(!cup) return;
+  cup.holds=cup.holds.filter(function(h){ return h.id!==holdId; });
+  saveCups(); renderCupBody(cupId);
+}
+
+function toggleCupPlayer(cupId, holdId, playerId){
+  var cup=cups.find(function(c){ return c.id===cupId; });
+  if(!cup) return;
+  var hold=cup.holds.find(function(h){ return h.id===holdId; });
+  if(!hold) return;
+  var idx=hold.players.indexOf(playerId);
+  if(idx>=0) hold.players.splice(idx,1);
+  else hold.players.push(playerId);
+  saveCups();
+  // Update just the button
+  var btn=document.getElementById('cpbtn-'+holdId+'-'+playerId);
+  if(btn){
+    var sel=hold.players.includes(playerId);
+    btn.style.background=sel?'var(--navy)':'var(--white)';
+    btn.style.color=sel?'var(--yellow)':'var(--g600)';
+    btn.style.borderColor=sel?'var(--navy)':'var(--g200)';
+  }
+  updateCupHoldSummary(cupId, holdId);
+}
+
+function updateCupHoldSummary(cupId, holdId){
+  var cup=cups.find(function(c){ return c.id===cupId; });
+  if(!cup) return;
+  var hold=cup.holds.find(function(h){ return h.id===holdId; });
+  if(!hold) return;
+  var sumEl=document.getElementById('cup-hold-sum-'+holdId);
+  if(sumEl) sumEl.textContent=(hold.players.length+hold.loanees.length)+' spillere tilmeldt';
+}
+
+function addCupLoanee(cupId, holdId){
+  var name=document.getElementById('cl-name-'+holdId).value.trim();
+  var team=document.getElementById('cl-team-'+holdId).value.trim();
+  var dob=document.getElementById('cl-dob-'+holdId).value;
+  var contact=document.getElementById('cl-contact-'+holdId).value.trim();
+  if(!name){ toast('⚠️ Skriv spillerens navn'); return; }
+  var cup=cups.find(function(c){ return c.id===cupId; });
+  if(!cup) return;
+  var hold=cup.holds.find(function(h){ return h.id===holdId; });
+  if(!hold) return;
+  hold.loanees.push({id:uid(), name, team, dob, contact});
+  saveCups(); renderCupBody(cupId);
+  toast('✅ Lånespiller tilføjet: '+name);
+}
+
+function removeCupLoanee(cupId, holdId, loaneeId){
+  var cup=cups.find(function(c){ return c.id===cupId; });
+  if(!cup) return;
+  var hold=cup.holds.find(function(h){ return h.id===holdId; });
+  if(!hold) return;
+  hold.loanees=hold.loanees.filter(function(l){ return l.id!==loaneeId; });
+  saveCups(); renderCupBody(cupId);
+}
+
+function renderCupHold(cup, hold){
+  var isAdmin = currentRole==='admin';
+  var selPlayers=hold.players||[];
+
+  // Player selection grid
+  var playerBtns=[].concat(players).sort(function(a,b){ return a.name.localeCompare(b.name,'da'); }).map(function(p){
+    var sel=selPlayers.includes(p.id);
+    var style='padding:5px 8px;border:1.5px solid '+(sel?'var(--navy)':'var(--g200)')+';border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:'+(sel?'var(--navy)':'var(--white)')+';color:'+(sel?'var(--yellow)':'var(--g600)')+';text-align:left;transition:all .12s;';
+    return isAdmin?
+      '<button id="cpbtn-'+hold.id+'-'+p.id+'" style="'+style+'" data-cup="'+cup.id+'" data-hold="'+hold.id+'" data-player="'+p.id+'" class="cup-player-btn">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</button>':
+      (sel?'<div class="cup-player-tag">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</div>':'');
+  }).join('');
+
+  // Loanee list
+  var loaneeList=(hold.loanees||[]).map(function(l){
+    var dobStr=l.dob?new Date(l.dob).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'}):'';
+    return '<div class="cup-player-tag loanee" style="flex-direction:column;align-items:flex-start;padding:6px 8px;margin-bottom:4px;">'+
+      '<div style="display:flex;width:100%;align-items:center;">'+
+        '<span style="font-weight:700;">'+l.name+(l.team?' <span style="font-weight:400;font-size:10px;">('+l.team+')</span>':'')+'</span>'+
+        (isAdmin?'<button class="cup-player-remove" data-delcuploanee="'+l.id+'" data-cup="'+cup.id+'" data-hold="'+hold.id+'">×</button>':'')+
+      '</div>'+
+      '<div style="font-size:10px;color:#1A6EC0;margin-top:2px;">'+
+        (dobStr?'📅 '+dobStr+' · ':'')+
+        (l.contact?'📞 '+l.contact:'')+'</div>'+
+    '</div>';
+  }).join('');
+
+  // Loanee form (admin only)
+  var loaneeForm=isAdmin?
+    '<div class="loanee-form">'+
+      '<div style="font-size:10px;font-weight:700;color:#1A6EC0;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">+ Tilføj lånespiller</div>'+
+      '<div class="loanee-form-row">'+
+        '<div class="fg" style="margin:0;"><label>Navn</label><input type="text" id="cl-name-'+hold.id+'" placeholder="Fulde navn"></div>'+
+        '<div class="fg" style="margin:0;"><label>Hold/Klub</label><input type="text" id="cl-team-'+hold.id+'" placeholder="fx U13 Viborg"></div>'+
+      '</div>'+
+      '<div class="loanee-form-row">'+
+        '<div class="fg" style="margin:0;"><label>Fødselsdato</label><input type="date" id="cl-dob-'+hold.id+'"></div>'+
+        '<div class="fg" style="margin:0;"><label>Kontakt (tlf/mail)</label><input type="text" id="cl-contact-'+hold.id+'" placeholder="fx 12345678"></div>'+
+      '</div>'+
+      '<button class="btn-add-team" style="margin-top:6px;" data-addcuploanee="'+hold.id+'" data-cup="'+cup.id+'">+ Tilføj lånespiller</button>'+
+    '</div>':'';
+
+  var totalCount=selPlayers.length+(hold.loanees||[]).length;
+
+  return '<div class="cup-hold-section">'+
+    '<div class="cup-hold-title">'+
+      '<span>⚽ '+hold.name+'</span>'+
+      '<span id="cup-hold-sum-'+hold.id+'" style="font-size:10px;font-weight:600;color:var(--text-soft);">'+totalCount+' spillere tilmeldt</span>'+
+      (isAdmin?'<button class="cup-del-btn" style="font-size:10px;padding:3px 8px;" data-delcuphold="'+hold.id+'" data-cup="'+cup.id+'">🗑️</button>':'')+'</div>'+
+    '<div style="font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">'+
+      (isAdmin?'Klik for at vælge/fravælge':'Udvalgte spillere')+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px;margin-bottom:10px;">'+playerBtns+'</div>'+
+    (hold.loanees&&hold.loanees.length?'<div style="font-size:9px;font-weight:700;color:#1A6EC0;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Lånespillere</div>'+loaneeList:'')+
+    loaneeForm+
+  '</div>';
+}
+
+function renderCupBody(cupId){
+  var bodyEl=document.getElementById('cup-body-'+cupId);
+  if(!bodyEl||!bodyEl.classList.contains('open')) return;
+  var cup=cups.find(function(c){ return c.id===cupId; });
+  if(!cup) return;
+  var isAdmin=currentRole==='admin';
+
+  bodyEl.innerHTML=
+    cup.holds.map(function(hold){ return renderCupHold(cup, hold); }).join('')+
+    (isAdmin?
+      '<div class="cup-add-hold-row">'+
+        '<input type="text" id="cup-hold-inp-'+cupId+'" placeholder="Holdnavn fx U14 A" style="flex:1;font-size:12px;" onkeydown="if(event.key===\'Enter\')addCupHold(\''+cupId+'\')">'+
+        '<button class="btn-cup-add-hold" data-addcuphold="'+cupId+'">+ Tilføj hold</button>'+
+      '</div>':'')+
+    (isAdmin?'<div style="margin-top:12px;"><button class="cup-del-btn" data-delcup="'+cupId+'">🗑️ Slet cup</button></div>':'');
+}
+
+function renderCups(){
+  var list=document.getElementById('cup-list');
+  var cnt=document.getElementById('cup-count');
+  if(!list) return;
+  if(cnt) cnt.textContent='('+cups.length+')';
+  var isAdmin=currentRole==='admin';
+  var adminBtns=document.getElementById('cup-admin-btns');
+  if(adminBtns) adminBtns.style.display=isAdmin?'flex':'none';
+
+  if(!cups.length){
+    list.innerHTML='<div class="kamp-empty"><div style="font-size:32px;margin-bottom:10px;">🏅</div><div style="font-size:14px;font-weight:600;color:var(--g600);margin-bottom:4px;">Ingen cups oprettet endnu</div><div style="font-size:12px;">Opret en cup med + Ny cup</div></div>';
+    return;
+  }
+
+  list.innerHTML=cups.map(function(cup){
+    var dateStr='';
+    if(cup.dateFrom&&cup.dateTo) dateStr=new Date(cup.dateFrom).toLocaleDateString('da-DK',{day:'numeric',month:'short'})+' – '+new Date(cup.dateTo).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'});
+    else if(cup.dateFrom) dateStr=new Date(cup.dateFrom).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'});
+    var totalPlayers=cup.holds.reduce(function(acc,h){return acc+h.players.length+h.loanees.length;},0);
+    return '<div class="cup-card">'+
+      '<div class="cup-card-hdr" data-cuptoggle="'+cup.id+'">'+
+        '<div style="flex:1;">'+
+          '<div class="cup-title">🏅 '+cup.name+'</div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">'+
+            (dateStr?'<span class="kamp-info-pill">📅 '+dateStr+'</span>':'')+
+            (cup.location?'<span class="kamp-info-pill">📍 '+cup.location+'</span>':'')+
+            '<span class="kamp-info-pill">⚽ '+cup.holds.length+' hold · '+totalPlayers+' spillere</span>'+
+          '</div>'+
+        '</div>'+
+        '<span class="training-chev" id="cup-chev-'+cup.id+'">▾</span>'+
+      '</div>'+
+      '<div class="cup-body" id="cup-body-'+cup.id+'"></div>'+
+    '</div>';
+  }).join('');
+}
+
+// ── Persistent event delegation for cup ──────────────────────────────────────
+document.addEventListener('click', function(e){
+  // Toggle cup body
+  var tog=e.target.closest('[data-cuptoggle]');
+  if(tog){
+    var cid=tog.getAttribute('data-cuptoggle');
+    toggleCupBody(cid);
+    renderCupBody(cid);
+    return;
+  }
+  // Toggle player on hold
+  var pbtn=e.target.closest('.cup-player-btn');
+  if(pbtn){
+    toggleCupPlayer(pbtn.getAttribute('data-cup'),pbtn.getAttribute('data-hold'),pbtn.getAttribute('data-player'));
+    return;
+  }
+  // Add hold to cup
+  var addHold=e.target.closest('[data-addcuphold]');
+  if(addHold){ addCupHold(addHold.getAttribute('data-addcuphold')); return; }
+  // Delete hold
+  var delHold=e.target.closest('[data-delcuphold]');
+  if(delHold){ deleteCupHold(delHold.getAttribute('data-cup'),delHold.getAttribute('data-delcuphold')); return; }
+  // Add loanee
+  var addLoan=e.target.closest('[data-addcuploanee]');
+  if(addLoan){ addCupLoanee(addLoan.getAttribute('data-cup'),addLoan.getAttribute('data-addcuploanee')); return; }
+  // Remove loanee
+  var delLoan=e.target.closest('[data-delcuploanee]');
+  if(delLoan){ removeCupLoanee(delLoan.getAttribute('data-cup'),delLoan.getAttribute('data-hold'),delLoan.getAttribute('data-delcuploanee')); return; }
+  // Delete cup
+  var delCup=e.target.closest('[data-delcup]');
+  if(delCup){ deleteCup(delCup.getAttribute('data-delcup')); return; }
+});
+
 
 </script>
 </body>
