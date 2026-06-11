@@ -697,6 +697,39 @@
   ],
   "trainings": [
     {
+      "id": "mq91yupefn1co0qy5yl",
+      "date": "2026-06-11",
+      "title": "Træning",
+      "desc": "Træning",
+      "attendance": {
+        "mq4rdodjl0908sxnbk": "ja",
+        "mq4rdodjte78cpjrbd8": "ja",
+        "mq4rdodj2bdm175960h": "ja",
+        "mq4rdodjcijpk2cwa9m": "ja",
+        "mq4rdodj085iq1n9c95d": "ja",
+        "mq4rdodjhw1h8xwmdgm": "ja",
+        "mq4rdodj2cgix7j2jz8": "ja",
+        "mq4rdodjmm8xblygcs": "ja",
+        "mq4rdodjldiuuabgdgi": "ja",
+        "mq4rdodjunxf94vgzw": "ja",
+        "mq4rdodj2p61syd2m28": "ja",
+        "mq4rdodjcww4yz9olkb": "ja",
+        "mq4rdodjcibqin1j1rq": "ja",
+        "mq4rdodjt8c1epp5m8g": "ja",
+        "mq4rdodjru64dehr3xb": "ja",
+        "mq4rdodjp5czdg4eprc": "ja",
+        "mq4rdodj8z8mbxa08jp": "ja",
+        "mq4rdodjf4oeaovcoiq": "ja",
+        "mq4rdodjwgaeo0u6p6h": "ja",
+        "mq4rdodj3dko74qwk7c": "ja",
+        "mq4rdodjyjmnpj7iuao": "ja",
+        "mq4rdodjn00ufiqe0ls": "ja",
+        "mq4rdodjkfd21t4l0es": "ja",
+        "mq4rdodj0njfxaks1fun": "nej",
+        "mq4rdodj5j7yktc3q8f": "nej"
+      }
+    },
+    {
       "id": "mq54rauscn0y15eb5ke",
       "date": "2026-06-09",
       "title": "Åben træning",
@@ -756,5 +789,5 @@
       "subs": []
     }
   },
-  "savedAt": "2026-06-11T05:22:50.092Z"
+  "savedAt": "2026-06-11T05:29:53.453Z"
 }
