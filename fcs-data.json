@@ -66,6 +66,10 @@
           {
             "name": "Dalum/Næsby (13. jun.)",
             "udtaget": "ja"
+          },
+          {
+            "name": "Fortuna Oure (14. jun.)",
+            "udtaget": "ja"
           }
         ],
         "skud": 0,
@@ -95,6 +99,10 @@
           {
             "name": "Dalum/Næsby (13. jun.)",
             "udtaget": "ja"
+          },
+          {
+            "name": "Fortuna Oure (14. jun.)",
+            "udtaget": "ja"
           }
         ],
         "skud": 0,
@@ -119,7 +127,12 @@
       "jersey": "",
       "goal": "Hun skal vokse",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Fortuna Oure (14. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -161,7 +174,12 @@
       "jersey": "",
       "goal": "- Agilitet\n- Hurtighed",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Fortuna Oure (14. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -230,6 +248,10 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          },
+          {
+            "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
           }
         ],
@@ -335,6 +357,10 @@
           {
             "name": "Dalum/Næsby (13. jun.)",
             "udtaget": "ja"
+          },
+          {
+            "name": "Fortuna Oure (14. jun.)",
+            "udtaget": "ja"
           }
         ],
         "skud": 0,
@@ -382,7 +408,12 @@
       "jersey": "",
       "goal": "- Nærkamp\n- Overblik\n- Ro",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Fortuna Oure (14. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -408,6 +439,10 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          },
+          {
+            "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
           }
         ],
@@ -455,6 +490,10 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          },
+          {
+            "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
           }
         ],
@@ -526,7 +565,12 @@
       "jersey": "",
       "goal": "",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Fortuna Oure (14. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -574,7 +618,12 @@
       "jersey": "",
       "goal": "- Vende spillet begge veje\n- Mere højreorienteret",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Fortuna Oure (14. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -626,7 +675,12 @@
       "jersey": "",
       "goal": "- Nærkamp\n- Overblik\n- Ro",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Fortuna Oure (14. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -653,6 +707,10 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          },
+          {
+            "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
           }
         ],
@@ -836,5 +894,5 @@
       ]
     }
   },
-  "savedAt": "2026-06-11T11:55:22.070Z"
+  "savedAt": "2026-06-11T11:57:27.102Z"
 }
