@@ -1756,7 +1756,20 @@ function renderTrainings(){
       '</div>'+
       '<div class="training-body" id="tr-body-'+t.id+'">'+
         (t.desc?'<div class="training-desc"><div class="training-desc-label">📋 Træningsindhold</div>'+t.desc+'</div>':'')+
-        (t.pdf?'<div class="pdf-attached" style="margin-bottom:10px;"><span class="pdf-attached-name">📎 '+(t.pdfName||'Træningsplan.pdf')+'</span><button class="pdf-view-btn" onclick="openPdf(trainings.find(function(x){return x.id===\''+t.id+'\';}).pdf)">📄 Åbn PDF</button></div>':'')+
+        '<div id="tr-pdf-section-'+t.id+'" style="margin-bottom:10px;">'+
+        (t.pdf?
+          '<div class="pdf-attached">'+
+            '<span class="pdf-attached-name">📎 '+(t.pdfName||'Træningsplan.pdf')+'</span>'+
+            '<button class="pdf-view-btn" data-openpdf="'+t.id+'">📄 Åbn</button>'+
+            '<button class="pdf-del-btn" data-delpdf="'+t.id+'" title="Slet PDF">🗑️</button>'+
+          '</div>'
+        :
+          '<div>'+
+            '<input type="file" id="tr-pdf-add-'+t.id+'" accept=".pdf" style="display:none" onchange="trainingAddPdf(this,\''+t.id+'\')" >'+
+            '<button class="btn-import" style="margin-top:0;padding:6px 10px;font-size:11px;" onclick="document.getElementById(\'tr-pdf-add-'+t.id+'\').click()">📎 Vedhæft PDF til træning</button>'+
+          '</div>'
+        )+
+        '</div>'+
         '<div class="training-stats-bar" id="tr-summary-'+t.id+'">'+
           '<span class="training-stat-pill" style="background:#DCFCE7;color:#16A34A;">✅ '+ja+' deltaget</span>'+
           '<span class="training-stat-pill" style="background:#FEE2E2;color:#dc2626;">❌ '+nej+' fraværende</span>'+
@@ -2082,6 +2095,21 @@ function renderKampe(){
   }).join('');
 
   // Event delegation handled by persistent listener in DOMContentLoaded
+  // Also register persistent PDF event delegation
+  document.addEventListener('click', function(e){
+    var openBtn = e.target.closest('[data-openpdf]');
+    if(openBtn){
+      var tid = openBtn.getAttribute('data-openpdf');
+      var t = trainings.find(function(x){ return x.id===tid; });
+      if(t&&t.pdf) openPdf(t.pdf);
+      return;
+    }
+    var delBtn = e.target.closest('[data-delpdf]');
+    if(delBtn){
+      trainingDeletePdf(delBtn.getAttribute('data-delpdf'));
+      return;
+    }
+  });
 }
 
 // ── Board / Opstilling ────────────────────────────────────────────────────────
