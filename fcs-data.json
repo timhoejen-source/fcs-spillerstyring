@@ -112,9 +112,12 @@
         "U14 liga 2"
       ],
       "cls": "B",
-      "pos": [],
+      "pos": [
+        "HB",
+        "VB"
+      ],
       "jersey": "",
-      "goal": "",
+      "goal": "Hun skal vokse",
       "stats": {
         "matches": [],
         "skud": 0,
@@ -323,8 +326,8 @@
       ],
       "cls": "B",
       "pos": [
-        "A",
-        "HA"
+        "HA",
+        "A"
       ],
       "jersey": "",
       "goal": "- Rigtige løb\n- Afslutninger\n- Ligge af",
@@ -782,12 +785,6 @@
       "name": "Dalum/Næsby (13. jun.)"
     }
   ],
-  "boardLineups": {
-    "Dalum/Næsby (13. jun.)": {
-      "formation": "4-3-3",
-      "lineup": {},
-      "subs": []
-    }
-  },
-  "savedAt": "2026-06-11T05:29:53.453Z"
+  "boardLineups": {},
+  "savedAt": "2026-06-11T07:09:40.423Z"
 }
