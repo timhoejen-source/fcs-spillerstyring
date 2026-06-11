@@ -415,6 +415,34 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       </div>
     </div>
 
+    <!-- DBU API -->
+    <div class="sb-section" id="sb-dbu">
+      <div class="sb-section-hdr" onclick="toggleSection(this)">
+        <span class="sb-section-title">⚽ Hent fra DBU</span>
+        <span class="sb-section-chev">▾</span>
+      </div>
+      <div class="sb-section-body open">
+        <div style="font-size:11px;color:var(--text-soft);margin-bottom:10px;line-height:1.5;">Hent kampprogram og stillingsoversigt direkte fra DBU KlubOffice.</div>
+
+        <div style="font-size:10px;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Vælg hold</div>
+        <div id="dbu-teams-list" style="margin-bottom:10px;"></div>
+        <button class="btn-sheets-load" style="width:100%;font-size:11px;margin-bottom:6px;" onclick="dbuFetchTeams()">🔄 Indlæs holdliste</button>
+
+        <div style="font-size:10px;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;margin-top:8px;">Hvad skal hentes?</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:6px;cursor:pointer;">
+          <input type="checkbox" id="dbu-fetch-kampe" checked style="width:14px;height:14px;accent-color:var(--navy);">
+          Kampprogram og resultater
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:10px;cursor:pointer;">
+          <input type="checkbox" id="dbu-fetch-stilling" checked style="width:14px;height:14px;accent-color:var(--navy);">
+          Puljestilling
+        </label>
+
+        <button class="btn-primary" style="margin-top:0;" onclick="dbuFetchAll()">⚽ Hent fra DBU</button>
+        <div id="dbu-status" style="font-size:11px;color:var(--text-soft);text-align:center;margin-top:6px;line-height:1.5;"></div>
+      </div>
+    </div>
+
     <!-- Import -->
     <div class="sb-section" id="sb-import">
       <div class="sb-section-hdr" onclick="toggleSection(this)">
@@ -548,6 +576,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <button class="tab-btn" id="tab-training-btn" onclick="switchTab('training')">⚽ Træning</button>
       <button class="tab-btn" id="tab-kampe-btn" onclick="switchTab('kampe')">🏆 Kampe</button>
       <button class="tab-btn" id="tab-board-btn" onclick="switchTab('board')">📋 Opstilling</button>
+      <button class="tab-btn" id="tab-stilling-btn" onclick="switchTab('stilling')">📊 Stilling</button>
     </div>
 
     <!-- Spillere panel -->
@@ -724,6 +753,15 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       </div>
     </div><!-- end tab-board -->
 
+    <!-- Stilling panel -->
+    <div class="tab-panel" id="tab-stilling">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);">Puljestilling</div>
+        <button class="btn-sheets-load" style="width:auto;padding:7px 12px;font-size:11px;" onclick="dbuFetchAll()">🔄 Opdater fra DBU</button>
+      </div>
+      <div id="stilling-list"></div>
+    </div><!-- end tab-stilling -->
+
   </div><!-- end main -->
 </div>
 
@@ -853,7 +891,7 @@ function applyRole(){
     if(el) el.style.display=isViewer?'none':'flex';
   });
   // Block-elementer (sections, buttons)
-  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn','sb-kampe-admin'];
+  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn','sb-kampe-admin','sb-dbu'];
   // Show/hide correct sections per role
   const ghSection=document.getElementById('sb-github-section');
   if(ghSection) ghSection.style.display=isViewer?'none':'block';
@@ -1001,7 +1039,7 @@ async function syncToSheets(manual=false){
   try{
     // Byg data-objekt
     const payload={
-      players,teams,trainings,matches,
+      players,teams,trainings,matches,dbuStilling,
       boardLineups:window._boardLineups||{},
       savedAt:new Date().toISOString()
     };
@@ -1066,6 +1104,8 @@ async function loadFromSheets(silent=false){
     }
     // Board lineups
     if(payload.boardLineups) window._boardLineups=payload.boardLineups;
+    // DBU stilling
+    if(Array.isArray(payload.dbuStilling)) dbuStilling=payload.dbuStilling;
     // Matches
     if(Array.isArray(payload.matches)) matches=payload.matches;
     // Hold
@@ -1519,6 +1559,9 @@ function exportAllPdf(){
 // ── Training ──────────────────────────────────────────────────────────────────
 let trainings = JSON.parse(localStorage.getItem('fcs-trainings')||'[]');
 let matches = JSON.parse(localStorage.getItem('fcs-matches')||'[]');
+let dbuStilling = JSON.parse(localStorage.getItem('fcs-stilling')||'[]');
+const DBU_KEY = '1fb89769-f006-48b2-a0f0-b993bb1d7778';
+const DBU_BASE = 'https://clubservice.dbu.dk/api';
 let activeKampFilter = 'alle';
 
 function saveTrainings(){
@@ -1533,6 +1576,7 @@ function switchTab(tab){
   if(tab==='training'){renderTrainings();populateExportSelectors();}
   if(tab==='kampe'){renderKampe();populateExportSelectors();}
   if(tab==='board'){renderBoard();renderLoaneeList();populateExportSelectors();}
+  if(tab==='stilling'){renderStilling();}
 }
 
 function toggleNewTrainingForm(){
@@ -1801,6 +1845,7 @@ function switchTab(tab){
   if(tab==='training'){renderTrainings();populateExportSelectors();}
   if(tab==='kampe'){renderKampe();populateExportSelectors();}
   if(tab==='board'){renderBoard();renderLoaneeList();populateExportSelectors();}
+  if(tab==='stilling'){renderStilling();}
 }
 
 function toggleNewTrainingForm(){
@@ -2652,6 +2697,200 @@ function exportKampPdf(){
       '<span>FC Skanderborg · Pigeudvalg</span><span>'+kamp.opponent+' · '+dateStr+'</span></div>'+
     '</body></html>';
   openPdfWindow(html);
+}
+
+
+// ── DBU API ───────────────────────────────────────────────────────────────────
+var dbuTeams = [];
+var dbuSelectedTeams = {};
+
+function dbuStatus(msg, isErr){
+  var el = document.getElementById('dbu-status');
+  if(el){ el.textContent = msg; el.style.color = isErr ? '#dc2626' : 'var(--text-soft)'; }
+}
+
+async function dbuFetchTeams(){
+  dbuStatus('Henter holdliste fra DBU…');
+  try{
+    var res = await fetch(DBU_BASE+'/Team?APIKey='+DBU_KEY);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    dbuTeams = await res.json();
+    renderDbuTeams();
+    dbuStatus('✅ '+dbuTeams.length+' hold fundet');
+  }catch(e){
+    dbuStatus('❌ '+e.message, true);
+  }
+}
+
+function renderDbuTeams(){
+  var el = document.getElementById('dbu-teams-list');
+  if(!el) return;
+  if(!dbuTeams.length){
+    el.innerHTML='<div style="font-size:11px;color:var(--text-soft);">Tryk "Indlæs holdliste" for at se holdene</div>';
+    return;
+  }
+  el.innerHTML = dbuTeams.map(function(t){
+    var checked = dbuSelectedTeams[t.TeamId] ? 'checked' : '';
+    return '<label style="display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:5px;cursor:pointer;padding:5px 8px;background:var(--g50);border:1px solid var(--g200);border-radius:6px;">'+
+      '<input type="checkbox" value="'+t.TeamId+'" '+checked+' style="width:13px;height:13px;accent-color:var(--navy);" onchange="dbuToggleTeam(\''+t.TeamId+'\',\''+t.PoolId+'\',\''+t.Name+'\',this.checked)">'+
+      '<span style="flex:1;">'+t.Name+'</span>'+
+      '<span style="font-size:9px;color:var(--text-soft);">'+( t.DivisionName||'')+'</span>'+
+    '</label>';
+  }).join('');
+}
+
+function dbuToggleTeam(teamId, poolId, name, checked){
+  if(checked) dbuSelectedTeams[teamId] = {teamId, poolId, name};
+  else delete dbuSelectedTeams[teamId];
+}
+
+async function dbuFetchAll(){
+  var selected = Object.values(dbuSelectedTeams);
+  if(!selected.length){ toast('⚠️ Vælg mindst ét hold'); return; }
+  var fetchKampe = document.getElementById('dbu-fetch-kampe').checked;
+  var fetchStilling = document.getElementById('dbu-fetch-stilling').checked;
+  if(!fetchKampe && !fetchStilling){ toast('⚠️ Vælg hvad der skal hentes'); return; }
+
+  dbuStatus('Henter fra DBU…');
+  var addedKampe = 0, updatedKampe = 0, stillingHold = 0;
+
+  for(var i=0; i<selected.length; i++){
+    var team = selected[i];
+    dbuStatus('Henter '+team.name+'…');
+
+    if(fetchKampe){
+      try{
+        var res = await fetch(DBU_BASE+'/TeamMatch?APIKey='+DBU_KEY+'&PoolId='+team.poolId+'&TeamId='+team.teamId);
+        if(!res.ok) throw new Error('Kampe: HTTP '+res.status);
+        var data = await res.json();
+        var kampList = data.Matches || data.matches || data || [];
+        kampList.forEach(function(m){
+          // Parse DBU match fields
+          var dateRaw = m.MatchDate || m.matchDate || '';
+          var dateStr = '';
+          if(dateRaw){
+            var d = new Date(dateRaw);
+            if(!isNaN(d)) dateStr = d.toISOString().slice(0,10);
+          }
+          var timeStr = '';
+          if(dateRaw && dateRaw.includes('T')) timeStr = dateRaw.split('T')[1].slice(0,5);
+
+          var hjemme = m.HomeTeamName || m.homeTeamName || '';
+          var ude    = m.AwayTeamName || m.awayTeamName || '';
+          var fcsNames = ['fc skanderborg','fcs','skanderborg'];
+          var erHjemme = fcsNames.some(function(n){ return hjemme.toLowerCase().includes(n); });
+          var modstander = erHjemme ? ude : hjemme;
+          var venue = erHjemme ? 'H' : 'U';
+
+          var scoreH = (m.HomeGoals !== undefined && m.HomeGoals !== null) ? String(m.HomeGoals) : '';
+          var scoreU = (m.AwayGoals !== undefined && m.AwayGoals !== null) ? String(m.AwayGoals) : '';
+          var score = (scoreH !== '' && scoreU !== '') ? scoreH+'-'+scoreU : '';
+
+          var sted = m.MatchLocation || m.matchLocation || m.VenueName || '';
+          var kampnr = String(m.MatchNumber || m.matchNumber || m.MatchId || '');
+          var dateLabel = dateStr ? new Date(dateStr).toLocaleDateString('da-DK',{day:'numeric',month:'short'}) : '';
+          var name = modstander + (dateLabel?' ('+dateLabel+')':'');
+
+          // Check if match already exists
+          var existing = matches.find(function(x){ return x.dbuId && x.dbuId===String(m.MatchId||m.matchId||''); });
+          if(existing){
+            // Update score if changed
+            if(score && existing.score !== score){ existing.score = score; updatedKampe++; }
+          } else {
+            matches.push({
+              id: uid(),
+              dbuId: String(m.MatchId||m.matchId||kampnr),
+              kampnr, date:dateStr, time:timeStr,
+              opponent:modstander, hjemme, ude,
+              venue, sted, score,
+              hold: team.name, name
+            });
+            addedKampe++;
+          }
+        });
+      }catch(e){ dbuStatus('❌ '+e.message, true); return; }
+    }
+
+    if(fetchStilling){
+      try{
+        var sRes = await fetch(DBU_BASE+'/TeamPoolPosition?APIKey='+DBU_KEY+'&PoolId='+team.poolId+'&TeamId='+team.teamId);
+        if(!sRes.ok) throw new Error('Stilling: HTTP '+sRes.status);
+        var sData = await sRes.json();
+        // Store stilling keyed by poolId
+        var existing = dbuStilling.findIndex(function(x){ return x.poolId===team.poolId; });
+        var entry = { poolId:team.poolId, teamName:team.name, updatedAt:new Date().toISOString(), data:sData };
+        if(existing>=0) dbuStilling[existing]=entry;
+        else dbuStilling.push(entry);
+        stillingHold++;
+        localStorage.setItem('fcs-stilling', JSON.stringify(dbuStilling));
+      }catch(e){ dbuStatus('❌ '+e.message, true); return; }
+    }
+  }
+
+  matches.sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  saveAll();
+  renderKampe();
+  renderSbKampe();
+  if(document.getElementById('tab-stilling') && document.getElementById('tab-stilling').classList.contains('active')) renderStilling();
+
+  var msg = [];
+  if(fetchKampe) msg.push(addedKampe+' nye kampe'+(updatedKampe?' · '+updatedKampe+' opdateret':''));
+  if(fetchStilling) msg.push(stillingHold+' stillingsoversigt');
+  dbuStatus('✅ Hentet: '+msg.join(' · '));
+  toast('✅ DBU: '+msg.join(', '));
+}
+
+// ── Stilling tab ──────────────────────────────────────────────────────────────
+function renderStilling(){
+  var list = document.getElementById('stilling-list');
+  if(!list) return;
+
+  if(!dbuStilling.length){
+    list.innerHTML='<div class="kamp-empty"><div style="font-size:32px;margin-bottom:10px;">📊</div><div style="font-size:14px;font-weight:600;color:var(--g600);margin-bottom:4px;">Ingen stillingsoversigt endnu</div><div style="font-size:12px;">Hent fra DBU i sidepanelet</div></div>';
+    return;
+  }
+
+  list.innerHTML = dbuStilling.map(function(entry){
+    var rows = entry.data || [];
+    if(!Array.isArray(rows)) rows = rows.Positions || rows.positions || [];
+    var updStr = entry.updatedAt ? new Date(entry.updatedAt).toLocaleString('da-DK',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+
+    var tableRows = rows.map(function(row){
+      var isFcs = (row.TeamName||'').toLowerCase().includes('skanderborg');
+      var bg = isFcs ? 'background:#FEF9C3;font-weight:700;' : '';
+      return '<tr style="'+bg+'">'+
+        '<td style="padding:4px 8px;text-align:center;font-weight:700;">'+( row.Position||row.position||'')+'</td>'+
+        '<td style="padding:4px 8px;">'+( row.TeamName||row.teamName||'')+'</td>'+
+        '<td style="padding:4px 8px;text-align:center;">'+(row.Played||row.played||0)+'</td>'+
+        '<td style="padding:4px 8px;text-align:center;">'+(row.Won||row.won||0)+'</td>'+
+        '<td style="padding:4px 8px;text-align:center;">'+(row.Drawn||row.drawn||0)+'</td>'+
+        '<td style="padding:4px 8px;text-align:center;">'+(row.Lost||row.lost||0)+'</td>'+
+        '<td style="padding:4px 8px;text-align:center;">'+(row.GoalsFor||row.goalsFor||0)+'-'+(row.GoalsAgainst||row.goalsAgainst||0)+'</td>'+
+        '<td style="padding:4px 8px;text-align:center;font-weight:700;">'+(row.Points||row.points||0)+'</td>'+
+      '</tr>';
+    }).join('');
+
+    return '<div style="background:var(--white);border:1.5px solid var(--g200);border-radius:var(--r);padding:14px;margin-bottom:12px;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'+
+        '<div style="font-size:13px;font-weight:700;color:var(--navy);">📊 '+entry.teamName+'</div>'+
+        '<div style="font-size:10px;color:var(--text-soft);">Opdateret: '+updStr+'</div>'+
+      '</div>'+
+      '<div style="overflow-x:auto;">'+
+      '<table style="width:100%;border-collapse:collapse;font-size:11px;">'+
+        '<thead><tr style="background:var(--navy);">'+
+          '<th style="color:var(--yellow);padding:4px 8px;text-align:center;font-size:9px;">Pl.</th>'+
+          '<th style="color:var(--yellow);padding:4px 8px;text-align:left;font-size:9px;">Hold</th>'+
+          '<th style="color:var(--yellow);padding:4px 8px;text-align:center;font-size:9px;">K</th>'+
+          '<th style="color:var(--yellow);padding:4px 8px;text-align:center;font-size:9px;">V</th>'+
+          '<th style="color:var(--yellow);padding:4px 8px;text-align:center;font-size:9px;">U</th>'+
+          '<th style="color:var(--yellow);padding:4px 8px;text-align:center;font-size:9px;">T</th>'+
+          '<th style="color:var(--yellow);padding:4px 8px;text-align:center;font-size:9px;">Mål</th>'+
+          '<th style="color:var(--yellow);padding:4px 8px;text-align:center;font-size:9px;">Pts</th>'+
+        '</tr></thead>'+
+        '<tbody>'+tableRows+'</tbody>'+
+      '</table></div>'+
+    '</div>';
+  }).join('');
 }
 
 
