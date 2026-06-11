@@ -2983,6 +2983,61 @@ function renderStilling(){
 }
 
 
+function trainingAddPdf(input, trainingId){
+  var file=input.files[0];
+  if(!file) return;
+  if(file.size>5*1024*1024){toast('⚠️ PDF er for stor (maks 5 MB)');input.value='';return;}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var t=trainings.find(function(x){return x.id===trainingId;});
+    if(!t) return;
+    t.pdf=e.target.result;
+    t.pdfName=file.name;
+    saveTrainings();
+    renderPdfSection(trainingId);
+    toast('✅ PDF vedhæftet: '+file.name);
+  };
+  reader.readAsDataURL(file);
+}
+
+function trainingDeletePdf(trainingId){
+  if(!confirm('Slet vedhæftet PDF?')) return;
+  var t=trainings.find(function(x){return x.id===trainingId;});
+  if(!t) return;
+  t.pdf=null; t.pdfName=null;
+  saveTrainings();
+  renderPdfSection(trainingId);
+  toast('🗑️ PDF slettet');
+}
+
+function renderPdfSection(trainingId){
+  var sec=document.getElementById('tr-pdf-section-'+trainingId);
+  if(!sec) return;
+  var t=trainings.find(function(x){return x.id===trainingId;});
+  if(!t) return;
+  if(t.pdf){
+    sec.innerHTML=
+      '<div class="pdf-attached">'+
+        '<span class="pdf-attached-name">📎 '+(t.pdfName||'Træningsplan.pdf')+'</span>'+
+        '<button class="pdf-view-btn" data-openpdf="'+trainingId+'">📄 Åbn</button>'+
+        '<button class="pdf-del-btn" data-delpdf="'+trainingId+'" title="Slet PDF">🗑️</button>'+
+      '</div>';
+  } else {
+    var inp=document.createElement('input');
+    inp.type='file'; inp.accept='.pdf'; inp.style.display='none';
+    inp.id='tr-pdf-add-'+trainingId;
+    inp.addEventListener('change',function(){ trainingAddPdf(this,trainingId); });
+    var btn=document.createElement('button');
+    btn.className='btn-import';
+    btn.style.cssText='margin-top:0;padding:6px 10px;font-size:11px;';
+    btn.textContent='📎 Vedhæft PDF til træning';
+    btn.addEventListener('click',function(){ inp.click(); });
+    sec.innerHTML='';
+    sec.appendChild(inp);
+    sec.appendChild(btn);
+  }
+}
+
 </script>
 </body>
 </html>
