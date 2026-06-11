@@ -833,6 +833,40 @@
     }
   ],
   "dbuStilling": [],
-  "boardLineups": {},
-  "savedAt": "2026-06-11T18:53:48.370Z"
+  "boardLineups": {
+    "Dalum/Næsby (13. jun.)": {
+      "formation": "4-3-3",
+      "lineup": {
+        "MV_0": "mq4rdodjte78cpjrbd8",
+        "DEF_0": "mq4rdodj2bdm175960h",
+        "DEF_1": "mq4rdodj2cgix7j2jz8",
+        "DEF_2": "mq4rdodjmm8xblygcs",
+        "DEF_3": "mq4rdodjunxf94vgzw",
+        "MID_0": "mq4rdodj2p61syd2m28",
+        "MID_1": "mq4rdodjcibqin1j1rq",
+        "MID_2": "mq4rdodjt8c1epp5m8g",
+        "ANG_0": "mq4rdodjru64dehr3xb",
+        "ANG_1": "mq4rdodj3dko74qwk7c",
+        "ANG_2": "mq4rdodjyjmnpj7iuao"
+      },
+      "subs": [
+        "mq4rdodjkfd21t4l0es"
+      ],
+      "loanees": [
+        {
+          "id": "loan-mq9vvewgqeudn3c8uwj",
+          "name": "Jane Doe1",
+          "team": "U13",
+          "isLoanee": true
+        },
+        {
+          "id": "loan-mq9vvlrcvjbtznfd34",
+          "name": "Jane Doe2",
+          "team": "U13",
+          "isLoanee": true
+        }
+      ]
+    }
+  },
+  "savedAt": "2026-06-11T19:21:44.405Z"
 }
