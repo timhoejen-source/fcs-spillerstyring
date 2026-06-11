@@ -1002,6 +1002,15 @@ function renderMatchList(){
 
 // Starter tom — hent data fra Google Sheets
 
+function loadTrainingPdfs(){
+  try{
+    var pdfs=JSON.parse(localStorage.getItem('fcs-training-pdfs')||'{}');
+    trainings.forEach(function(t){
+      if(pdfs[t.id]){t.pdf=pdfs[t.id].pdf;t.pdfName=pdfs[t.id].pdfName;}
+    });
+  }catch(e){console.warn('loadTrainingPdfs error:',e);}
+}
+
 window.addEventListener('DOMContentLoaded',()=>{
   // Tjek session login FØR alt andet
   const savedRole = sessionStorage.getItem('fcs-auth');
