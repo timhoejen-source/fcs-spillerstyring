@@ -753,9 +753,7 @@
   ],
   "teams": [
     "U14 liga 2",
-    "U15 liga 2",
-    "U15 Liga2",
-    "U14 Liga2"
+    "U15 liga 2"
   ],
   "trainings": [
     {
@@ -865,5 +863,5 @@
   ],
   "dbuStilling": [],
   "boardLineups": {},
-  "savedAt": "2026-06-11T15:43:56.166Z"
+  "savedAt": "2026-06-11T18:45:22.149Z"
 }
