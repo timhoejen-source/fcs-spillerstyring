@@ -1014,6 +1014,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('loginOverlay').style.display='flex';
   }
   // GitHub credentials hardcoded
+  loadTrainingPdfs();
   updateStatus();renderTeams();renderSelects();render();
   applyRole();
 
@@ -1632,6 +1633,7 @@ function exportAllPdf(){
 
 // ── Training ──────────────────────────────────────────────────────────────────
 let trainings=(function(){try{return JSON.parse(localStorage.getItem('fcs-trainings')||'[]');}catch(e){return [];}})();
+// PDFs loaded separately after DOM ready
 let matches=(function(){try{return JSON.parse(localStorage.getItem('fcs-matches')||'[]');}catch(e){return [];}})();
 let dbuStilling=(function(){try{return JSON.parse(localStorage.getItem('fcs-stilling')||'[]');}catch(e){return [];}})();
 const DBU_KEY = '1fb89769-f006-48b2-a0f0-b993bb1d7778';
