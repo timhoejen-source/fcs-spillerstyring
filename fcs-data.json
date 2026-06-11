@@ -801,9 +801,25 @@
         "DEF_2": "mq4rdodjunxf94vgzw"
       },
       "subs": [
-        "mq4rdodjte78cpjrbd8"
+        "mq4rdodjte78cpjrbd8",
+        "loan-mq96jod2osgkn1vh44n",
+        "loan-mq96jyscp07i2m35ete"
+      ],
+      "loanees": [
+        {
+          "id": "loan-mq96jod2osgkn1vh44n",
+          "name": "låne1",
+          "team": "U13",
+          "isLoanee": true
+        },
+        {
+          "id": "loan-mq96jyscp07i2m35ete",
+          "name": "låne2",
+          "team": "U13",
+          "isLoanee": true
+        }
       ]
     }
   },
-  "savedAt": "2026-06-11T07:23:27.634Z"
+  "savedAt": "2026-06-11T07:33:23.039Z"
 }
