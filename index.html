@@ -1026,6 +1026,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   loadTrainingPdfs();
   updateStatus();renderTeams();renderSelects();render();
   applyRole();
+  // Restore last active tab
+  var lastTab=localStorage.getItem('fcs-active-tab')||'spillere';
+  if(lastTab!=='spillere'){ try{ switchTab(lastTab); }catch(e){} }
 
   // PDF file input change via event delegation
   document.addEventListener('change', function(e){
@@ -1658,6 +1661,7 @@ function switchTab(tab){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
+  try{ localStorage.setItem('fcs-active-tab', tab); }catch(e){}
   if(tab==='training'){renderTrainings();populateExportSelectors();}
   if(tab==='kampe'){renderKampe();populateExportSelectors();}
   if(tab==='board'){renderBoard();renderLoaneeList();populateExportSelectors();}
@@ -1945,6 +1949,7 @@ function switchTab(tab){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
+  try{ localStorage.setItem('fcs-active-tab', tab); }catch(e){}
   if(tab==='training'){renderTrainings();populateExportSelectors();}
   if(tab==='kampe'){renderKampe();populateExportSelectors();}
   if(tab==='board'){renderBoard();renderLoaneeList();populateExportSelectors();}
@@ -2134,9 +2139,9 @@ function renderKampe(){
     if(openBtn){
       var tid = openBtn.getAttribute('data-openpdf');
       var t = trainings.find(function(x){ return x.id===tid; });
-      if(!t){ toast('⚠️ Træning ikke fundet (id: '+tid+')'); return; }
-      if(!t.pdf){ toast('⚠️ Ingen PDF data på denne træning — prøv at vedhæfte igen'); return; }
-      openPdf(t.pdf);
+      if(!t){ toast('⚠️ Træning ikke fundet'); return; }
+      if(!t.pdf){ toast('⚠️ Ingen PDF — vedhæft filen igen'); return; }
+      openPdf(t.pdf, t.pdfName||'traening.pdf');
       return;
     }
     var delBtn = e.target.closest('[data-delpdf]');
