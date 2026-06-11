@@ -333,6 +333,16 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .sb-kamp-del:hover{background:#FEE2E2;}
 .sb-kamp-hold-row{display:flex;gap:5px;align-items:center;}
 .sb-kamp-hold-row select{flex:1;font-size:11px;padding:4px 6px;}
+
+.pdf-upload-zone{border:2px dashed var(--g200);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all .15s;margin-top:8px;}
+.pdf-upload-zone:hover{border-color:var(--blue);background:var(--blue-light);}
+.pdf-upload-zone.has-file{border-color:var(--ca);background:var(--ca-bg);}
+.pdf-attached{display:flex;align-items:center;gap:8px;background:var(--ca-bg);border:1px solid #86efac;border-radius:7px;padding:7px 10px;margin-top:6px;}
+.pdf-attached-name{flex:1;font-size:11px;font-weight:600;color:var(--ca);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pdf-view-btn{font-size:11px;font-weight:700;padding:4px 10px;background:var(--white);border:1px solid #86efac;border-radius:5px;cursor:pointer;color:var(--ca);white-space:nowrap;}
+.pdf-view-btn:hover{background:var(--ca-bg);}
+.pdf-del-btn{font-size:13px;cursor:pointer;color:var(--g400);background:none;border:none;padding:0 2px;}
+.pdf-del-btn:hover{color:#dc2626;}
 </style>
 </head>
 <body>
@@ -626,6 +636,17 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
           <div class="fg"><label>Titel</label><input type="text" id="tr-title" placeholder="fx Teknisk træning"></div>
         </div>
         <div class="fg"><label>Beskrivelse af træningsindhold</label><textarea id="tr-desc" style="min-height:80px;" placeholder="Beskriv øvelser, fokuspunkter, noter…"></textarea></div>
+        <div class="fg">
+          <label>Vedhæft PDF (maks 5 MB)</label>
+          <div class="pdf-upload-zone" id="tr-pdf-zone" onclick="document.getElementById('tr-pdf-input').click()">
+            📎 Klik for at vælge PDF-fil
+          </div>
+          <input type="file" id="tr-pdf-input" accept=".pdf" style="display:none" onchange="trPdfSelected(this)">
+          <div id="tr-pdf-preview" style="display:none;" class="pdf-attached">
+            <span class="pdf-attached-name" id="tr-pdf-name"></span>
+            <button class="pdf-del-btn" onclick="trPdfClear()">✕</button>
+          </div>
+        </div>
         <div style="display:flex;gap:8px;margin-top:8px;">
           <button class="btn-primary" style="margin-top:0;" onclick="saveNewTraining()">Gem træning</button>
           <button class="btn-cancel" onclick="toggleNewTrainingForm()">Annuller</button>
@@ -910,6 +931,37 @@ function applyRole(){
 let fCls='',fPos=[],mCls='',mPos=[],activeClsFilter='alle',activePosFilter='alle',activeTeamFilter='alle',searchQ='',editId=null,syncTimer=null;
 
 let mMatchToggle='ja';
+let trPdfData = null; // base64 string for new training PDF
+
+function trPdfSelected(input){
+  var file = input.files[0];
+  if(!file) return;
+  if(file.size > 5*1024*1024){ toast('⚠️ PDF er for stor (maks 5 MB)'); input.value=''; return; }
+  var reader = new FileReader();
+  reader.onload = function(e){
+    trPdfData = e.target.result; // data:application/pdf;base64,...
+    document.getElementById('tr-pdf-name').textContent = file.name;
+    document.getElementById('tr-pdf-preview').style.display = 'flex';
+    document.getElementById('tr-pdf-zone').style.display = 'none';
+    var zone = document.getElementById('tr-pdf-zone');
+    if(zone) zone.classList.add('has-file');
+  };
+  reader.readAsDataURL(file);
+}
+
+function trPdfClear(){
+  trPdfData = null;
+  document.getElementById('tr-pdf-input').value = '';
+  document.getElementById('tr-pdf-preview').style.display = 'none';
+  document.getElementById('tr-pdf-zone').style.display = 'block';
+}
+
+function openPdf(base64){
+  var win = window.open('');
+  if(!win){ toast('⚠️ Tillad popups for at åbne PDF'); return; }
+  win.document.write('<iframe src="'+base64+'" style="width:100%;height:100vh;border:none;"></iframe>');
+  win.document.close();
+}
 let mMatches=[];
 
 function setMatchToggle(v){
@@ -1590,6 +1642,7 @@ function toggleNewTrainingForm(){
     document.getElementById('tr-date').value=new Date().toISOString().slice(0,10);
     document.getElementById('tr-title').value='';
     document.getElementById('tr-desc').value='';
+    trPdfClear();
   }
 }
 
@@ -1603,13 +1656,16 @@ function saveNewTraining(){
     date,
     title,
     desc,
+    pdf: trPdfData || null,
+    pdfName: trPdfData ? (document.getElementById('tr-pdf-name').textContent||'Træningsplan.pdf') : null,
     attendance:{} // playerId -> 'ja'|'nej'
   };
   trainings.unshift(t);
   saveTrainings();
+  trPdfClear();
   toggleNewTrainingForm();
   renderTrainings();
-  toast('✅ Træning gemt');
+  toast('✅ Træning gemt'+(t.pdf?' med PDF':''));
 }
 
 function deleteTraining(id){
@@ -1700,6 +1756,7 @@ function renderTrainings(){
       '</div>'+
       '<div class="training-body" id="tr-body-'+t.id+'">'+
         (t.desc?'<div class="training-desc"><div class="training-desc-label">📋 Træningsindhold</div>'+t.desc+'</div>':'')+
+        (t.pdf?'<div class="pdf-attached" style="margin-bottom:10px;"><span class="pdf-attached-name">📎 '+(t.pdfName||'Træningsplan.pdf')+'</span><button class="pdf-view-btn" onclick="openPdf(trainings.find(function(x){return x.id===\''+t.id+'\';}).pdf)">📄 Åbn PDF</button></div>':'')+
         '<div class="training-stats-bar" id="tr-summary-'+t.id+'">'+
           '<span class="training-stat-pill" style="background:#DCFCE7;color:#16A34A;">✅ '+ja+' deltaget</span>'+
           '<span class="training-stat-pill" style="background:#FEE2E2;color:#dc2626;">❌ '+nej+' fraværende</span>'+
@@ -1859,6 +1916,7 @@ function toggleNewTrainingForm(){
     document.getElementById('tr-date').value=new Date().toISOString().slice(0,10);
     document.getElementById('tr-title').value='';
     document.getElementById('tr-desc').value='';
+    trPdfClear();
   }
 }
 
@@ -1872,13 +1930,16 @@ function saveNewTraining(){
     date,
     title,
     desc,
+    pdf: trPdfData || null,
+    pdfName: trPdfData ? (document.getElementById('tr-pdf-name').textContent||'Træningsplan.pdf') : null,
     attendance:{} // playerId -> 'ja'|'nej'
   };
   trainings.unshift(t);
   saveTrainings();
+  trPdfClear();
   toggleNewTrainingForm();
   renderTrainings();
-  toast('✅ Træning gemt');
+  toast('✅ Træning gemt'+(t.pdf?' med PDF':''));
 }
 
 function deleteTraining(id){
