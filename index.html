@@ -1929,8 +1929,11 @@ function renderKampe(){
     var jaList=players.filter(function(p){ var m=((p.stats||{}).matches||[]).find(function(m){return m.name===name;}); return m&&m.udtaget==='ja'; });
     var nejList=players.filter(function(p){ var m=((p.stats||{}).matches||[]).find(function(m){return m.name===name;}); return m&&m.udtaget==='nej'; });
     var noneList=players.filter(function(p){ var m=((p.stats||{}).matches||[]).find(function(m){return m.name===name;}); return !m||!m.udtaget; });
-    var udtaget=jaList.length;
-    var pct=Math.round(udtaget/14*100);
+    // Add loanees from board lineup for this match
+    var boardEntry=(window._boardLineups||{})[name];
+    var loaneeCount=boardEntry&&boardEntry.loanees?boardEntry.loanees.length:0;
+    var udtaget=jaList.length+loaneeCount;
+    var pct=Math.min(100,Math.round(udtaget/14*100));
 
     // Attendance rows for ALL players
     var attRows=[].concat(players).sort(function(a,b){return a.name.localeCompare(b.name,'da');}).map(function(p){
@@ -1960,7 +1963,7 @@ function renderKampe(){
             (kamp.kampnr?'<span class="kamp-info-pill">Kamp '+kamp.kampnr+'</span>':'')+
           '</div>'+
         '</div>'+
-        '<span id="kbadge-'+name+'" class="kamp-count-badge">✅ '+udtaget+' udtaget</span>'+
+        '<span id="kbadge-'+name+'" class="kamp-count-badge">✅ '+udtaget+' udtaget'+(loaneeCount?' (inkl. '+loaneeCount+' lån)':'')+' </span>'+
         '<span class="kamp-chev" id="kchev-'+name+'">▾</span>'+
       '</div>'+
       '<div class="kamp-bar-wrap" style="margin-top:8px;"><div class="kamp-bar" style="width:'+pct+'%"></div></div>'+
@@ -2418,8 +2421,11 @@ function updateKampSummary(kampName){
     var m=((p.stats||{}).matches||[]).find(function(m){return m.name===kampName;});
     return m&&m.udtaget==='ja';
   }).length;
+  var boardEntry=(window._boardLineups||{})[kampName];
+  var loaneeCount=boardEntry&&boardEntry.loanees?boardEntry.loanees.length:0;
+  var total=jaCount+loaneeCount;
   var badge=document.getElementById('kbadge-'+CSS.escape(kampName));
-  if(badge) badge.textContent='✅ '+jaCount+' udtaget';
+  if(badge) badge.textContent='✅ '+total+' udtaget'+(loaneeCount?' (inkl. '+loaneeCount+' lån)':'');
 }
 
 function toggleKampDetail(id){
