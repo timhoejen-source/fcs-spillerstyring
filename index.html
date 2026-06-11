@@ -73,7 +73,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .cls-btn.act-a{background:var(--ca-bg);border-color:var(--ca);color:var(--ca);}
 .cls-btn.act-b{background:var(--cb-bg);border-color:var(--cb);color:var(--cb);}
 .cls-btn.act-c{background:var(--cc-bg);border-color:var(--cc);color:var(--cc);}
-.pos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
+.pos-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;}
 .pos-btn{padding:6px 2px;border:1.5px solid var(--g200);border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;background:var(--white);color:var(--g600);transition:all .12s;text-align:center;}
 .pos-btn:hover{border-color:var(--blue);color:var(--blue);}
 .pos-btn.active{background:var(--navy);border-color:var(--navy);color:var(--yellow);font-weight:700;}
@@ -467,17 +467,21 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <div class="fg">
           <label>Position</label>
           <div class="pos-grid" id="f-pos-grid">
-            <button class="pos-btn" onclick="pickPos('MM',this,'f')">MM</button>
-            <button class="pos-btn" onclick="pickPos('HB',this,'f')">HB</button>
-            <button class="pos-btn" onclick="pickPos('VB',this,'f')">VB</button>
-            <button class="pos-btn" onclick="pickPos('CB',this,'f')">CB</button>
-            <button class="pos-btn" onclick="pickPos('DM',this,'f')">DM</button>
-            <button class="pos-btn" onclick="pickPos('CM',this,'f')">CM</button>
-            <button class="pos-btn" onclick="pickPos('OM',this,'f')">OM</button>
-            <button class="pos-btn" onclick="pickPos('HK',this,'f')">HK</button>
-            <button class="pos-btn" onclick="pickPos('VK',this,'f')">VK</button>
-            <button class="pos-btn" onclick="pickPos('HA',this,'f')">HA</button>
-            <button class="pos-btn" onclick="pickPos('A',this,'f')">A</button>
+            <button class="pos-btn" onclick="pickPos('MM',this,'f')">Keeper</button>
+            <button class="pos-btn" onclick="pickPos('HB',this,'f')">Højre Back</button>
+            <button class="pos-btn" onclick="pickPos('VB',this,'f')">Venstre Back</button>
+            <button class="pos-btn" onclick="pickPos('CB',this,'f')">Center Back(1)</button>
+            <button class="pos-btn" onclick="pickPos('CB2',this,'f')">Center Back(2)</button>
+            <button class="pos-btn" onclick="pickPos('DM',this,'f')">Defensiv Midt</button>
+            <button class="pos-btn" onclick="pickPos('6',this,'f')">6er</button>
+            <button class="pos-btn" onclick="pickPos('CM',this,'f')">Center Midt</button>
+            <button class="pos-btn" onclick="pickPos('8',this,'f')">8er</button>
+            <button class="pos-btn" onclick="pickPos('OM',this,'f')">Offensiv Midt</button>
+            <button class="pos-btn" onclick="pickPos('10',this,'f')">10er</button>
+            <button class="pos-btn" onclick="pickPos('HK',this,'f')">Højre Kant</button>
+            <button class="pos-btn" onclick="pickPos('VK',this,'f')">Venstre Kant</button>
+            <button class="pos-btn" onclick="pickPos('9',this,'f')">9er</button>
+            <button class="pos-btn" onclick="pickPos('A',this,'f')">Angriber</button>
           </div>
           <div style="font-size:10px;color:var(--text-soft);margin-top:3px;">Vælg op til 2 positioner</div>
         </div>
@@ -564,17 +568,21 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <div class="filter-row">
         <span class="filter-label">Position</span>
         <button class="filter-btn active" onclick="setPosFilter('alle',this)">Alle</button>
-        <button class="filter-btn" onclick="setPosFilter('MM',this)">MM</button>
-        <button class="filter-btn" onclick="setPosFilter('HB',this)">HB</button>
-        <button class="filter-btn" onclick="setPosFilter('VB',this)">VB</button>
-        <button class="filter-btn" onclick="setPosFilter('CB',this)">CB</button>
-        <button class="filter-btn" onclick="setPosFilter('DM',this)">DM</button>
-        <button class="filter-btn" onclick="setPosFilter('CM',this)">CM</button>
-        <button class="filter-btn" onclick="setPosFilter('OM',this)">OM</button>
-        <button class="filter-btn" onclick="setPosFilter('HK',this)">HK</button>
-        <button class="filter-btn" onclick="setPosFilter('VK',this)">VK</button>
-        <button class="filter-btn" onclick="setPosFilter('HA',this)">HA</button>
-        <button class="filter-btn" onclick="setPosFilter('A',this)">A</button>
+        <button class="filter-btn" onclick="setPosFilter('MM',this)">Keeper</button>
+        <button class="filter-btn" onclick="setPosFilter('HB',this)">Højre Back</button>
+        <button class="filter-btn" onclick="setPosFilter('VB',this)">Venstre Back</button>
+        <button class="filter-btn" onclick="setPosFilter('CB',this)">Center Back(1)</button>
+        <button class="filter-btn" onclick="setPosFilter('CB2',this)">Center Back(2)</button>
+        <button class="filter-btn" onclick="setPosFilter('DM',this)">Defensiv Midt</button>
+        <button class="filter-btn" onclick="setPosFilter('6',this)">6er</button>
+        <button class="filter-btn" onclick="setPosFilter('CM',this)">Center Midt</button>
+        <button class="filter-btn" onclick="setPosFilter('8',this)">8er</button>
+        <button class="filter-btn" onclick="setPosFilter('OM',this)">Offensiv Midt</button>
+        <button class="filter-btn" onclick="setPosFilter('10',this)">10er</button>
+        <button class="filter-btn" onclick="setPosFilter('HK',this)">Højre Kant</button>
+        <button class="filter-btn" onclick="setPosFilter('VK',this)">Venstre Kant</button>
+        <button class="filter-btn" onclick="setPosFilter('9',this)">9er</button>
+        <button class="filter-btn" onclick="setPosFilter('A',this)">Angriber</button>
       </div>
     </div>
     <div id="player-list"></div>
@@ -729,17 +737,21 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     </div>
     <div class="fg"><label>Position</label>
       <div class="pos-grid" id="m-pos-grid">
-        <button class="pos-btn" onclick="pickPos('MM',this,'m')">MM</button>
-        <button class="pos-btn" onclick="pickPos('HB',this,'m')">HB</button>
-        <button class="pos-btn" onclick="pickPos('VB',this,'m')">VB</button>
-        <button class="pos-btn" onclick="pickPos('CB',this,'m')">CB</button>
-        <button class="pos-btn" onclick="pickPos('DM',this,'m')">DM</button>
-        <button class="pos-btn" onclick="pickPos('CM',this,'m')">CM</button>
-        <button class="pos-btn" onclick="pickPos('OM',this,'m')">OM</button>
-        <button class="pos-btn" onclick="pickPos('HK',this,'m')">HK</button>
-        <button class="pos-btn" onclick="pickPos('VK',this,'m')">VK</button>
-        <button class="pos-btn" onclick="pickPos('HA',this,'m')">HA</button>
-        <button class="pos-btn" onclick="pickPos('A',this,'m')">A</button>
+        <button class="pos-btn" onclick="pickPos('MM',this,'m')">Keeper</button>
+        <button class="pos-btn" onclick="pickPos('HB',this,'m')">Højre Back</button>
+        <button class="pos-btn" onclick="pickPos('VB',this,'m')">Venstre Back</button>
+        <button class="pos-btn" onclick="pickPos('CB',this,'m')">Center Back(1)</button>
+        <button class="pos-btn" onclick="pickPos('CB2',this,'m')">Center Back(2)</button>
+        <button class="pos-btn" onclick="pickPos('DM',this,'m')">Defensiv Midt</button>
+        <button class="pos-btn" onclick="pickPos('6',this,'m')">6er</button>
+        <button class="pos-btn" onclick="pickPos('CM',this,'m')">Center Midt</button>
+        <button class="pos-btn" onclick="pickPos('8',this,'m')">8er</button>
+        <button class="pos-btn" onclick="pickPos('OM',this,'m')">Offensiv Midt</button>
+        <button class="pos-btn" onclick="pickPos('10',this,'m')">10er</button>
+        <button class="pos-btn" onclick="pickPos('HK',this,'m')">Højre Kant</button>
+        <button class="pos-btn" onclick="pickPos('VK',this,'m')">Venstre Kant</button>
+        <button class="pos-btn" onclick="pickPos('9',this,'m')">9er</button>
+        <button class="pos-btn" onclick="pickPos('A',this,'m')">Angriber</button>
       </div>
     </div>
     <div class="fg"><label>Udviklingsmål</label><textarea id="m-goal"></textarea></div>
@@ -1178,7 +1190,7 @@ function openEdit(id){
   document.getElementById('m-vende').value=st.vende||'';
   setTimeout(renderMatchList,0);
   document.querySelectorAll('#m-cls-picker .cls-btn').forEach(b=>{b.className='cls-btn';if(b.dataset.c===p.cls)b.classList.add('act-'+p.cls.toLowerCase());});
-  document.querySelectorAll('#m-pos-grid .pos-btn').forEach(b=>{b.classList.remove('active');const pArr=Array.isArray(p.pos)?p.pos:(p.pos?[p.pos]:[]);if(pArr.includes(b.textContent.trim()))b.classList.add('active');});
+  document.querySelectorAll('#m-pos-grid .pos-btn').forEach(b=>{b.classList.remove('active');const pArr=Array.isArray(p.pos)?p.pos:(p.pos?[p.pos]:[]);if(pArr.some(function(px){return POS_LABELS[px]===b.textContent.trim();}))b.classList.add('active');});
   document.getElementById('modal').classList.add('open');
   // Show imported DBU matches for this player
   var dbuSec=document.getElementById('m-dbu-kampe-section');
@@ -1342,7 +1354,7 @@ function importXlsx(input){
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
-const POS_LABELS={MM:'Målmand',HB:'Højre back',VB:'Venstre back',CB:'Center back',DM:'Defensiv midt',CM:'Center midt',OM:'Offensiv midt',HK:'Højre kant',VK:'Venstre kant',HA:'Hængende angriber',A:'Angriber'};
+const POS_LABELS={'MM':'Keeper','HB':'Højre Back','VB':'Venstre Back','CB':'Center Back(1)','CB2':'Center Back(2)','DM':'Defensiv Midt','6':'6er','CM':'Center Midt','8':'8er','OM':'Offensiv Midt','10':'10er','HK':'Højre Kant','VK':'Venstre Kant','9':'9er','A':'Angriber'};
 function initials(n){return n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()||'?';}
 function render(){
   document.getElementById('s-total').textContent=players.length;
@@ -1408,7 +1420,7 @@ function renderExportSelect(){
 function clsColor(cls){return cls==='A'?'#16A34A':cls==='B'?'#1A6EC0':'#9333EA';}
 function clsBg(cls){return cls==='A'?'#DCFCE7':cls==='B'?'#DBEAFE':'#F3E8FF';}
 function statVal(v){return v||0;}
-const POS_LBL2={MM:'Målmand',HB:'Højre back',VB:'Venstre back',CB:'Center back',DM:'Defensiv midt',CM:'Center midt',OM:'Offensiv midt',HK:'Højre kant',VK:'Venstre kant',HA:'Hængende angriber',A:'Angriber'};
+const POS_LBL2={'MM':'Keeper','HB':'Højre Back','VB':'Venstre Back','CB':'Center Back(1)','CB2':'Center Back(2)','DM':'Defensiv Midt','6':'6er','CM':'Center Midt','8':'8er','OM':'Offensiv Midt','10':'10er','HK':'Højre Kant','VK':'Venstre Kant','9':'9er','A':'Angriber'};
 
 // ── Open print window ─────────────────────────────────────────────────────────
 function openPdfWindow(html){
@@ -1964,7 +1976,7 @@ const FORMATIONS = {
   '4-1-4-1': {MV:[[50,92]],DEF:[[15,72],[38,72],[62,72],[85,72]],DM:[[50,62]],MID:[[15,45],[38,45],[62,45],[85,45]],ANG:[[50,18]]}
 };
 
-const POS_LABELS_SHORT={MV:'MV',DEF:'FB',DM:'DM',MID:'CM',ANG:'ANG'};
+const POS_LABELS_SHORT={MV:'MV',DEF:'Back',DM:'DM',MID:'Midt',ANG:'Ang'};
 let currentBoard = { kampName:'', formation:'4-3-3', lineup:{}, subs:[] };
 let boardKamps = []; // derived from players stats
 
