@@ -869,8 +869,8 @@ window.onerror = function(msg, src, line, col, err){
   return false;
 };
 
-let players=JSON.parse(localStorage.getItem('fcs-p5')||'null')||[];
-let teams=JSON.parse(localStorage.getItem('fcs-t5')||'null')||['U15 Liga2','U14 Liga2'];
+let players=(function(){try{return JSON.parse(localStorage.getItem('fcs-p5')||'null')||[];}catch(e){console.warn('players parse error',e);return [];}})();
+let teams=(function(){try{return JSON.parse(localStorage.getItem('fcs-t5')||'null')||['U15 Liga2','U14 Liga2'];}catch(e){return ['U15 Liga2','U14 Liga2'];}})();
 // GitHub — bruger og repo hardcoded, token indtastes manuelt
 const GH_USER='timhoejen-source';
 const GH_REPO='fcs-spillerstyring';
@@ -1017,6 +1017,13 @@ window.addEventListener('DOMContentLoaded',()=>{
   updateStatus();renderTeams();renderSelects();render();
   applyRole();
 
+  // PDF file input change via event delegation
+  document.addEventListener('change', function(e){
+    if(e.target.classList.contains('tr-pdf-file-inp')){
+      trainingAddPdf(e.target, e.target.getAttribute('data-trid'));
+    }
+  });
+
   // Persistent event delegation for kampe-list
   document.addEventListener('click', function(e){
     var list=document.getElementById('kampe-list');
@@ -1092,7 +1099,13 @@ async function syncToSheets(manual=false){
   try{
     // Byg data-objekt
     const payload={
-      players,teams,trainings,matches,dbuStilling,
+      players: players.map(function(p){ return p; }),
+      teams,
+      trainings: trainings.map(function(t){
+        // Ensure pdf data doesn't break JSON — already base64 so should be fine
+        return t;
+      }),
+      matches, dbuStilling,
       boardLineups:window._boardLineups||{},
       savedAt:new Date().toISOString()
     };
@@ -1144,7 +1157,15 @@ async function loadFromSheets(silent=false){
       if(res.status===404) throw new Error('Ingen data fundet — gem til GitHub fra admin først');
       throw new Error('GitHub fejl '+res.status);
     }
-    const payload=await res.json();
+    const rawText = await res.text();
+    let payload;
+    try{ payload=JSON.parse(rawText); }
+    catch(e){
+      setSyncDot('err');
+      toast('❌ Data fra GitHub er beskadiget. Prøv at gemme fra en enhed med gode data.');
+      console.error('GitHub JSON parse error:', e, 'Raw (first 200):', rawText.slice(0,200));
+      return;
+    }
     // Indlæs spillere
     if(Array.isArray(payload.players)&&payload.players.length){
       const sheetIds=new Set(payload.players.map(p=>p.id));
@@ -1610,9 +1631,9 @@ function exportAllPdf(){
 }
 
 // ── Training ──────────────────────────────────────────────────────────────────
-let trainings = JSON.parse(localStorage.getItem('fcs-trainings')||'[]');
-let matches = JSON.parse(localStorage.getItem('fcs-matches')||'[]');
-let dbuStilling = JSON.parse(localStorage.getItem('fcs-stilling')||'[]');
+let trainings=(function(){try{return JSON.parse(localStorage.getItem('fcs-trainings')||'[]');}catch(e){return [];}})();
+let matches=(function(){try{return JSON.parse(localStorage.getItem('fcs-matches')||'[]');}catch(e){return [];}})();
+let dbuStilling=(function(){try{return JSON.parse(localStorage.getItem('fcs-stilling')||'[]');}catch(e){return [];}})();
 const DBU_KEY = '1fb89769-f006-48b2-a0f0-b993bb1d7778';
 const DBU_BASE = 'https://clubservice.dbu.dk/api';
 let activeKampFilter = 'alle';
@@ -1766,8 +1787,8 @@ function renderTrainings(){
           '</div>'
         :
           '<div>'+
-            '<input type="file" id="tr-pdf-add-'+t.id+'" accept=".pdf" style="display:none" onchange="trainingAddPdf(this,\''+t.id+'\')" >'+
-            '<button class="btn-import" style="margin-top:0;padding:6px 10px;font-size:11px;" onclick="document.getElementById(\'tr-pdf-add-'+t.id+'\').click()">📎 Vedhæft PDF til træning</button>'+
+            '<input type="file" id="tr-pdf-add-'+t.id+'" accept=".pdf" style="display:none" data-trid="'+t.id+'" class="tr-pdf-file-inp">'+
+            '<button class="btn-import" style="margin-top:0;padding:6px 10px;font-size:11px;" data-pdfadd="'+t.id+'">📎 Vedhæft PDF til træning</button>'+
           '</div>'
         )+
         '</div>'+
@@ -2102,12 +2123,21 @@ function renderKampe(){
     if(openBtn){
       var tid = openBtn.getAttribute('data-openpdf');
       var t = trainings.find(function(x){ return x.id===tid; });
-      if(t&&t.pdf) openPdf(t.pdf);
+      if(!t){ toast('⚠️ Træning ikke fundet (id: '+tid+')'); return; }
+      if(!t.pdf){ toast('⚠️ Ingen PDF data på denne træning — prøv at vedhæfte igen'); return; }
+      openPdf(t.pdf);
       return;
     }
     var delBtn = e.target.closest('[data-delpdf]');
     if(delBtn){
       trainingDeletePdf(delBtn.getAttribute('data-delpdf'));
+      return;
+    }
+    var addBtn = e.target.closest('[data-pdfadd]');
+    if(addBtn){
+      var tid2 = addBtn.getAttribute('data-pdfadd');
+      var inp = document.getElementById('tr-pdf-add-'+tid2);
+      if(inp) inp.click();
       return;
     }
   });
