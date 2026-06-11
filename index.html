@@ -595,9 +595,16 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         </div>
       </div>
 
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
         <div style="font-size:13px;font-weight:700;color:var(--navy);">Træningssessioner <span id="training-count" style="font-size:11px;font-weight:600;color:var(--text-soft);"></span></div>
-        <button class="btn-primary" style="width:auto;padding:7px 14px;margin-top:0;font-size:11px;" id="new-training-btn" onclick="toggleNewTrainingForm()">+ Ny træning</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn-primary" style="width:auto;padding:7px 12px;margin-top:0;font-size:11px;" id="new-training-btn" onclick="toggleNewTrainingForm()">+ Ny træning</button>
+          <button class="btn-export" style="width:auto;padding:7px 12px;font-size:11px;" onclick="exportTraeningPdf()">📄 Eksporter træning</button>
+        </div>
+      </div>
+      <div class="fg" style="margin-bottom:12px;">
+        <label>Vælg træning til eksport</label>
+        <select id="export-traening-sel"><option value="">– Vælg træning –</option></select>
       </div>
       <div class="training-list" id="training-list"></div>
     </div><!-- end tab-training -->
@@ -651,6 +658,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
           <span id="kamp-hold-filters"></span>
         </div>
       </div>
+      <div class="fg" style="margin-bottom:12px;">
+        <label>Vælg kamp til eksport</label>
+        <select id="export-kamp-sel"><option value="">– Vælg kamp –</option></select>
+        <button class="btn-export" style="margin-top:6px;width:100%;" onclick="exportKampPdf()">📄 Eksporter kamprapport</button>
+      </div>
       <div id="kampe-list"></div>
     </div><!-- end tab-kampe -->
 
@@ -688,6 +700,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <div class="board-pitch-wrap">
           <div class="pitch" id="board-pitch"></div>
           <div style="text-align:center;margin-top:8px;">
+            <select id="export-board-kamp-sel" style="margin-bottom:6px;font-size:12px;"><option value="">– Vælg kamp til PDF –</option></select>
             <button class="btn-export" onclick="exportBoardPdf()" style="width:auto;padding:7px 16px;display:inline-flex;">📄 Eksporter opstilling</button>
           </div>
         </div>
@@ -1046,7 +1059,7 @@ async function loadFromSheets(silent=false){
       saveTrainings();
       renderTrainings();
     }
-    saveAll();renderTeams();renderSelects();render();
+    saveAll();renderTeams();renderSelects();render();populateExportSelectors();
     setSyncDot('ok');
     toast('✅ '+players.length+' spillere hentet fra GitHub!');
   }catch(e){
@@ -1373,6 +1386,7 @@ function render(){
   if(noTeam.length)html+='<div class="group-hdr"><span class="group-name">Hold ikke tildelt</span><span class="group-cnt">'+noTeam.length+'</span><div class="group-line"></div></div><div class="cards">'+cards(noTeam)+'</div>';
   list.innerHTML=html;
   renderExportSelect();
+  populateExportSelectors();
 }
 
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
@@ -1495,9 +1509,9 @@ function switchTab(tab){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
-  if(tab==='training') renderTrainings();
-  if(tab==='kampe') renderKampe();
-  if(tab==='board') renderBoard();
+  if(tab==='training'){renderTrainings();populateExportSelectors();}
+  if(tab==='kampe'){renderKampe();populateExportSelectors();}
+  if(tab==='board'){renderBoard();populateExportSelectors();}
 }
 
 function toggleNewTrainingForm(){
@@ -1763,9 +1777,9 @@ function switchTab(tab){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
-  if(tab==='training') renderTrainings();
-  if(tab==='kampe') renderKampe();
-  if(tab==='board') renderBoard();
+  if(tab==='training'){renderTrainings();populateExportSelectors();}
+  if(tab==='kampe'){renderKampe();populateExportSelectors();}
+  if(tab==='board'){renderBoard();populateExportSelectors();}
 }
 
 function toggleNewTrainingForm(){
@@ -2138,7 +2152,9 @@ function saveBoardSetup(){
 }
 
 function exportBoardPdf(){
-  if(!currentBoard.kampName){ toast('⚠️ Vælg en kamp først'); return; }
+  var bsel=document.getElementById('export-board-kamp-sel');
+  if(bsel&&bsel.value) currentBoard.kampName=bsel.value;
+  if(!currentBoard.kampName){ toast('⚠️ Vælg en kamp til PDF'); return; }
   var slots=getBoardSlots();
   var rows=slots.map(function(slot){
     var pid=currentBoard.lineup[slot.id];
@@ -2384,6 +2400,169 @@ function renderSbKampe(){
     });
   });
 }
+
+// ── Populate export selectors ─────────────────────────────────────────────────
+function populateExportSelectors(){
+  // Training selector
+  var tSel=document.getElementById('export-traening-sel');
+  if(tSel){
+    var cur=tSel.value;
+    tSel.innerHTML='<option value="">– Vælg træning –</option>'+
+      [].concat(trainings).sort(function(a,b){return (b.date||'').localeCompare(a.date||'');}).map(function(t){
+        var d=t.date?new Date(t.date).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'}):'';
+        return '<option value="'+t.id+'">'+(d?d+' – ':'')+t.title+'</option>';
+      }).join('');
+    if(cur) tSel.value=cur;
+  }
+
+  // Kamp selector
+  var kSel=document.getElementById('export-kamp-sel');
+  if(kSel){
+    var cur2=kSel.value;
+    kSel.innerHTML='<option value="">– Vælg kamp –</option>'+
+      [].concat(matches).sort(function(a,b){return (b.date||'').localeCompare(a.date||'');}).map(function(m){
+        var d=m.date?new Date(m.date).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'}):'';
+        return '<option value="'+m.id+'">'+(d?d+' – ':'')+m.opponent+'</option>';
+      }).join('');
+    if(cur2) kSel.value=cur2;
+  }
+
+  // Board kamp selector
+  var bSel=document.getElementById('export-board-kamp-sel');
+  if(bSel){
+    bSel.innerHTML='<option value="">– Vælg kamp til PDF –</option>'+
+      [].concat(matches).sort(function(a,b){return (b.date||'').localeCompare(a.date||'');}).map(function(m){
+        var d=m.date?new Date(m.date).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'}):'';
+        return '<option value="'+m.name+'">'+( d?d+' – ':'')+m.opponent+'</option>';
+      }).join('');
+    if(currentBoard&&currentBoard.kampName) bSel.value=currentBoard.kampName;
+  }
+}
+
+// ── Export Træning PDF ────────────────────────────────────────────────────────
+function exportTraeningPdf(){
+  var sel=document.getElementById('export-traening-sel');
+  if(!sel||!sel.value){toast('⚠️ Vælg en træning til eksport');return;}
+  var t=trainings.find(function(x){return x.id===sel.value;});
+  if(!t){toast('⚠️ Træning ikke fundet');return;}
+
+  var dateStr=t.date?new Date(t.date).toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
+  var vals=Object.values(t.attendance||{});
+  var jaCount=vals.filter(function(v){return v==='ja';}).length;
+  var nejCount=vals.filter(function(v){return v==='nej';}).length;
+
+  var attRows=[].concat(players).sort(function(a,b){return a.name.localeCompare(b.name,'da');}).map(function(p){
+    var v=(t.attendance||{})[p.id]||'';
+    var bg=v==='ja'?'#DCFCE7':v==='nej'?'#FEE2E2':'#F8FAFC';
+    var col=v==='ja'?'#16A34A':v==='nej'?'#dc2626':'#94A3B8';
+    var status=v==='ja'?'✅ Deltaget':v==='nej'?'❌ Fraværende':'– Ikke registreret';
+    var pTeams=Array.isArray(p.team)?p.team.join(', '):(p.team||'');
+    return '<tr style="background:'+bg+'">'+
+      '<td style="padding:5px 10px;font-weight:600;font-size:11px;">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</td>'+
+      '<td style="padding:5px 10px;font-size:10px;color:#5A7A9F;">'+pTeams+'</td>'+
+      '<td style="padding:5px 10px;font-size:10px;">'+p.age+' år</td>'+
+      '<td style="padding:5px 10px;font-weight:700;color:'+col+';font-size:10px;">'+status+'</td>'+
+    '</tr>';
+  }).join('');
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'+
+    '<style>@page{size:A4 portrait;margin:12mm 14mm;}@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap\');'+
+    '*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}'+
+    '.hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:4mm;border-bottom:3px solid #F5C400;margin-bottom:5mm;}'+
+    '.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:9px;font-weight:700;}'+
+    'table{width:100%;border-collapse:collapse;}thead th{background:#0A2342;color:#F5C400;padding:5px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.07em;}'+
+    'tbody tr:nth-child(even){filter:brightness(0.97);}'+
+    '.stat-row{display:flex;gap:10px;margin-bottom:5mm;}'+
+    '.stat-box{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:5px 12px;text-align:center;}'+
+    '.stat-v{font-size:20px;font-weight:700;color:#0A2342;}'+
+    '.stat-l{font-size:8px;color:#5A7A9F;text-transform:uppercase;letter-spacing:.06em;}</style></head><body>'+
+    '<div class="hdr"><div>'+
+      '<div style="font-size:18px;font-weight:700;margin-bottom:2px;">'+t.title+'</div>'+
+      '<div style="font-size:10px;color:#5A7A9F;">'+dateStr+'</div>'+
+    '</div><div style="text-align:right;font-size:9px;color:#94A3B8;">FC Skanderborg · Pigeudvalg<br>'+new Date().toLocaleDateString('da-DK')+'</div></div>'+
+    '<div class="stat-row">'+
+      '<div class="stat-box"><div class="stat-v">'+players.length+'</div><div class="stat-l">Spillere</div></div>'+
+      '<div class="stat-box" style="background:#DCFCE7;border-color:#86efac"><div class="stat-v" style="color:#16A34A">'+jaCount+'</div><div class="stat-l">Deltaget</div></div>'+
+      '<div class="stat-box" style="background:#FEE2E2;border-color:#fecaca"><div class="stat-v" style="color:#dc2626">'+nejCount+'</div><div class="stat-l">Fraværende</div></div>'+
+      '<div class="stat-box"><div class="stat-v">'+(players.length-jaCount-nejCount)+'</div><div class="stat-l">Ikke registreret</div></div>'+
+    '</div>'+
+    (t.desc?'<div style="background:#EBF2FB;border-left:4px solid #1A6EC0;border-radius:0 6px 6px 0;padding:4mm 5mm;margin-bottom:5mm;font-size:11px;color:#2C4A72;line-height:1.7;"><div style="font-size:9px;font-weight:700;color:#1A6EC0;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2mm;">📋 Træningsindhold</div>'+t.desc+'</div>':'')+
+    '<table><thead><tr><th>Spiller</th><th>Hold</th><th>Alder</th><th>Status</th></tr></thead><tbody>'+attRows+'</tbody></table>'+
+    '<div style="margin-top:5mm;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;font-size:8px;color:#94A3B8;">'+
+      '<span>FC Skanderborg · Pigeudvalg</span><span>'+t.title+' · '+dateStr+'</span></div>'+
+    '</body></html>';
+  openPdfWindow(html);
+}
+
+// ── Export Kamp PDF ───────────────────────────────────────────────────────────
+function exportKampPdf(){
+  var sel=document.getElementById('export-kamp-sel');
+  if(!sel||!sel.value){toast('⚠️ Vælg en kamp til eksport');return;}
+  var kamp=matches.find(function(x){return x.id===sel.value;});
+  if(!kamp){toast('⚠️ Kamp ikke fundet');return;}
+
+  var name=kamp.name||kamp.opponent;
+  var dateStr=kamp.date?new Date(kamp.date).toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
+  var venueLabel=kamp.venue==='H'?'Hjemmekamp':kamp.venue==='U'?'Udekamp':'Neutral';
+
+  var jaList=players.filter(function(p){var m=((p.stats||{}).matches||[]).find(function(m){return m.name===name;});return m&&m.udtaget==='ja';});
+  var nejList=players.filter(function(p){var m=((p.stats||{}).matches||[]).find(function(m){return m.name===name;});return m&&m.udtaget==='nej';});
+  var noneList=players.filter(function(p){var m=((p.stats||{}).matches||[]).find(function(m){return m.name===name;});return !m||!m.udtaget;});
+
+  var pct=Math.round(jaList.length/14*100);
+
+  var makeRows=function(list,status,bg,col){
+    return list.map(function(p){
+      var pTeams=Array.isArray(p.team)?p.team.join(', '):(p.team||'');
+      var posArr=Array.isArray(p.pos)?p.pos:(p.pos?[p.pos]:[]);
+      return '<tr style="background:'+bg+'">'+
+        '<td style="padding:5px 10px;font-weight:700;font-size:11px;">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+'</td>'+
+        '<td style="padding:5px 10px;font-size:10px;color:#5A7A9F;">'+pTeams+'</td>'+
+        '<td style="padding:5px 10px;font-size:10px;">'+p.age+' år</td>'+
+        '<td style="padding:5px 10px;font-size:10px;">'+( posArr.join(' / ')||'–')+'</td>'+
+        '<td style="padding:5px 10px;font-weight:700;color:'+col+';font-size:10px;">'+status+'</td>'+
+      '</tr>';
+    }).join('');
+  };
+
+  var allRows=makeRows(jaList,'✅ Udtaget','#DCFCE7','#16A34A')+
+    makeRows(nejList,'❌ Ikke udtaget','#FEE2E2','#dc2626')+
+    makeRows(noneList,'– Ikke registreret','#F8FAFC','#94A3B8');
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'+
+    '<style>@page{size:A4 portrait;margin:12mm 14mm;}@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap\');'+
+    '*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}'+
+    '.hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:4mm;border-bottom:3px solid #F5C400;margin-bottom:5mm;}'+
+    '.stat-row{display:flex;gap:10px;margin-bottom:5mm;}'+
+    '.stat-box{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:5px 12px;text-align:center;flex:1;}'+
+    '.stat-v{font-size:20px;font-weight:700;color:#0A2342;}.stat-l{font-size:8px;color:#5A7A9F;text-transform:uppercase;letter-spacing:.06em;}'+
+    '.bar-wrap{background:#E2E8F0;border-radius:4px;height:8px;overflow:hidden;margin-bottom:5mm;}'+
+    '.bar{height:8px;background:#F5C400;border-radius:4px;}'+
+    'table{width:100%;border-collapse:collapse;}thead th{background:#0A2342;color:#F5C400;padding:5px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.07em;}'+
+    '</style></head><body>'+
+    '<div class="hdr"><div>'+
+      '<div style="font-size:18px;font-weight:700;margin-bottom:2px;">'+kamp.opponent+'</div>'+
+      '<div style="font-size:10px;color:#5A7A9F;margin-top:2px;">'+dateStr+(kamp.time?' · '+kamp.time:'')+(kamp.sted?' · 📍'+kamp.sted:'')+'</div>'+
+      '<div style="margin-top:3mm;">'+
+        '<span style="background:'+(kamp.venue==='H'?'#DCFCE7':'#DBEAFE')+';color:'+(kamp.venue==='H'?'#16A34A':'#1A6EC0')+';font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;">'+venueLabel+'</span>'+
+        (kamp.score?'<span style="background:#FEF9C3;color:#854D0E;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;margin-left:6px;">⚽ '+kamp.score+'</span>':'')+
+        (kamp.hold?'<span style="background:#F1F5F9;color:#475569;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;margin-left:6px;">'+kamp.hold+'</span>':'')+
+      '</div>'+
+    '</div><div style="text-align:right;font-size:9px;color:#94A3B8;">FC Skanderborg · Pigeudvalg<br>'+new Date().toLocaleDateString('da-DK')+'</div></div>'+
+    '<div class="stat-row">'+
+      '<div class="stat-box" style="background:#DCFCE7;border-color:#86efac"><div class="stat-v" style="color:#16A34A">'+jaList.length+'</div><div class="stat-l">Udtaget</div></div>'+
+      '<div class="stat-box" style="background:#FEE2E2;border-color:#fecaca"><div class="stat-v" style="color:#dc2626">'+nejList.length+'</div><div class="stat-l">Ikke udtaget</div></div>'+
+      '<div class="stat-box"><div class="stat-v">'+noneList.length+'</div><div class="stat-l">Ikke registreret</div></div>'+
+      '<div class="stat-box"><div class="stat-v">'+pct+'%</div><div class="stat-l">Udtagelsespct.</div></div>'+
+    '</div>'+
+    '<div class="bar-wrap"><div class="bar" style="width:'+pct+'%"></div></div>'+
+    '<table><thead><tr><th>Spiller</th><th>Hold</th><th>Alder</th><th>Position</th><th>Status</th></tr></thead><tbody>'+allRows+'</tbody></table>'+
+    '<div style="margin-top:5mm;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;font-size:8px;color:#94A3B8;">'+
+      '<span>FC Skanderborg · Pigeudvalg</span><span>'+kamp.opponent+' · '+dateStr+'</span></div>'+
+    '</body></html>';
+  openPdfWindow(html);
+}
+
 
 </script>
 </body>
