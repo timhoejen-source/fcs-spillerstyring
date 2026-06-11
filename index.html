@@ -700,6 +700,15 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
           </div>
           <div style="font-size:10px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Tildel spillere</div>
           <div id="board-slots"></div>
+          <div style="margin-top:12px;border-top:1px solid var(--g200);padding-top:10px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">🔄 Lånespillere</div>
+            <div id="board-loanees-list"></div>
+            <div style="display:flex;gap:6px;margin-top:6px;">
+              <input type="text" id="loanee-name" placeholder="Navn (fx Jonas fra U13)" style="flex:1;font-size:11px;padding:6px 8px;">
+              <input type="text" id="loanee-team" placeholder="Hold" style="width:70px;font-size:11px;padding:6px 8px;">
+              <button class="btn-add-team" onclick="boardAddLoanee()" style="padding:6px 10px;font-size:11px;">+</button>
+            </div>
+          </div>
           <div style="margin-top:10px;display:flex;gap:6px;">
             <button class="btn-primary" style="margin-top:0;" onclick="saveBoardSetup()">💾 Gem opstilling</button>
           </div>
@@ -1523,7 +1532,7 @@ function switchTab(tab){
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
   if(tab==='training'){renderTrainings();populateExportSelectors();}
   if(tab==='kampe'){renderKampe();populateExportSelectors();}
-  if(tab==='board'){renderBoard();populateExportSelectors();}
+  if(tab==='board'){renderBoard();renderLoaneeList();populateExportSelectors();}
 }
 
 function toggleNewTrainingForm(){
@@ -1791,7 +1800,7 @@ function switchTab(tab){
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
   if(tab==='training'){renderTrainings();populateExportSelectors();}
   if(tab==='kampe'){renderKampe();populateExportSelectors();}
-  if(tab==='board'){renderBoard();populateExportSelectors();}
+  if(tab==='board'){renderBoard();renderLoaneeList();populateExportSelectors();}
 }
 
 function toggleNewTrainingForm(){
@@ -1977,7 +1986,7 @@ const FORMATIONS = {
 };
 
 const POS_LABELS_SHORT={MV:'MV',DEF:'Back',DM:'DM',MID:'Midt',ANG:'Ang'};
-let currentBoard = { kampName:'', formation:'4-3-3', lineup:{}, subs:[] };
+let currentBoard = { kampName:'', formation:'4-3-3', lineup:{}, subs:[], loanees:[] };
 let boardKamps = []; // derived from players stats
 
 function renderBoard(){
@@ -2010,7 +2019,7 @@ function boardSelectKamp(name){
   currentBoard.kampName = name;
   // Load saved lineup if exists
   var saved = (window._boardLineups||{})[name];
-  if(saved){ currentBoard.lineup=saved.lineup||{}; currentBoard.formation=saved.formation||'4-3-3'; currentBoard.subs=saved.subs||[]; }
+  if(saved){ currentBoard.lineup=saved.lineup||{}; currentBoard.formation=saved.formation||'4-3-3'; currentBoard.subs=saved.subs||[]; currentBoard.loanees=saved.loanees||[]; }
   else { currentBoard.lineup={}; currentBoard.subs=[]; }
   var fsel=document.getElementById('board-formation');
   if(fsel) fsel.value = currentBoard.formation;
@@ -2035,6 +2044,40 @@ function getBoardSlots(){
   return slots;
 }
 
+function boardAddLoanee(){
+  var nameEl=document.getElementById('loanee-name');
+  var teamEl=document.getElementById('loanee-team');
+  if(!nameEl||!nameEl.value.trim()){toast('⚠️ Skriv spillerens navn');return;}
+  var loanee={id:'loan-'+uid(),name:nameEl.value.trim(),team:teamEl.value.trim(),isLoanee:true};
+  currentBoard.loanees.push(loanee);
+  nameEl.value='';teamEl.value='';
+  renderLoaneeList();
+  renderBoardSlots();
+  renderPitch();
+}
+
+function boardRemoveLoanee(i){
+  // Remove from lineup too
+  var lid=currentBoard.loanees[i].id;
+  Object.keys(currentBoard.lineup).forEach(function(k){if(currentBoard.lineup[k]===lid) delete currentBoard.lineup[k];});
+  currentBoard.subs=currentBoard.subs.filter(function(s){return s!==lid;});
+  currentBoard.loanees.splice(i,1);
+  renderLoaneeList();
+  renderBoardSlots();
+  renderPitch();
+}
+
+function renderLoaneeList(){
+  var el=document.getElementById('board-loanees-list');
+  if(!el) return;
+  el.innerHTML=currentBoard.loanees.map(function(l,i){
+    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;background:#EBF2FB;border:1px solid #bfdbfe;border-radius:5px;padding:5px 8px;">'+
+      '<span style="flex:1;font-size:11px;font-weight:600;color:var(--navy);">'+l.name+(l.team?' <span style=\'color:var(--text-soft);font-weight:400;\'>('+l.team+')</span>':'')+'</span>'+
+      '<button onclick="boardRemoveLoanee('+i+')" style="border:none;background:none;cursor:pointer;color:var(--g400);font-size:14px;">×</button>'+
+    '</div>';
+  }).join('');
+}
+
 function renderBoardSlots(){
   var slots = getBoardSlots();
   var el = document.getElementById('board-slots');
@@ -2052,8 +2095,12 @@ function renderBoardSlots(){
   }
   udtagne.sort(function(a,b){ return a.name.localeCompare(b.name,'da'); });
 
+  // Combine real players + loanees
+  var allBoardPlayers = udtagne.concat(currentBoard.loanees.map(function(l){
+    return {id:l.id,name:l.name+(l.team?' ('+l.team+')':''),jersey:'',isLoanee:true};
+  }));
   var opts = '<option value="">– –</option>' +
-    udtagne.map(function(p){ return '<option value="'+p.id+'">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</option>'; }).join('');
+    allBoardPlayers.map(function(p){ return '<option value="'+p.id+'">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</option>'; }).join('');
 
   el.innerHTML = slots.map(function(slot){
     var val = currentBoard.lineup[slot.id]||'';
@@ -2069,7 +2116,7 @@ function renderBoardSlots(){
   '<div style="display:flex;gap:6px;margin-top:4px;">'+
     '<select id="board-sub-add-sel" style="flex:1;font-size:11px;">'+
       '<option value="">+ Tilføj indskifter</option>'+
-      udtagne.map(function(p){ return '<option value="'+p.id+'">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</option>'; }).join('')+
+      allBoardPlayers.map(function(p){ return '<option value="'+p.id+'">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</option>'; }).join('')+
     '</select>'+
     '<button class="btn-add-team" onclick="boardAddSub()" style="padding:6px 10px;font-size:11px;">+</button>'+
   '</div>';
@@ -2078,9 +2125,15 @@ function renderBoardSlots(){
 function renderSubsList(){
   return currentBoard.subs.map(function(pid, i){
     var p = players.find(function(x){ return x.id===pid; });
+    if(!p) p = currentBoard.loanees.find(function(x){ return x.id===pid; });
     if(!p) return '';
-    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;background:var(--g50);border:1px solid var(--g200);border-radius:5px;padding:5px 8px;">'+
-      '<span style="flex:1;font-size:11px;font-weight:600;">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</span>'+
+    var isLoan=p.isLoanee;
+    var bg=isLoan?'#EBF2FB':'var(--g50)';
+    var border=isLoan?'#bfdbfe':'var(--g200)';
+    var label=(p.jersey?'#'+p.jersey+' ':'')+p.name+(isLoan&&p.team?' ('+p.team+')':'');
+    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;background:'+bg+';border:1px solid '+border+';border-radius:5px;padding:5px 8px;">'+
+      (isLoan?'<span style="font-size:9px;font-weight:700;color:#1A6EC0;background:#DBEAFE;padding:1px 5px;border-radius:3px;flex-shrink:0;">LÅN</span>':'')+
+      '<span style="flex:1;font-size:11px;font-weight:600;">'+label+'</span>'+
       '<button onclick="boardRemoveSub('+i+')" style="border:none;background:none;cursor:pointer;color:var(--g400);font-size:14px;">×</button>'+
     '</div>';
   }).join('');
@@ -2114,11 +2167,14 @@ function renderPitch(){
   var dots = slots.map(function(slot){
     var pid = currentBoard.lineup[slot.id];
     var p = pid ? players.find(function(x){ return x.id===pid; }) : null;
+    if(!p&&pid) p = currentBoard.loanees.find(function(x){ return x.id===pid; });
+    var isLoan = p&&p.isLoanee;
     var label = p ? (p.jersey||initials(p.name)) : '?';
     var name  = p ? p.name.split(' ')[0] : slot.label;
     var empty = !p ? ' empty' : '';
+    var dotStyle = isLoan ? 'background:#1A6EC0;border-color:#fff;' : '';
     return '<div class="pitch-player" style="left:'+slot.pos[0]+'%;top:'+slot.pos[1]+'%;">'+
-      '<div class="pitch-dot'+empty+'">'+label+'</div>'+
+      '<div class="pitch-dot'+empty+'" style="'+dotStyle+'">'+label+'</div>'+
       '<div class="pitch-name">'+name+'</div>'+
     '</div>';
   }).join('');
@@ -2157,7 +2213,8 @@ function saveBoardSetup(){
   window._boardLineups[currentBoard.kampName]={
     formation:currentBoard.formation,
     lineup:Object.assign({},currentBoard.lineup),
-    subs:currentBoard.subs.slice()
+    subs:currentBoard.subs.slice(),
+    loanees:currentBoard.loanees.slice()
   };
   toast('✅ Opstilling gemt for '+currentBoard.kampName);
   syncToSheets(false); // auto-gem til GitHub
@@ -2169,9 +2226,8 @@ function exportBoardPdf(){
   if(!currentBoard.kampName){ toast('⚠️ Vælg en kamp til PDF'); return; }
   var slots=getBoardSlots();
   var rows=slots.map(function(slot){
-    var pid=currentBoard.lineup[slot.id];
-    var p=pid?players.find(function(x){return x.id===pid;}):null;
-    var name=p?(p.jersey?'#'+p.jersey+' ':'')+p.name:'–';
+    var pid=currentBoard.lineup[slot.id]||'';
+    var name=getBoardPlayerName(pid);
     return '<tr><td style="background:'+getBoardGroupColor(slot.grp)+';color:#fff;font-weight:700;padding:4px 8px;font-size:9px;">'+slot.label+'</td><td style="padding:4px 10px;font-size:11px;">'+name+'</td></tr>';
   }).join('');
   var subRows=currentBoard.subs.map(function(pid){
@@ -2186,6 +2242,13 @@ function exportBoardPdf(){
   openPdfWindow(html);
 }
 
+function getBoardPlayerName(pid){
+  var p=players.find(function(x){return x.id===pid;});
+  if(!p) p=currentBoard.loanees.find(function(x){return x.id===pid;});
+  if(!p) return '–';
+  var label=(p.jersey?'#'+p.jersey+' ':'')+p.name+(p.isLoanee&&p.team?' ('+p.team+')':'');
+  return label+(p.isLoanee?' [LÅN]':'');
+}
 function getBoardGroupColor(grp){
   var map={MV:'#1A6EC0',DEF:'#16A34A',DM:'#d97706',MID:'#7c3aed',ANG:'#dc2626'};
   return map[grp]||'#0A2342';
