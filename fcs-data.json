@@ -850,7 +850,9 @@
         "ANG_2": "mq4rdodjyjmnpj7iuao"
       },
       "subs": [
-        "mq4rdodjkfd21t4l0es"
+        "mq4rdodjkfd21t4l0es",
+        "loan-mq9vvewgqeudn3c8uwj",
+        "loan-mq9vvlrcvjbtznfd34"
       ],
       "loanees": [
         {
@@ -868,5 +870,5 @@
       ]
     }
   },
-  "savedAt": "2026-06-11T19:21:53.824Z"
+  "savedAt": "2026-06-11T19:45:11.904Z"
 }
