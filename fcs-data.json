@@ -782,8 +782,23 @@
       "score": "",
       "hold": "U15 liga 2",
       "name": "Dalum/Næsby (13. jun.)"
+    },
+    {
+      "id": "mq9fvne1te117li0mvm",
+      "kampnr": "100524",
+      "date": "2026-06-14",
+      "time": "13:00",
+      "opponent": "Fortuna Oure",
+      "hjemme": "Fortuna Oure",
+      "ude": "Harlev/Skanderborg",
+      "venue": "U",
+      "sted": "SfB Ryttervej",
+      "score": "",
+      "hold": "U14 liga 2",
+      "name": "Fortuna Oure (14. jun.)"
     }
   ],
+  "dbuStilling": [],
   "boardLineups": {
     "Dalum/Næsby (13. jun.)": {
       "formation": "4-3-3",
@@ -821,5 +836,5 @@
       ]
     }
   },
-  "savedAt": "2026-06-11T07:51:00.318Z"
+  "savedAt": "2026-06-11T11:55:22.070Z"
 }
