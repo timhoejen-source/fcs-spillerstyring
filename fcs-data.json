@@ -6,7 +6,14 @@
       "dateFrom": "2026-06-26",
       "dateTo": "2026-06-28",
       "location": "Lemvig",
-      "holds": []
+      "holds": [
+        {
+          "id": "mqa2dgmuwpritlv0j9",
+          "name": "U15",
+          "players": [],
+          "loanees": []
+        }
+      ]
     }
   ],
   "trainingPdfs": {
@@ -917,5 +924,5 @@
       ]
     }
   },
-  "savedAt": "2026-06-11T22:22:59.009Z"
+  "savedAt": "2026-06-11T22:23:21.927Z"
 }
