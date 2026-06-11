@@ -11,7 +11,15 @@
           "id": "mqa2dgmuwpritlv0j9",
           "name": "U15",
           "players": [],
-          "loanees": []
+          "loanees": [
+            {
+              "id": "mqa2f9jkdk5k3zpx2ot",
+              "name": "Kaya",
+              "team": "AGF",
+              "dob": "",
+              "contact": ""
+            }
+          ]
         }
       ]
     }
@@ -924,5 +932,5 @@
       ]
     }
   },
-  "savedAt": "2026-06-11T22:23:21.927Z"
+  "savedAt": "2026-06-11T22:24:46.050Z"
 }
