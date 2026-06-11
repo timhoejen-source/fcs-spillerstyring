@@ -784,6 +784,24 @@
       "name": "Dalum/Næsby (13. jun.)"
     }
   ],
-  "boardLineups": {},
-  "savedAt": "2026-06-11T07:09:40.423Z"
+  "boardLineups": {
+    "Dalum/Næsby (13. jun.)": {
+      "formation": "4-3-3",
+      "lineup": {
+        "ANG_1": "mq4rdodj2p61syd2m28",
+        "ANG_2": "mq4rdodj3dko74qwk7c",
+        "ANG_0": "mq4rdodjru64dehr3xb",
+        "MID_1": "mq4rdodjkfd21t4l0es",
+        "MID_2": "mq4rdodjmm8xblygcs",
+        "MID_0": "mq4rdodj2bdm175960h",
+        "DEF_3": "mq4rdodjyjmnpj7iuao",
+        "MV_0": "mq4rdodj3dko74qwk7c",
+        "DEF_0": "mq4rdodj2cgix7j2jz8",
+        "DEF_1": "mq4rdodjt8c1epp5m8g",
+        "DEF_2": "mq4rdodjunxf94vgzw"
+      },
+      "subs": []
+    }
+  },
+  "savedAt": "2026-06-11T07:21:33.260Z"
 }
