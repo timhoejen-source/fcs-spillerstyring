@@ -11,7 +11,8 @@
           "id": "mqa2dgmuwpritlv0j9",
           "name": "U15",
           "players": [
-            "mq4rdodjunxf94vgzw"
+            "mq4rdodjunxf94vgzw",
+            "mq4rdodjcww4yz9olkb"
           ],
           "loanees": [
             {
@@ -976,5 +977,5 @@
       ]
     }
   },
-  "savedAt": "2026-06-11T22:27:36.531Z"
+  "savedAt": "2026-06-11T22:27:40.282Z"
 }
