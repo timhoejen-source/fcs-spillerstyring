@@ -10,7 +10,12 @@
       "jersey": "",
       "goal": "",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": ""
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -57,7 +62,12 @@
       "jersey": "",
       "goal": "nærkamp, stige, ro og overblik, holde på bolden.",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -81,7 +91,12 @@
       "jersey": "",
       "goal": "nærkamp, Overblik, holde på bolden, ligge af",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -209,7 +224,12 @@
       "jersey": "",
       "goal": "- Tæmninger\n- Afleveringer inderside",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -232,7 +252,12 @@
       "jersey": "",
       "goal": "- Agilitet\n- Tempo\n- Afslutninger",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -275,7 +300,12 @@
       "jersey": "",
       "goal": "- Positivitet\n- Dirigent",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -299,7 +329,12 @@
       "jersey": "",
       "goal": "- Rigtige løb\n- Afslutninger\n- Ligge af",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -368,7 +403,12 @@
       "jersey": "",
       "goal": "- Afleveringer (manglende)\n- Tempo\n- Hastighed\n- Agilitet",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -410,7 +450,12 @@
       "jersey": "",
       "goal": "- Selvtillid\n- Hurtigere beslutninger",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -434,7 +479,12 @@
       "jersey": "",
       "goal": "- Agilitet\n- Kondition\n- Selvtillid",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -545,7 +595,12 @@
       "jersey": "",
       "goal": "- Mere koncentration\n- Førsteberøringer\n- skader",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -593,7 +648,12 @@
       "jersey": "",
       "goal": "- Tæmninger\n- Agilitet\n- førstegangsberøringer",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -617,7 +677,12 @@
       "jersey": "",
       "goal": "- Komme mere ind på holdet\n- Mere lyd på",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -680,10 +745,16 @@
       "venue": "U",
       "sted": "ALPI Arena Næsby",
       "score": "",
-      "hold": "",
+      "hold": "U15 liga 2",
       "name": "Dalum/Næsby (13. jun.)"
     }
   ],
-  "boardLineups": {},
-  "savedAt": "2026-06-10T21:01:33.562Z"
+  "boardLineups": {
+    "Dalum/Næsby (13. jun.)": {
+      "formation": "4-3-3",
+      "lineup": {},
+      "subs": []
+    }
+  },
+  "savedAt": "2026-06-11T05:22:50.092Z"
 }
