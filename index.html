@@ -2184,9 +2184,14 @@ function renderPitch(){
   if(currentBoard.subs.length){
     var subTags = currentBoard.subs.map(function(pid){
       var p = players.find(function(x){ return x.id===pid; });
-      return p ? '<span class="pitch-sub-tag">'+(p.jersey?'#'+p.jersey+' ':'')+p.name.split(' ')[0]+'</span>' : '';
+      if(!p) p = currentBoard.loanees.find(function(x){ return x.id===pid; });
+      if(!p) return '';
+      var isLoan = p.isLoanee;
+      var tagStyle = isLoan ? 'background:#1A6EC0;' : '';
+      var loanLabel = isLoan ? ' <span style=\'font-size:8px;opacity:.8;\'>[LÅN]</span>' : '';
+      return '<span class="pitch-sub-tag" style="'+tagStyle+'">'+(p.jersey?'#'+p.jersey+' ':'')+p.name.split(' ')[0]+loanLabel+'</span>';
     }).join('');
-    subHtml = '<div class="pitch-sub"><div class="pitch-sub-title">Indskiftere</div><div class="pitch-sub-players">'+subTags+'</div></div>';
+    subHtml = '<div class="pitch-sub"><div class="pitch-sub-title">Indskiftere ('+currentBoard.subs.length+')</div><div class="pitch-sub-players">'+subTags+'</div></div>';
   }
 
   // Pitch markings
@@ -2232,7 +2237,12 @@ function exportBoardPdf(){
   }).join('');
   var subRows=currentBoard.subs.map(function(pid){
     var p=players.find(function(x){return x.id===pid;});
-    return p?'<tr><td style="background:#5A7A9F;color:#fff;font-weight:700;padding:4px 8px;font-size:9px;">IND</td><td style="padding:4px 10px;font-size:11px;">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</td></tr>':'';
+    if(!p) p=currentBoard.loanees.find(function(x){return x.id===pid;});
+    if(!p) return '';
+    var isLoan=p.isLoanee;
+    var bg=isLoan?'#1A6EC0':'#5A7A9F';
+    var label=(p.jersey?'#'+p.jersey+' ':'')+p.name+(isLoan&&p.team?' ('+p.team+')':'')+(isLoan?' [LÅN]':'');
+    return '<tr><td style="background:'+bg+';color:#fff;font-weight:700;padding:4px 8px;font-size:9px;">IND</td><td style="padding:4px 10px;font-size:11px;">'+label+'</td></tr>';
   }).join('');
 
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page{size:A4 portrait;margin:12mm 14mm;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:4mm;border-bottom:3px solid #F5C400;margin-bottom:5mm;}table{width:100%;border-collapse:collapse;}tbody tr:nth-child(even) td{background:#F8FAFC;}</style></head><body>';
