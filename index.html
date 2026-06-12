@@ -1092,6 +1092,9 @@ window.addEventListener('DOMContentLoaded',()=>{
     // Attendance buttons
     var btn=e.target.closest('.att-btn[data-kn]');
     if(btn){ setKampAttendance(btn.getAttribute('data-kn'),btn.getAttribute('data-pid'),btn.getAttribute('data-val')); return; }
+    // Save kamp to GitHub
+    var saveKamp=e.target.closest('[data-savekamp]');
+    if(saveKamp){ saveAll(); syncToSheets(true); return; }
     // Toggle kamp detail
     var hdr=e.target.closest('[data-ktoggle]');
     if(hdr){ toggleKampDetail(hdr.getAttribute('data-ktoggle')); return; }
@@ -1899,7 +1902,10 @@ function renderTrainings(){
         '</div>'+
         '<div style="margin-top:10px;"><div style="font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Fremmøde</div>'+
         '<div class="attendance-grid">'+attRows+'</div></div>'+
-        '<div class="training-actions"><button class="btn-training-del" data-del="'+t.id+'">🗑️ Slet træning</button></div>'+
+        '<div class="training-actions">'+
+          '<button class="btn-primary" style="margin-top:0;width:auto;padding:6px 14px;font-size:11px;" data-savetraining="'+t.id+'">☁️ Gem til GitHub</button>'+
+          '<button class="btn-training-del" data-del="'+t.id+'">🗑️ Slet træning</button>'+
+        '</div>'+
       '</div>'+
     '</div>';
   }).join('');
@@ -3370,7 +3376,11 @@ function renderCupBody(cupId){
         '<input type="text" id="cup-hold-inp-'+cupId+'" placeholder="Holdnavn fx U14 A" style="flex:1;font-size:12px;" onkeydown="if(event.key===\'Enter\')addCupHold(\''+cupId+'\')">'+
         '<button class="btn-cup-add-hold" data-addcuphold="'+cupId+'">+ Tilføj hold</button>'+
       '</div>':'')+
-    (isAdmin?'<div style="margin-top:12px;"><button class="cup-del-btn" data-delcup="'+cupId+'">🗑️ Slet cup</button></div>':'');
+    '<div style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap;">'+
+      (isAdmin?'<button class="btn-primary" style="margin-top:0;width:auto;padding:8px 16px;" data-savecup="'+cupId+'">☁️ Gem til GitHub</button>':'')+ 
+      '<button class="btn-export" style="width:auto;padding:8px 16px;" data-exportcup="'+cupId+'">📄 Eksporter PDF</button>'+
+      (isAdmin?'<button class="cup-del-btn" data-delcup="'+cupId+'">🗑️ Slet cup</button>':'')+
+    '</div>';
 }
 
 function renderCups(){
@@ -3437,10 +3447,112 @@ document.addEventListener('click', function(e){
   // Remove loanee
   var delLoan=e.target.closest('[data-delcuploanee]');
   if(delLoan){ removeCupLoanee(delLoan.getAttribute('data-cup'),delLoan.getAttribute('data-hold'),delLoan.getAttribute('data-delcuploanee')); return; }
+  // Export cup PDF
+  var expCup=e.target.closest('[data-exportcup]');
+  if(expCup){ exportCupPdf(expCup.getAttribute('data-exportcup')); return; }
+  // Save cup to GitHub
+  var saveCupBtn=e.target.closest('[data-savecup]');
+  if(saveCupBtn){
+    saveCups();
+    syncToSheets(true);
+    return;
+  }
   // Delete cup
   var delCup=e.target.closest('[data-delcup]');
   if(delCup){ deleteCup(delCup.getAttribute('data-delcup')); return; }
 });
+
+
+// ── Cup PDF export ────────────────────────────────────────────────────────────
+function exportCupPdf(cupId){
+  var cup=cups.find(function(c){ return c.id===cupId; });
+  if(!cup){ toast('⚠️ Cup ikke fundet'); return; }
+
+  var dateStr='';
+  if(cup.dateFrom&&cup.dateTo)
+    dateStr=new Date(cup.dateFrom).toLocaleDateString('da-DK',{day:'numeric',month:'short'})+
+      ' – '+new Date(cup.dateTo).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'});
+  else if(cup.dateFrom)
+    dateStr=new Date(cup.dateFrom).toLocaleDateString('da-DK',{day:'numeric',month:'long',year:'numeric'});
+
+  var holdsHtml=cup.holds.map(function(hold){
+    var playerRows=hold.players.map(function(pid){
+      var p=players.find(function(x){return x.id===pid;});
+      if(!p) return '';
+      var posArr=Array.isArray(p.pos)?p.pos:(p.pos?[p.pos]:[]);
+      var pTeams=Array.isArray(p.team)?p.team.join(', '):(p.team||'');
+      return '<tr>'+
+        '<td style="padding:4px 10px;font-weight:600;">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+'</td>'+
+        '<td style="padding:4px 10px;font-size:10px;color:#5A7A9F;">'+pTeams+'</td>'+
+        '<td style="padding:4px 10px;font-size:10px;color:#5A7A9F;">'+p.age+' år</td>'+
+        '<td style="padding:4px 10px;font-size:10px;">'+posArr.map(function(px){return POS_LABELS[px]||px;}).join(' / ')+'</td>'+
+        '<td style="padding:4px 10px;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:8px;font-weight:700;padding:1px 6px;border-radius:3px;">'+p.cls+'</span></td>'+
+      '</tr>';
+    }).join('');
+
+    var loaneeRows=(hold.loanees||[]).map(function(l){
+      var dobStr=l.dob?new Date(l.dob).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'}):'–';
+      return '<tr style="background:#EBF2FB;">'+
+        '<td style="padding:4px 10px;font-weight:600;color:#1A6EC0;">'+l.name+' <span style="font-size:9px;font-weight:700;background:#1A6EC0;color:#fff;padding:1px 5px;border-radius:3px;">LÅN</span></td>'+
+        '<td style="padding:4px 10px;font-size:10px;">'+( l.team||'–')+'</td>'+
+        '<td style="padding:4px 10px;font-size:10px;">'+dobStr+'</td>'+
+        '<td style="padding:4px 10px;font-size:10px;">'+( l.contact||'–')+'</td>'+
+        '<td></td>'+
+      '</tr>';
+    }).join('');
+
+    var total=hold.players.length+(hold.loanees||[]).length;
+
+    return '<div style="margin-bottom:8mm;">'+
+      '<div style="background:#0A2342;color:#F5C400;padding:5px 10px;border-radius:6px 6px 0 0;font-size:11px;font-weight:700;display:flex;justify-content:space-between;">'+
+        '<span>⚽ '+hold.name+'</span>'+
+        '<span>'+total+' spillere</span>'+
+      '</div>'+
+      '<table style="width:100%;border-collapse:collapse;border:1px solid #E2E8F0;border-top:none;">'+
+        '<thead><tr style="background:#F1F5F9;">'+
+          '<th style="padding:4px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.07em;">Spiller</th>'+
+          '<th style="padding:4px 10px;text-align:left;font-size:9px;text-transform:uppercase;">Hold</th>'+
+          '<th style="padding:4px 10px;text-align:left;font-size:9px;text-transform:uppercase;">Alder</th>'+
+          '<th style="padding:4px 10px;text-align:left;font-size:9px;text-transform:uppercase;">Position</th>'+
+          '<th style="padding:4px 10px;text-align:left;font-size:9px;text-transform:uppercase;">Klasse</th>'+
+        '</tr></thead>'+
+        '<tbody>'+playerRows+loaneeRows+'</tbody>'+
+      '</table>'+
+    '</div>';
+  }).join('');
+
+  var totalAll=cup.holds.reduce(function(a,h){return a+h.players.length+(h.loanees||[]).length;},0);
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'+
+    '<style>@page{size:A4 portrait;margin:12mm 14mm;}'+
+    '@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap\');'+
+    '*{box-sizing:border-box;margin:0;padding:0;}'+
+    'body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}'+
+    'tbody tr:nth-child(even):not([style*="background:#EBF2FB"]){background:#F8FAFC;}'+
+    '</style></head><body>';
+
+  html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:4mm;border-bottom:3px solid #F5C400;margin-bottom:5mm;">'+
+    '<div>'+
+      '<div style="font-size:20px;font-weight:700;margin-bottom:2px;">'+cup.name+'</div>'+
+      '<div style="font-size:10px;color:#5A7A9F;">'+
+        (dateStr?'📅 '+dateStr+'  ':'')+
+        (cup.location?'📍 '+cup.location:'')+'</div>'+
+      '<div style="margin-top:3mm;display:flex;gap:8px;">'+
+        '<span style="background:#DBEAFE;color:#1A6EC0;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;">'+cup.holds.length+' hold</span>'+
+        '<span style="background:#DCFCE7;color:#16A34A;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;">'+totalAll+' spillere i alt</span>'+
+      '</div>'+
+    '</div>'+
+    '<div style="text-align:right;font-size:9px;color:#94A3B8;">FC Skanderborg · Pigeudvalg<br>'+new Date().toLocaleDateString('da-DK')+'</div>'+
+  '</div>';
+
+  html+=holdsHtml;
+  html+='<div style="margin-top:5mm;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;font-size:8px;color:#94A3B8;">'+
+    '<span>FC Skanderborg · Pigeudvalg</span>'+
+    '<span>'+cup.name+'</span>'+
+  '</div>';
+  html+='</body></html>';
+  openPdfWindow(html);
+}
 
 
 </script>
