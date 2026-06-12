@@ -691,7 +691,29 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
     <!-- Træning panel -->
     <div class="tab-panel" id="tab-training">
+
+      <!-- GitHub Token sektion — altid synlig øverst -->
+      <div id="tr-token-box" style="background:#FEF9C3;border:2px solid #F5C400;border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:28px;height:28px;background:#F5C400;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">⚠️</div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#854D0E;">Vigtigt — gør dette først!</div>
+            <div style="font-size:11px;color:#92400E;line-height:1.5;margin-top:2px;">Indsæt dit GitHub token nedenfor inden du opretter eller redigerer træninger. Alle ændringer gemmes direkte til GitHub.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="password" id="tr-token-inp" placeholder="Indsæt GitHub token her (ghp_…)" autocomplete="off"
+            style="flex:1;font-size:12px;padding:8px 10px;border:1.5px solid #F5C400;border-radius:7px;background:#fff;font-family:'DM Sans',sans-serif;"
+            oninput="trSaveToken(this.value)">
+          <div id="tr-token-status" style="font-size:11px;font-weight:700;white-space:nowrap;"></div>
+        </div>
+      </div>
+
       <div class="new-training-form" id="new-training-form" style="display:none;">
+        <!-- Token reminder inside form -->
+        <div id="tr-form-token-reminder" style="display:none;background:#FEE2E2;border:1px solid #fecaca;border-radius:7px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:#dc2626;font-weight:600;">
+          ⚠️ Indsæt GitHub token øverst på siden inden du gemmer
+        </div>
         <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;">Ny træning</div>
         <div class="form-row">
           <div class="fg"><label>Dato</label><input type="date" id="tr-date"></div>
@@ -700,7 +722,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <div class="fg"><label>Beskrivelse af træningsindhold</label><textarea id="tr-desc" style="min-height:80px;" placeholder="Beskriv øvelser, fokuspunkter, noter…"></textarea></div>
 
         <div style="display:flex;gap:8px;margin-top:8px;">
-          <button class="btn-primary" style="margin-top:0;" onclick="saveNewTraining()">Gem træning</button>
+          <button class="btn-primary" style="margin-top:0;" onclick="saveNewTraining()">💾 Gem træning</button>
           <button class="btn-cancel" onclick="toggleNewTrainingForm()">Annuller</button>
         </div>
       </div>
@@ -1128,6 +1150,18 @@ function addPlayerEx(){
 function removePlayerEx(i){
   mPlayerExercises.splice(i, 1);
   renderModalExList();
+}
+
+function trSaveToken(val){
+  cfg.ghtoken = val.trim();
+  var status = document.getElementById('tr-token-status');
+  var reminder = document.getElementById('tr-form-token-reminder');
+  if(val.trim()){
+    if(status){ status.textContent='✅ Token klar'; status.style.color='#16A34A'; }
+    if(reminder) reminder.style.display='none';
+  } else {
+    if(status){ status.textContent=''; }
+  }
 }
 
 let mMatchToggle='ja';
@@ -1794,7 +1828,12 @@ function switchTab(tab){
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
   try{ localStorage.setItem('fcs-active-tab', tab); }catch(e){}
-  if(tab==='training'){renderTrainings();populateExportSelectors();}
+  if(tab==='training'){
+    renderTrainings();populateExportSelectors();
+    // Pre-fill token field
+    var inp=document.getElementById('tr-token-inp');
+    if(inp&&cfg.ghtoken){ inp.value=cfg.ghtoken; var st=document.getElementById('tr-token-status'); if(st){st.textContent='✅ Token klar';st.style.color='#16A34A';} }
+  }
   if(tab==='kampe'){renderKampe();populateExportSelectors();}
   if(tab==='board'){renderBoard();renderLoaneeList();populateExportSelectors();}
   if(tab==='stilling'){renderStilling();}
@@ -2077,7 +2116,12 @@ function switchTab(tab){
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
   try{ localStorage.setItem('fcs-active-tab', tab); }catch(e){}
-  if(tab==='training'){renderTrainings();populateExportSelectors();}
+  if(tab==='training'){
+    renderTrainings();populateExportSelectors();
+    // Pre-fill token field
+    var inp=document.getElementById('tr-token-inp');
+    if(inp&&cfg.ghtoken){ inp.value=cfg.ghtoken; var st=document.getElementById('tr-token-status'); if(st){st.textContent='✅ Token klar';st.style.color='#16A34A';} }
+  }
   if(tab==='kampe'){renderKampe();populateExportSelectors();}
   if(tab==='board'){renderBoard();renderLoaneeList();populateExportSelectors();}
   if(tab==='stilling'){renderStilling();}
