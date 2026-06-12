@@ -1995,6 +1995,11 @@ function renderKampe(){
     holdFilters.innerHTML=kampHolds.map(function(h){
       return '<button class="filter-btn kamp-hold-btn'+(activeKampFilter===h?' active':'')+'" data-hold="'+h+'">'+h+'</button>';
     }).join('');
+    holdFilters.querySelectorAll('.kamp-hold-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        setKampFilter(this.getAttribute('data-hold'), this);
+      });
+    });
   }
 
   // Merge: matches from matches array + any from player stats not in matches array
