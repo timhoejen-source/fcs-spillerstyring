@@ -1626,7 +1626,7 @@ function exportSinglePdf(){
 function exportAllPdf(){
   if(!players.length){toast('⚠️ Ingen spillere at eksportere');return;}
   var sorted=[].concat(players).sort(function(a,b){
-    if((a.team||'')!==(b.team||'')) return (a.team||'').localeCompare(b.team||'','da');
+    var at=(Array.isArray(a.team)?a.team.join(','):(a.team||'')),bt=(Array.isArray(b.team)?b.team.join(','):(b.team||''));if(at!==bt) return at.localeCompare(bt,'da');
     return a.name.localeCompare(b.name,'da');
   });
   var rows='';
@@ -1921,7 +1921,7 @@ function exportSinglePdf(){
 function exportAllPdf(){
   if(!players.length){toast('⚠️ Ingen spillere at eksportere');return;}
   var sorted=[].concat(players).sort(function(a,b){
-    if((a.team||'')!==(b.team||'')) return (a.team||'').localeCompare(b.team||'','da');
+    var at=(Array.isArray(a.team)?a.team.join(','):(a.team||'')),bt=(Array.isArray(b.team)?b.team.join(','):(b.team||''));if(at!==bt) return at.localeCompare(bt,'da');
     return a.name.localeCompare(b.name,'da');
   });
   var rows='';
