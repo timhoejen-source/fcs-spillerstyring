@@ -1018,33 +1018,37 @@ function openPdf(base64, fileName){
     var blob = new Blob([ab],{type:'application/pdf'});
     var url = URL.createObjectURL(blob);
     if(isMobile){
-      // iOS: vis PDF i overlay i appen (alle sider)
-      var overlay=document.getElementById('pdf-viewer-overlay');
-      if(!overlay){
-        overlay=document.createElement('div');
-        overlay.id='pdf-viewer-overlay';
-        overlay.style.cssText='position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;';
-        var closeBar=document.createElement('div');
-        closeBar.style.cssText='background:#0A2342;color:#F5C400;padding:12px 16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;';
-        var titleSpan=document.createElement('span');
-        titleSpan.textContent='📄 '+fileName;
-        var closeBtn=document.createElement('button');
-        closeBtn.textContent='✕ Luk';
-        closeBtn.style.cssText='background:#F5C400;color:#0A2342;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:14px;cursor:pointer;';
-        closeBtn.onclick=function(){ document.getElementById('pdf-viewer-overlay').remove(); };
-        closeBar.appendChild(titleSpan);
-        closeBar.appendChild(closeBtn);
-        var iframe=document.createElement('iframe');
-        iframe.style.cssText='flex:1;border:none;width:100%;';
-        iframe.src=url;
-        overlay.appendChild(closeBar);
-        overlay.appendChild(iframe);
-        document.body.appendChild(overlay);
-      } else {
-        overlay.querySelector('iframe').src=url;
-        overlay.querySelector('span').textContent='📄 '+fileName;
-        overlay.style.display='flex';
-      }
+      // iOS Safari workaround: navigate directly to blob URL in same tab
+      // This shows ALL pages unlike iframe on iOS
+      var downloadLink = document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.target = '_blank';
+      downloadLink.rel = 'noopener noreferrer';
+      downloadLink.style.display = 'none';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      // If that doesn't work, show a download link in a toast-style div
+      setTimeout(function(){
+        var pdfBar = document.getElementById('ios-pdf-bar');
+        if(pdfBar) pdfBar.remove();
+        var bar = document.createElement('div');
+        bar.id = 'ios-pdf-bar';
+        bar.style.cssText = 'position:fixed;bottom:20px;left:16px;right:16px;background:#0A2342;color:#fff;padding:12px 16px;border-radius:10px;z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.4);';
+        bar.innerHTML = '<span style="flex:1;font-size:12px;">📄 '+fileName+'</span>';
+        var openBtn = document.createElement('a');
+        openBtn.href = url;
+        openBtn.textContent = 'Åbn PDF';
+        openBtn.style.cssText = 'background:#F5C400;color:#0A2342;padding:6px 14px;border-radius:6px;font-weight:700;font-size:12px;text-decoration:none;white-space:nowrap;';
+        var closeBtn = document.createElement('button');
+        closeBtn.textContent = '✕';
+        closeBtn.style.cssText = 'background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:14px;';
+        closeBtn.onclick = function(){ bar.remove(); };
+        bar.appendChild(openBtn);
+        bar.appendChild(closeBtn);
+        document.body.appendChild(bar);
+        setTimeout(function(){ if(bar.parentNode) bar.remove(); }, 30000);
+      }, 300);
       setTimeout(function(){ URL.revokeObjectURL(url); }, 120000);
     } else {
       // Desktop: åbn i nyt faneblad
@@ -2310,33 +2314,53 @@ let currentBoard = { kampName:'', formation:'4-3-3', lineup:{}, subs:[], loanees
 let boardKamps = []; // derived from players stats
 
 function renderBoard(){
-  // Build kamp list from player match data
+  // Build kamp list from BOTH player stats matches AND imported matches array
   const kampMap = {};
   players.forEach(p=>{
     ((p.stats||{}).matches||[]).forEach(m=>{
       if(!kampMap[m.name]) kampMap[m.name]={name:m.name};
     });
   });
+  matches.forEach(function(m){ if(!kampMap[m.name]) kampMap[m.name]={name:m.name}; });
   boardKamps = Object.values(kampMap);
 
   // Populate kamp select
   var sel = document.getElementById('board-kamp-sel');
   if(!sel) return;
-  var cur = sel.value;
   sel.innerHTML = '<option value="">– Vælg kamp –</option>' +
     boardKamps.map(function(k){ return '<option value="'+k.name+'"'+(k.name===currentBoard.kampName?' selected':'')+'>'+k.name+'</option>'; }).join('');
-  if(cur) sel.value = cur;
+
+  // Populate export board kamp select too
+  var expSel = document.getElementById('export-board-kamp-sel');
+  if(expSel){
+    expSel.innerHTML = '<option value="">– Vælg kamp til PDF –</option>' +
+      boardKamps.map(function(k){ return '<option value="'+k.name+'"'+(k.name===currentBoard.kampName?' selected':'')+'>'+k.name+'</option>'; }).join('');
+  }
+
+  // Restore last saved board if available
+  if(!currentBoard.kampName){
+    var lastKamp = localStorage.getItem('fcs-last-board-kamp');
+    if(lastKamp && (window._boardLineups||{})[lastKamp]){
+      currentBoard.kampName = lastKamp;
+      sel.value = lastKamp;
+      if(expSel) expSel.value = lastKamp;
+      boardSelectKamp(lastKamp);
+      return; // boardSelectKamp calls renderBoardSlots + renderPitch
+    }
+  }
 
   // Formation select
   var fsel = document.getElementById('board-formation');
   if(fsel) fsel.value = currentBoard.formation;
 
   renderBoardSlots();
+  renderLoaneeList();
   renderPitch();
 }
 
 function boardSelectKamp(name){
   currentBoard.kampName = name;
+  try{ localStorage.setItem('fcs-last-board-kamp', name); }catch(e){}
   // Load saved lineup if exists
   var saved = (window._boardLineups||{})[name];
   if(saved){ currentBoard.lineup=saved.lineup||{}; currentBoard.formation=saved.formation||'4-3-3'; currentBoard.subs=saved.subs||[]; currentBoard.loanees=saved.loanees||[]; }
