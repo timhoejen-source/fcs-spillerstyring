@@ -956,32 +956,66 @@ function doLogin(){
 }
 
 function applyRole(){
-  const isViewer = currentRole === 'viewer';
-  const isAdmin  = currentRole === 'admin';
+  const isAdmin   = currentRole === 'admin';
+  const isViewer  = currentRole === 'viewer';
+  const isPlayer  = currentRole === 'player';
+
+  // ── PLAYER: kun træning-fanen, ingen fremmøde ────────────────────────────
+  if(isPlayer){
+    // Skjul hele sidepanelet
+    const sb = document.getElementById('sidebar');
+    if(sb) sb.style.display = 'none';
+    // Skjul expand-knap
+    const ex = document.getElementById('expandBtn');
+    if(ex) ex.style.display = 'none';
+    // Skjul alt i header undtagen branding
+    ['sync-btn-wrap','hdr-stats'].forEach(function(id){
+      const el=document.getElementById(id); if(el) el.style.display='none';
+    });
+    // Skjul alle tab-knapper undtagen træning
+    document.querySelectorAll('.tab-btn').forEach(function(btn){
+      btn.style.display = btn.id==='tab-training-btn' ? '' : 'none';
+    });
+    // Badge
+    const badge=document.getElementById('viewer-badge');
+    if(badge){ badge.style.display='flex'; badge.textContent='⚽ Spiller'; }
+    // Gå direkte til træning
+    switchTab('training');
+    return;
+  }
+
+  // ── VIEWER/ADMIN: vis alt, juster rettigheder ────────────────────────────
+  // Vis sidebar og header fuldt ud
+  const sb2 = document.getElementById('sidebar');
+  if(sb2) sb2.style.display = '';
+  document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.style.display=''; });
+  ['hdr-stats'].forEach(function(id){
+    const el=document.getElementById(id); if(el) el.style.display='';
+  });
+
   // Flex-elementer
-  const flexItems = ['sync-btn-wrap'];
-  // sync-btn-wrap already in flex — hide for viewer
-  flexItems.forEach(id=>{
+  ['sync-btn-wrap'].forEach(function(id){
     const el=document.getElementById(id);
     if(el) el.style.display=isViewer?'none':'flex';
   });
-  // Block-elementer (sections, buttons)
-  const blockItems = ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player','modal-save-btn','sb-kampe-admin','sb-dbu','cup-admin-btns'];
-  // Show/hide correct sections per role
+  // Block-elementer (admin only)
+  ['sb-sheets-save','sb-reset','sb-import','sb-teams','sb-add-player',
+   'modal-save-btn','sb-kampe-admin','sb-dbu','cup-admin-btns'].forEach(function(id){
+    const el=document.getElementById(id);
+    if(el) el.style.display=isViewer?'none':'block';
+  });
+  // GitHub sections
   const ghSection=document.getElementById('sb-github-section');
   if(ghSection) ghSection.style.display=isViewer?'none':'block';
   const hentViewer=document.getElementById('sb-hent-viewer');
   if(hentViewer) hentViewer.style.display=isViewer?'block':'none';
-  blockItems.forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.style.display=isViewer?'none':'block';
-  });
   // Viewer badge
-  const badge=document.getElementById('viewer-badge');
-  if(badge) badge.style.display=isViewer?'flex':'none';
-  // Re-render so edit/delete buttons show/hide correctly on cards
+  const badge2=document.getElementById('viewer-badge');
+  if(badge2) badge2.style.display=isViewer?'flex':'none';
+  // Re-render
   render();
 }
+
 let fCls='',fPos=[],mCls='',mPos=[],activeClsFilter='alle',activePosFilter='alle',activeTeamFilter='alle',searchQ='',editId=null,syncTimer=null;
 
 let mMatchToggle='ja';
