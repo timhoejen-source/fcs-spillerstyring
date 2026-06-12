@@ -2274,12 +2274,10 @@ function renderKampe(){
     var eligiblePlayers = kampHold ?
       players.filter(function(p){
         var pTeams = Array.isArray(p.team) ? p.team : (p.team ? [p.team] : []);
-        if(!pTeams.length) return false;
-        // Normalize: remove spaces and case for comparison
-        var normHold = kampHold.toLowerCase().replace(/\s+/g,'');
+        var normHold = kampHold.toLowerCase().split('').filter(function(ch){return (ch>='a'&&ch<='z')||(ch>='0'&&ch<='9');}).join('');
         return pTeams.some(function(t){
-          var normTeam = t.toLowerCase().replace(/\s+/g,'');
-          return normTeam === normHold || normTeam.includes(normHold) || normHold.includes(normTeam);
+          var normTeam = t.toLowerCase().split('').filter(function(ch){return (ch>='a'&&ch<='z')||(ch>='0'&&ch<='9');}).join('');
+          return normTeam === normHold;
         });
       }) : players;
     // Always include players already registered for this kamp
