@@ -557,7 +557,7 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": "ja"
+            "udtaget": ""
           },
           {
             "name": "Fortuna Oure (14. jun.)",
@@ -712,7 +712,12 @@
       "jersey": "",
       "goal": "- Ro\n- ligge af\n- Aflever",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "ja"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -1014,7 +1019,7 @@
     "Dalum/Næsby (13. jun.)": {
       "formation": "4-3-3",
       "lineup": {
-        "MV_0": "loan-mqakgtk97p2afpvgsmx",
+        "MV_0": "mq4rdodjf4oeaovcoiq",
         "DEF_0": "mq4rdodj2cgix7j2jz8",
         "DEF_1": "mq4rdodjyjmnpj7iuao",
         "DEF_2": "mq4rdodjt8c1epp5m8g",
@@ -1027,8 +1032,7 @@
         "ANG_2": "mq4rdodjru64dehr3xb"
       },
       "subs": [
-        "loan-mqakgmplyvmcg12g24b",
-        "loan-mqakgtk97p2afpvgsmx"
+        "loan-mqakgmplyvmcg12g24b"
       ],
       "loanees": [
         {
@@ -1067,5 +1071,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-12T18:44:10.366Z"
+  "savedAt": "2026-06-12T18:48:45.387Z"
 }
