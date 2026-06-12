@@ -127,7 +127,7 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": "nej"
+            "udtaget": ""
           },
           {
             "name": "Fortuna Oure (14. jun.)",
@@ -268,7 +268,7 @@
           },
           {
             "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": "nej"
+            "udtaget": ""
           }
         ],
         "skud": 0,
@@ -484,7 +484,7 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": "nej"
+            "udtaget": ""
           },
           {
             "name": "Fortuna Oure (14. jun.)",
@@ -769,7 +769,7 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": "nej"
+            "udtaget": ""
           },
           {
             "name": "Fortuna Oure (14. jun.)",
@@ -1209,5 +1209,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-12T19:40:14.827Z"
+  "savedAt": "2026-06-12T19:41:54.029Z"
 }
