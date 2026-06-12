@@ -1143,7 +1143,7 @@
     "Dalum/Næsby (13. jun.)": {
       "formation": "4-3-3",
       "lineup": {
-        "MV_0": "mq4rdodjf4oeaovcoiq",
+        "MV_0": "mq4rdodj3dko74qwk7c",
         "DEF_0": "mq4rdodj2cgix7j2jz8",
         "DEF_1": "mq4rdodjyjmnpj7iuao",
         "DEF_2": "mq4rdodjt8c1epp5m8g",
@@ -1157,8 +1157,7 @@
       },
       "subs": [
         "loan-mqakgmplyvmcg12g24b",
-        "mq4rdodjte78cpjrbd8",
-        "mq4rdodj3dko74qwk7c"
+        "mq4rdodjte78cpjrbd8"
       ],
       "loanees": [
         {
@@ -1197,5 +1196,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-12T19:13:24.133Z"
+  "savedAt": "2026-06-12T19:13:59.807Z"
 }
