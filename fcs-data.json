@@ -81,7 +81,9 @@
         {
           "id": "mqaigyjdz387m4ytjz9",
           "name": "U14",
-          "players": [],
+          "players": [
+            "mq4rdodjn00ufiqe0ls"
+          ],
           "loanees": []
         }
       ]
@@ -1044,5 +1046,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-12T11:37:38.566Z"
+  "savedAt": "2026-06-12T11:37:50.825Z"
 }
