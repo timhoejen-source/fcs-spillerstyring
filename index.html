@@ -948,6 +948,20 @@ const USERS = {
   'fcsspiller':    { pass: '8660spiller',  role: 'player' }
 };
 let currentRole = '';
+function toggleFilterGroup(groupId, btn){
+  var group = document.getElementById(groupId);
+  if(!group) return;
+  var open = group.style.display !== 'none';
+  group.style.display = open ? 'none' : 'flex';
+  var label = groupId === 'hold-group' ? 'Hold' : 'Position';
+  btn.textContent = label + (open ? ' ▾' : ' ▴');
+}
+
+function togglePlayerGroup(id){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.style.display = el.style.display === 'none' ? '' : 'none';
+}
 
 function doLogin(){
   const u = document.getElementById('login-user').value.trim();
@@ -957,7 +971,18 @@ function doLogin(){
     currentRole = user.role;
     sessionStorage.setItem('fcs-auth', user.role);
     document.getElementById('loginOverlay').style.display = 'none';
-    applyRole();
+    // Show welcome screen — applyRole called when user presses Fortsæt
+    var wmsgs = {
+      'admin':  { title:'Velkommen administrator', sub:'' },
+      'viewer': { title:'Velkommen til FCS Pige talent', sub:'' },
+      'player': { title:'Velkommen spiller', sub:'Du kan nu tjekke kommende træningssession ud,\nså du er klar til at udføre øvelserne korrekt fra start.' }
+    };
+    var wm = wmsgs[user.role] || { title:'Velkommen', sub:'' };
+    document.getElementById('welcome-msg').textContent = wm.title;
+    document.getElementById('welcome-sub').textContent = wm.sub;
+    var wo = document.getElementById('welcomeOverlay');
+    if(wo) wo.style.display = 'flex';
+    // Auto-hent data i baggrunden
     setTimeout(function(){ loadFromSheets(true); }, 700);
   } else {
     const err = document.getElementById('login-err');
