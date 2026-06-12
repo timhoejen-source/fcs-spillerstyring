@@ -403,6 +403,15 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   </div>
 </div>
 
+<div id="welcomeOverlay" style="display:none;position:fixed;inset:0;background:var(--navy);z-index:9998;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:var(--white);border-radius:16px;padding:36px 28px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;">
+    <div style="width:64px;height:64px;background:var(--yellow);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--navy);margin:0 auto 20px;">FCS</div>
+    <div id="welcome-msg" style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:10px;line-height:1.5;"></div>
+    <div id="welcome-sub" style="font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:24px;"></div>
+    <button onclick="dismissWelcome()" style="width:100%;padding:12px;background:var(--navy);color:var(--yellow);border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.04em;">Fortsæt →</button>
+  </div>
+</div>
+
 <div class="hdr">
   <div class="hdr-brand">
     <button class="menu-btn" id="menuBtn" onclick="toggleMobile()"><span></span><span></span><span></span></button>
@@ -637,12 +646,15 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <button class="filter-btn" onclick="setClsFilter('C',this)">C-spillere</button>
         <input class="filter-search" type="text" placeholder="Søg…" oninput="searchFilter(this.value)">
       </div>
-      <div class="filter-row">
-        <span class="filter-label">Hold</span>
-        <span id="team-filters"></span>
+      <div class="filter-row" style="flex-wrap:nowrap;align-items:flex-start;">
+        <button class="filter-btn active" id="filter-hold-toggle" onclick="toggleFilterGroup('hold-group',this)" style="white-space:nowrap;">Hold ▾</button>
+        <div id="hold-group" style="display:none;flex-wrap:wrap;gap:6px;flex:1;" class="filter-subgroup">
+          <span id="team-filters"></span>
+        </div>
       </div>
-      <div class="filter-row">
-        <span class="filter-label">Position</span>
+      <div class="filter-row" style="flex-wrap:nowrap;align-items:flex-start;">
+        <button class="filter-btn active" id="filter-pos-toggle" onclick="toggleFilterGroup('pos-group',this)" style="white-space:nowrap;">Position ▾</button>
+        <div id="pos-group" style="display:none;flex-wrap:wrap;gap:6px;flex:1;" class="filter-subgroup">
         <button class="filter-btn active" onclick="setPosFilter('alle',this)">Alle</button>
         <button class="filter-btn" onclick="setPosFilter('MM',this)">Keeper</button>
         <button class="filter-btn" onclick="setPosFilter('HB',this)">Højre Back</button>
@@ -659,6 +671,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <button class="filter-btn" onclick="setPosFilter('VK',this)">Venstre Kant</button>
         <button class="filter-btn" onclick="setPosFilter('9',this)">9er</button>
         <button class="filter-btn" onclick="setPosFilter('A',this)">Angriber</button>
+        </div><!-- end pos-group -->
       </div>
     </div>
     <div id="player-list"></div>
@@ -955,6 +968,12 @@ function doLogin(){
   }
 }
 
+
+function dismissWelcome(){
+  var wo = document.getElementById('welcomeOverlay');
+  if(wo) wo.style.display = 'none';
+  applyRole();
+}
 function applyRole(){
   const isAdmin   = currentRole === 'admin';
   const isViewer  = currentRole === 'viewer';
@@ -1550,7 +1569,7 @@ function render(){
     return '<div class="card"><div class="card-top"><div class="avatar">'+(p.jersey?'#'+p.jersey:initials(p.name))+'</div><div class="card-info"><div class="card-name">'+p.name+'</div><div class="card-meta">'+p.age+' år'+((Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).length?' · '+(Array.isArray(p.team)?p.team.join(', '):p.team):'')+'</div></div><div class="card-acts"><button class="cbtn" onclick="openEdit(\''+p.id+'\')">✏️</button><button class="cbtn del" onclick="deletePlayer(\''+p.id+'\')">🗑️</button></div></div><div class="tags"><span class="tag tag-'+p.cls.toLowerCase()+'">'+p.cls+'-spiller</span>'+posTag+'</div>'+statsHtml+goalHtml+'</div>';
   }).join('');
   let html='';
-  teams.filter(t=>withTeam[t]).forEach(t=>{html+='<div class="group-hdr"><span class="group-name">'+t+'</span><span class="group-cnt">'+withTeam[t].length+'</span><div class="group-line"></div></div><div class="cards">'+cards(withTeam[t])+'</div>';});
+  teams.filter(t=>withTeam[t]).forEach(t=>{html+='<div class="group-hdr" style="cursor:pointer;" onclick="togglePlayerGroup(\'grp-'+t+'\')">'+'<span class="group-name">'+t+'</span><span class="group-cnt">'+withTeam[t].length+'</span><div class="group-line"></div><span style="font-size:11px;color:var(--g400);">▾</span></div><div class="cards" id="grp-'+t+'">'+cards(withTeam[t])+'</div>';});
   if(noTeam.length)html+='<div class="group-hdr"><span class="group-name">Hold ikke tildelt</span><span class="group-cnt">'+noTeam.length+'</span><div class="group-line"></div></div><div class="cards">'+cards(noTeam)+'</div>';
   list.innerHTML=html;
   renderExportSelect();
@@ -3639,6 +3658,12 @@ document.addEventListener('click', function(e){
   if(saveBtn){ saveAll(); syncToSheets(true); return; }
 });
 
+
+function togglePlayerGroup(id){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.style.display = el.style.display === 'none' ? '' : 'none';
+}
 
 </script>
 </body>
