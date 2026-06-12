@@ -2274,7 +2274,13 @@ function renderKampe(){
     var eligiblePlayers = kampHold ?
       players.filter(function(p){
         var pTeams = Array.isArray(p.team) ? p.team : (p.team ? [p.team] : []);
-        return pTeams.some(function(t){ return t.toLowerCase()===kampHold.toLowerCase(); });
+        if(!pTeams.length) return false;
+        // Normalize: remove spaces and case for comparison
+        var normHold = kampHold.toLowerCase().replace(/\s+/g,'');
+        return pTeams.some(function(t){
+          var normTeam = t.toLowerCase().replace(/\s+/g,'');
+          return normTeam === normHold || normTeam.includes(normHold) || normHold.includes(normTeam);
+        });
       }) : players;
     // Always include players already registered for this kamp
     var alreadyRegistered = players.filter(function(p){
