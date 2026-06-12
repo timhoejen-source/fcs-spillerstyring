@@ -2175,8 +2175,8 @@ function boardSelectKamp(name){
   try{ localStorage.setItem('fcs-last-board-kamp', name); }catch(e){}
   // Load saved lineup if exists
   var saved = (window._boardLineups||{})[name];
-  if(saved){ currentBoard.lineup=saved.lineup||{}; currentBoard.formation=saved.formation||'4-3-3'; currentBoard.subs=saved.subs||[]; currentBoard.loanees=saved.loanees||[]; }
-  else { currentBoard.lineup={}; currentBoard.subs=[]; }
+  if(saved){ currentBoard.lineup=saved.lineup||{}; currentBoard.formation=saved.formation||'4-3-3'; currentBoard.subs=saved.subs||[]; currentBoard.loanees=JSON.parse(JSON.stringify(saved.loanees||[])); }
+  else { currentBoard.lineup={}; currentBoard.subs=[]; currentBoard.loanees=[]; }
   var fsel=document.getElementById('board-formation');
   if(fsel) fsel.value = currentBoard.formation;
   renderBoardSlots();
@@ -2709,6 +2709,30 @@ function exportTraeningPdf(){
     '</tr>';
   }).join('');
 
+  // Exercises section
+  var exs=t.exercises||[];
+  var totalMin=exs.reduce(function(a,e){return a+(parseInt(e.min)||0);},0);
+  var exHtml='';
+  if(exs.length){
+    var exCards=exs.map(function(ex,i){
+      return '<div style="margin-bottom:6mm;break-inside:avoid;">'+
+        '<div style="display:flex;align-items:center;gap:8px;background:#0A2342;color:#F5C400;padding:5px 10px;border-radius:6px 6px 0 0;">'+
+          '<div style="width:20px;height:20px;border-radius:50%;background:#F5C400;color:#0A2342;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(i+1)+'</div>'+
+          '<span style="font-size:11px;font-weight:700;flex:1;">'+ex.name+'</span>'+
+          (ex.min?'<span style="font-size:10px;background:rgba(255,255,255,.2);padding:1px 8px;border-radius:10px;">'+ex.min+' min</span>':'')+
+        '</div>'+
+        '<div style="border:1px solid #E2E8F0;border-top:none;border-radius:0 0 6px 6px;padding:8px 10px;">'+
+          (ex.desc?'<div style="font-size:11px;color:#2C4A72;line-height:1.7;margin-bottom:'+(ex.img?'8px':'0')+';">'+ex.desc+'</div>':'')+
+          (ex.img?'<img src="'+ex.img+'" style="width:100%;max-height:180px;object-fit:contain;border-radius:4px;background:#F8FAFC;">':'')+
+        '</div>'+
+      '</div>';
+    }).join('');
+    exHtml='<div style="margin-top:5mm;"><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3mm;display:flex;align-items:center;justify-content:space-between;">'+
+      '<span>⚽ Øvelsesplan</span>'+
+      (totalMin?'<span style="background:#DBEAFE;color:#1A6EC0;padding:2px 8px;border-radius:10px;font-size:9px;">⏱ '+totalMin+' min total</span>':'')+
+    '</div>'+exCards+'</div>';
+  }
+
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'+
     '<style>@page{size:A4 portrait;margin:12mm 14mm;}@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap\');'+
     '*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}'+
@@ -2732,6 +2756,7 @@ function exportTraeningPdf(){
     '</div>'+
     (t.desc?'<div style="background:#EBF2FB;border-left:4px solid #1A6EC0;border-radius:0 6px 6px 0;padding:4mm 5mm;margin-bottom:5mm;font-size:11px;color:#2C4A72;line-height:1.7;"><div style="font-size:9px;font-weight:700;color:#1A6EC0;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2mm;">📋 Træningsindhold</div>'+t.desc+'</div>':'')+
     '<table><thead><tr><th>Spiller</th><th>Hold</th><th>Alder</th><th>Status</th></tr></thead><tbody>'+attRows+'</tbody></table>'+
+    exHtml+
     '<div style="margin-top:5mm;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;font-size:8px;color:#94A3B8;">'+
       '<span>FC Skanderborg · Pigeudvalg</span><span>'+t.title+' · '+dateStr+'</span></div>'+
     '<\/body><\/html>';
