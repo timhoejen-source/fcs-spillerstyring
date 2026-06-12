@@ -684,10 +684,10 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <div style="font-size:13px;font-weight:700;color:var(--navy);">Træningssessioner <span id="training-count" style="font-size:11px;font-weight:600;color:var(--text-soft);"></span></div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
           <button class="btn-primary" style="width:auto;padding:7px 12px;margin-top:0;font-size:11px;" id="new-training-btn" onclick="toggleNewTrainingForm()">+ Ny træning</button>
-          <button class="btn-export" style="width:auto;padding:7px 12px;font-size:11px;" onclick="exportTraeningPdf()">📄 Eksporter træning</button>
+          <button class="btn-export" id="btn-export-traening" style="width:auto;padding:7px 12px;font-size:11px;" onclick="exportTraeningPdf()">📄 Eksporter træning</button>
         </div>
       </div>
-      <div class="fg" style="margin-bottom:12px;">
+      <div class="fg" id="export-traening-section" style="margin-bottom:12px;">
         <label>Vælg træning til eksport</label>
         <select id="export-traening-sel"><option value="">– Vælg træning –</option></select>
       </div>
@@ -985,7 +985,7 @@ function applyRole(){
     if(!style){
       style=document.createElement('style');
       style.id='player-hide-style';
-      style.textContent='[data-savetraining],[data-del]{display:none!important;}';
+      style.textContent='[data-savetraining],[data-del]{display:none!important;}#new-training-btn,#btn-export-traening,#export-traening-section{display:none!important;}';
       document.head.appendChild(style);
     }
     // Badge
