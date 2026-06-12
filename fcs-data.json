@@ -125,7 +125,7 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": ""
+            "udtaget": "nej"
           }
         ],
         "skud": 0,
@@ -151,7 +151,12 @@
       "jersey": "",
       "goal": "nærkampe, 1v1, skud på mål, stige",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -249,6 +254,10 @@
           {
             "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
+          },
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
           }
         ],
         "skud": 0,
@@ -268,7 +277,12 @@
       "jersey": "",
       "goal": "",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -296,6 +310,10 @@
           {
             "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
+          },
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
           }
         ],
         "skud": 0,
@@ -321,7 +339,12 @@
       "jersey": "",
       "goal": "- Ro\n- ligge af og løb igen",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -339,7 +362,12 @@
       "jersey": "",
       "goal": "Alt taktisk og boldkontrol",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -420,7 +448,12 @@
       "jersey": "",
       "goal": "Lyst til fodbold",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -503,7 +536,12 @@
       "jersey": "",
       "goal": "- Kig op\n- Ro\n- Afleveringer\n- Vende spillet",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -530,6 +568,10 @@
           {
             "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
+          },
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
           }
         ],
         "skud": 0,
@@ -557,7 +599,7 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": ""
+            "udtaget": "nej"
           },
           {
             "name": "Fortuna Oure (14. jun.)",
@@ -581,7 +623,12 @@
       "jersey": "",
       "goal": "Agilitet\nAgressivitet\nOp på tæerne\nBoldkontrol",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -663,7 +710,12 @@
       "jersey": "",
       "goal": "",
       "stats": {
-        "matches": [],
+        "matches": [
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
+          }
+        ],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -687,6 +739,10 @@
           {
             "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
+          },
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
           }
         ],
         "skud": 0,
@@ -745,6 +801,10 @@
           {
             "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
+          },
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
           }
         ],
         "skud": 0,
@@ -802,6 +862,10 @@
           {
             "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
+          },
+          {
+            "name": "Dalum/Næsby (13. jun.)",
+            "udtaget": "nej"
           }
         ],
         "skud": 0,
@@ -1073,5 +1137,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-12T18:56:40.945Z"
+  "savedAt": "2026-06-12T19:00:47.789Z"
 }
