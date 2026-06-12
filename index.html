@@ -2269,15 +2269,29 @@ function renderKampe(){
     var udtaget=jaList.length+loaneeCount;
     var pct=Math.min(100,Math.round(udtaget/14*100));
 
-    // Attendance rows for ALL players
-    var attRows=[].concat(players).sort(function(a,b){return a.name.localeCompare(b.name,'da');}).map(function(p){
+    // Attendance rows — only players matching this kamp's hold (if hold is set)
+    var kampHold = kamp.hold || '';
+    var eligiblePlayers = kampHold ?
+      players.filter(function(p){
+        var pTeams = Array.isArray(p.team) ? p.team : (p.team ? [p.team] : []);
+        return pTeams.some(function(t){ return t.toLowerCase()===kampHold.toLowerCase(); });
+      }) : players;
+    // Always include players already registered for this kamp
+    var alreadyRegistered = players.filter(function(p){
+      var m = ((p.stats||{}).matches||[]).find(function(m){ return m.name===name; });
+      return m && m.udtaget;
+    });
+    // Merge without duplicates
+    var seenIds = new Set(eligiblePlayers.map(function(p){ return p.id; }));
+    alreadyRegistered.forEach(function(p){ if(!seenIds.has(p.id)){ eligiblePlayers.push(p); seenIds.add(p.id); } });
+    var attRows=eligiblePlayers.sort(function(a,b){return a.name.localeCompare(b.name,'da');}).map(function(p){
       var existing=((p.stats||{}).matches||[]).find(function(m){return m.name===name;});
       var v=existing?existing.udtaget:'';
       return '<div class="kamp-att-row">'+
         '<span class="kamp-att-name">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+'</span>'+
         '<div class="att-toggle">'+
-          '<button id="katt-ja-'+p.id+'" class="att-btn'+(v==='ja'?' sel-ja':'')+'" data-kn="'+name+'" data-pid="'+p.id+'" data-val="ja">✅</button>'+
-          '<button id="katt-nej-'+p.id+'" class="att-btn'+(v==='nej'?' sel-nej':'')+'" data-kn="'+name+'" data-pid="'+p.id+'" data-val="nej">❌</button>'+
+          '<button id="katt-ja-'+encodeURIComponent(name)+'-'+p.id+'" class="att-btn'+(v==='ja'?' sel-ja':'')+'" data-kn="'+name+'" data-pid="'+p.id+'" data-val="ja">✅</button>'+
+          '<button id="katt-nej-'+encodeURIComponent(name)+'-'+p.id+'" class="att-btn'+(v==='nej'?' sel-nej':'')+'" data-kn="'+name+'" data-pid="'+p.id+'" data-val="nej">❌</button>'+
         '</div>'+
       '</div>';
     }).join('');
@@ -2760,9 +2774,9 @@ function setKampAttendance(kampName, playerId, val){
     p.stats.matches.push({name:kampName, udtaget:val});
   }
   saveAll();
-  // Update buttons
-  var jaBtn=document.getElementById('katt-ja-'+playerId);
-  var nejBtn=document.getElementById('katt-nej-'+playerId);
+  // Update buttons — use kampName+playerId for unique IDs
+  var jaBtn=document.getElementById('katt-ja-'+encodeURIComponent(kampName)+'-'+playerId);
+  var nejBtn=document.getElementById('katt-nej-'+encodeURIComponent(kampName)+'-'+playerId);
   var current=p.stats.matches.find(function(m){return m.name===kampName;});
   var curVal=current?current.udtaget:'';
   if(jaBtn) jaBtn.className='att-btn'+(curVal==='ja'?' sel-ja':'');
