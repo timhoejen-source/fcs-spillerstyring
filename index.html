@@ -1017,15 +1017,43 @@ function openPdf(base64, fileName){
     for(var i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
     var blob = new Blob([ab],{type:'application/pdf'});
     var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.style.display = 'none';
-    if(isMobile){ a.download = fileName; toast('📥 '+fileName+' gemmes...'); }
-    else { a.target = '_blank'; a.rel = 'noopener'; }
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+    if(isMobile){
+      // iOS: vis PDF i overlay i appen (alle sider)
+      var overlay=document.getElementById('pdf-viewer-overlay');
+      if(!overlay){
+        overlay=document.createElement('div');
+        overlay.id='pdf-viewer-overlay';
+        overlay.style.cssText='position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;';
+        var closeBar=document.createElement('div');
+        closeBar.style.cssText='background:#0A2342;color:#F5C400;padding:12px 16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;';
+        var titleSpan=document.createElement('span');
+        titleSpan.textContent='📄 '+fileName;
+        var closeBtn=document.createElement('button');
+        closeBtn.textContent='✕ Luk';
+        closeBtn.style.cssText='background:#F5C400;color:#0A2342;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:14px;cursor:pointer;';
+        closeBtn.onclick=function(){ document.getElementById('pdf-viewer-overlay').remove(); };
+        closeBar.appendChild(titleSpan);
+        closeBar.appendChild(closeBtn);
+        var iframe=document.createElement('iframe');
+        iframe.style.cssText='flex:1;border:none;width:100%;';
+        iframe.src=url;
+        overlay.appendChild(closeBar);
+        overlay.appendChild(iframe);
+        document.body.appendChild(overlay);
+      } else {
+        overlay.querySelector('iframe').src=url;
+        overlay.querySelector('span').textContent='📄 '+fileName;
+        overlay.style.display='flex';
+      }
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 120000);
+    } else {
+      // Desktop: åbn i nyt faneblad
+      var a = document.createElement('a');
+      a.href = url; a.target = '_blank'; a.rel = 'noopener';
+      a.style.display = 'none';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+    }
   }catch(e){
     var a2 = document.createElement('a');
     a2.href = base64; a2.download = fileName;
@@ -1276,13 +1304,7 @@ async function loadFromSheets(silent=false){
       teams=[...new Set(payload.teams)];
     }
     // Træninger
-    if(Array.isArray(payload.trainings)&&payload.trainings.length){
-      const sheetTrIds=new Set(payload.trainings.map(t=>t.id));
-      const localOnlyTr=trainings.filter(t=>!sheetTrIds.has(t.id));
-      trainings=[...payload.trainings,...localOnlyTr];
-      saveTrainings();
-      renderTrainings();
-    }
+    // Træninger håndteres af den nye sync-sektion nedenfor
     // Sync cups — GitHub vinder
     if(Array.isArray(payload.cups)){
       cups=payload.cups;
