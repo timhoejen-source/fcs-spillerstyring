@@ -335,16 +335,6 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .sb-kamp-hold-row{display:flex;gap:5px;align-items:center;}
 .sb-kamp-hold-row select{flex:1;font-size:11px;padding:4px 6px;}
 
-.pdf-upload-zone{border:2px dashed var(--g200);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all .15s;margin-top:8px;}
-.pdf-upload-zone:hover{border-color:var(--blue);background:var(--blue-light);}
-.pdf-upload-zone.has-file{border-color:var(--ca);background:var(--ca-bg);}
-.pdf-attached{display:flex;align-items:center;gap:8px;background:var(--ca-bg);border:1px solid #86efac;border-radius:7px;padding:7px 10px;margin-top:6px;}
-.pdf-attached-name{flex:1;font-size:11px;font-weight:600;color:var(--ca);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.pdf-view-btn{font-size:11px;font-weight:700;padding:4px 10px;background:var(--white);border:1px solid #86efac;border-radius:5px;cursor:pointer;color:var(--ca);white-space:nowrap;}
-.pdf-view-btn:hover{background:var(--ca-bg);}
-.pdf-del-btn{font-size:13px;cursor:pointer;color:var(--g400);background:none;border:none;padding:0 2px;}
-.pdf-del-btn:hover{color:#dc2626;}
-
 .cup-card{background:var(--white);border:1.5px solid var(--g200);border-radius:var(--r);margin-bottom:12px;overflow:hidden;}
 .cup-card-hdr{display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;background:var(--white);}
 .cup-card-hdr:hover{background:var(--g50);}
@@ -659,17 +649,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
           <div class="fg"><label>Titel</label><input type="text" id="tr-title" placeholder="fx Teknisk træning"></div>
         </div>
         <div class="fg"><label>Beskrivelse af træningsindhold</label><textarea id="tr-desc" style="min-height:80px;" placeholder="Beskriv øvelser, fokuspunkter, noter…"></textarea></div>
-        <div class="fg">
-          <label>Vedhæft PDF (maks 5 MB)</label>
-          <div class="pdf-upload-zone" id="tr-pdf-zone" onclick="document.getElementById('tr-pdf-input').click()">
-            📎 Klik for at vælge PDF-fil
-          </div>
-          <input type="file" id="tr-pdf-input" accept=".pdf" style="display:none" onchange="trPdfSelected(this)">
-          <div id="tr-pdf-preview" style="display:none;" class="pdf-attached">
-            <span class="pdf-attached-name" id="tr-pdf-name"></span>
-            <button class="pdf-del-btn" onclick="trPdfClear()">✕</button>
-          </div>
-        </div>
+
         <div style="display:flex;gap:8px;margin-top:8px;">
           <button class="btn-primary" style="margin-top:0;" onclick="saveNewTraining()">Gem træning</button>
           <button class="btn-cancel" onclick="toggleNewTrainingForm()">Annuller</button>
@@ -980,88 +960,8 @@ function applyRole(){
 let fCls='',fPos=[],mCls='',mPos=[],activeClsFilter='alle',activePosFilter='alle',activeTeamFilter='alle',searchQ='',editId=null,syncTimer=null;
 
 let mMatchToggle='ja';
-let trPdfData = null; // base64 string for new training PDF
 
-function trPdfSelected(input){
-  var file = input.files[0];
-  if(!file) return;
-  if(file.size > 5*1024*1024){ toast('⚠️ PDF er for stor (maks 5 MB)'); input.value=''; return; }
-  var reader = new FileReader();
-  reader.onload = function(e){
-    trPdfData = e.target.result; // data:application/pdf;base64,...
-    document.getElementById('tr-pdf-name').textContent = file.name;
-    document.getElementById('tr-pdf-preview').style.display = 'flex';
-    document.getElementById('tr-pdf-zone').style.display = 'none';
-    var zone = document.getElementById('tr-pdf-zone');
-    if(zone) zone.classList.add('has-file');
-  };
-  reader.readAsDataURL(file);
-}
 
-function trPdfClear(){
-  trPdfData = null;
-  document.getElementById('tr-pdf-input').value = '';
-  document.getElementById('tr-pdf-preview').style.display = 'none';
-  document.getElementById('tr-pdf-zone').style.display = 'block';
-}
-
-function openPdf(base64, fileName){
-  if(!base64){ toast('⚠️ Ingen PDF fundet'); return; }
-  fileName = fileName || 'traening.pdf';
-  var isMobile = /iP(hone|ad|od)/.test(navigator.userAgent) ||
-    (navigator.userAgent.includes('Mac') && navigator.maxTouchPoints > 1);
-  try{
-    var byteStr = atob(base64.split(',')[1]);
-    var ab = new ArrayBuffer(byteStr.length);
-    var ia = new Uint8Array(ab);
-    for(var i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
-    var blob = new Blob([ab],{type:'application/pdf'});
-    var url = URL.createObjectURL(blob);
-    if(isMobile){
-      // iOS Safari: vis PDF direkte som blob URL i nyt vindue
-      // Blob URL skal åbnes SYNKRONT i click-handler for at Safari tillader det
-      var w = window.open(url, '_blank');
-      if(!w){
-        // Popup blokeret — vis manuel åbn-knap
-        var pdfBar = document.getElementById('ios-pdf-bar');
-        if(pdfBar) pdfBar.remove();
-        var bar = document.createElement('div');
-        bar.id = 'ios-pdf-bar';
-        bar.style.cssText = 'position:fixed;bottom:20px;left:16px;right:16px;background:#0A2342;color:#fff;padding:14px 16px;border-radius:12px;z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.4);';
-        var label = document.createElement('span');
-        label.style.cssText = 'flex:1;font-size:12px;';
-        label.textContent = '📄 ' + fileName;
-        var openBtn = document.createElement('a');
-        openBtn.href = url;
-        openBtn.target = '_blank';
-        openBtn.textContent = 'Åbn PDF';
-        openBtn.style.cssText = 'background:#F5C400;color:#0A2342;padding:8px 14px;border-radius:6px;font-weight:700;font-size:12px;text-decoration:none;white-space:nowrap;';
-        var closeBtn = document.createElement('button');
-        closeBtn.textContent = '✕';
-        closeBtn.style.cssText = 'background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:14px;';
-        closeBtn.onclick = function(){ bar.remove(); };
-        bar.appendChild(label);
-        bar.appendChild(openBtn);
-        bar.appendChild(closeBtn);
-        document.body.appendChild(bar);
-        setTimeout(function(){ if(bar.parentNode) bar.remove(); }, 60000);
-      }
-      setTimeout(function(){ URL.revokeObjectURL(url); }, 120000);
-    } else {
-      // Desktop: åbn i nyt faneblad
-      var a = document.createElement('a');
-      a.href = url; a.target = '_blank'; a.rel = 'noopener';
-      a.style.display = 'none';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
-    }
-  }catch(e){
-    var a2 = document.createElement('a');
-    a2.href = base64; a2.download = fileName;
-    document.body.appendChild(a2); a2.click(); document.body.removeChild(a2);
-    toast('📥 Downloader '+fileName+'...');
-  }
-}let mMatches=[];
 
 function setMatchToggle(v){
   mMatchToggle=v;
@@ -1100,74 +1000,6 @@ function renderMatchList(){
 
 // Starter tom — hent data fra Google Sheets
 
-function loadTrainingPdfs(){
-  try{
-    var pdfs=JSON.parse(localStorage.getItem('fcs-training-pdfs')||'{}');
-    trainings.forEach(function(t){
-      if(pdfs[t.id]){t.pdf=pdfs[t.id].pdf;t.pdfName=pdfs[t.id].pdfName;}
-    });
-  }catch(e){console.warn('loadTrainingPdfs error:',e);}
-}
-
-window.addEventListener('DOMContentLoaded',()=>{
-  // Tjek session login FØR alt andet
-  const savedRole = sessionStorage.getItem('fcs-auth');
-  if(savedRole==='admin' || savedRole==='viewer'){
-    currentRole = savedRole;
-    document.getElementById('loginOverlay').style.display='none';
-  } else {
-    sessionStorage.removeItem('fcs-auth');
-    currentRole = '';
-    document.getElementById('loginOverlay').style.display='flex';
-  }
-  // GitHub credentials hardcoded
-  loadTrainingPdfs();
-  updateStatus();renderTeams();renderSelects();render();
-  applyRole();
-  // Restore last active tab
-  var lastTab=localStorage.getItem('fcs-active-tab')||'spillere';
-  if(lastTab!=='spillere'){ try{ switchTab(lastTab); }catch(e){} }
-
-  // PDF file input change via event delegation
-  document.addEventListener('change', function(e){
-    if(e.target.classList.contains('tr-pdf-file-inp')){
-      trainingAddPdf(e.target, e.target.getAttribute('data-trid'));
-    }
-  });
-
-  // Persistent event delegation for kampe-list
-  document.addEventListener('click', function(e){
-    var list=document.getElementById('kampe-list');
-    if(!list||!list.contains(e.target)) return;
-    // Attendance buttons
-    var btn=e.target.closest('.att-btn[data-kn]');
-    if(btn){ setKampAttendance(btn.getAttribute('data-kn'),btn.getAttribute('data-pid'),btn.getAttribute('data-val')); return; }
-    // Save kamp to GitHub
-    var saveKamp=e.target.closest('[data-savekamp]');
-    if(saveKamp){ saveAll(); syncToSheets(true); return; }
-    // Toggle kamp detail
-    var hdr=e.target.closest('[data-ktoggle]');
-    if(hdr){ toggleKampDetail(hdr.getAttribute('data-ktoggle')); return; }
-    // Delete kamp — removed from UI but guard just in case
-  });
-  // Event delegation for modal kamp attendance buttons
-  document.getElementById('modal').addEventListener('click',function(e){
-    var btn=e.target.closest('.katt-modal');
-    if(!btn) return;
-    var kn=btn.getAttribute('data-kn');
-    var pid=btn.getAttribute('data-pid');
-    var val=btn.getAttribute('data-val');
-    var kid=btn.getAttribute('data-kid');
-    setKampAttendance(kn,pid,val);
-    // Update sibling buttons
-    var jaBtn=document.getElementById('modal-katt-ja-'+pid+'-'+kid);
-    var nejBtn=document.getElementById('modal-katt-nej-'+pid+'-'+kid);
-    var p2=players.find(function(x){return x.id===pid;});
-    var cur=p2?(((p2.stats||{}).matches||[]).find(function(m){return m.name===kn;})||{}).udtaget:'';
-    if(jaBtn) jaBtn.className='att-btn katt-modal'+(cur==='ja'?' sel-ja':'');
-    if(nejBtn) nejBtn.className='att-btn katt-modal'+(cur==='nej'?' sel-nej':'');
-  });
-});
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
 function saveAll(){
@@ -1212,12 +1044,8 @@ async function syncToSheets(manual=false){
   setSyncDot('busy');
   try{
     // Byg data-objekt
-    // Collect PDF data separately to keep main payload clean
-    var trainingPdfs={};
-    trainings.forEach(function(t){ if(t.pdf) trainingPdfs[t.id]={pdf:t.pdf,pdfName:t.pdfName}; });
     const payload={
       cups,
-      trainingPdfs,
       players: players.map(function(p){ return p; }),
       teams,
       trainings: trainings.map(function(t){
@@ -1323,15 +1151,7 @@ async function loadFromSheets(silent=false){
       var tIds=new Set(payload.trainings.map(function(x){return x.id;}));
       var localTr=trainings.filter(function(x){return !tIds.has(x.id);});
       trainings=[...payload.trainings,...localTr];
-      // Restore PDFs stored separately
-      if(payload.trainingPdfs){
-        trainings.forEach(function(t){
-          if(!t.pdf && payload.trainingPdfs[t.id]){
-            t.pdf=payload.trainingPdfs[t.id].pdf;
-            t.pdfName=payload.trainingPdfs[t.id].pdfName;
-          }
-        });
-      }
+
       saveTrainings();
     }
     // Board lineups already loaded above
@@ -1811,7 +1631,6 @@ function toggleNewTrainingForm(){
     document.getElementById('tr-date').value=new Date().toISOString().slice(0,10);
     document.getElementById('tr-title').value='';
     document.getElementById('tr-desc').value='';
-    trPdfClear();
   }
 }
 
@@ -1825,8 +1644,7 @@ function saveNewTraining(){
     date,
     title,
     desc,
-    pdf: trPdfData || null,
-    pdfName: trPdfData ? (document.getElementById('tr-pdf-name').textContent||'Træningsplan.pdf') : null,
+
     attendance:{} // playerId -> 'ja'|'nej'
   };
   trainings.unshift(t);
@@ -1925,20 +1743,7 @@ function renderTrainings(){
       '</div>'+
       '<div class="training-body" id="tr-body-'+t.id+'">'+
         (t.desc?'<div class="training-desc"><div class="training-desc-label">📋 Træningsindhold</div>'+t.desc+'</div>':'')+
-        '<div id="tr-pdf-section-'+t.id+'" style="margin-bottom:10px;">'+
-        (t.pdf?
-          '<div class="pdf-attached">'+
-            '<span class="pdf-attached-name">📎 '+(t.pdfName||'Træningsplan.pdf')+'</span>'+
-            '<button class="pdf-view-btn" data-openpdf="'+t.id+'">📄 Åbn / Download</button>'+
-            '<button class="pdf-del-btn" data-delpdf="'+t.id+'" title="Slet PDF">🗑️</button>'+
-          '</div>'
-        :
-          '<div>'+
-            '<input type="file" id="tr-pdf-add-'+t.id+'" accept=".pdf" style="display:none" data-trid="'+t.id+'" class="tr-pdf-file-inp">'+
-            '<button class="btn-import" style="margin-top:0;padding:6px 10px;font-size:11px;" data-pdfadd="'+t.id+'">📎 Vedhæft PDF til træning</button>'+
-          '</div>'
-        )+
-        '</div>'+
+
         '<div class="training-stats-bar" id="tr-summary-'+t.id+'">'+
           '<span class="training-stat-pill" style="background:#DCFCE7;color:#16A34A;">✅ '+ja+' deltaget</span>'+
           '<span class="training-stat-pill" style="background:#FEE2E2;color:#dc2626;">❌ '+nej+' fraværende</span>'+
@@ -2104,7 +1909,6 @@ function toggleNewTrainingForm(){
     document.getElementById('tr-date').value=new Date().toISOString().slice(0,10);
     document.getElementById('tr-title').value='';
     document.getElementById('tr-desc').value='';
-    trPdfClear();
   }
 }
 
@@ -2118,8 +1922,7 @@ function saveNewTraining(){
     date,
     title,
     desc,
-    pdf: trPdfData || null,
-    pdfName: trPdfData ? (document.getElementById('tr-pdf-name').textContent||'Træningsplan.pdf') : null,
+
     attendance:{} // playerId -> 'ja'|'nej'
   };
   trainings.unshift(t);
@@ -2272,27 +2075,7 @@ function renderKampe(){
   // Event delegation handled by persistent listener in DOMContentLoaded
   // Also register persistent PDF event delegation
   document.addEventListener('click', function(e){
-    var openBtn = e.target.closest('[data-openpdf]');
-    if(openBtn){
-      var tid = openBtn.getAttribute('data-openpdf');
-      var t = trainings.find(function(x){ return x.id===tid; });
-      if(!t){ toast('⚠️ Træning ikke fundet'); return; }
-      if(!t.pdf){ toast('⚠️ Ingen PDF — vedhæft filen igen'); return; }
-      openPdf(t.pdf, t.pdfName||'traening.pdf');
-      return;
-    }
-    var delBtn = e.target.closest('[data-delpdf]');
-    if(delBtn){
-      trainingDeletePdf(delBtn.getAttribute('data-delpdf'));
-      return;
-    }
-    var addBtn = e.target.closest('[data-pdfadd]');
-    if(addBtn){
-      var tid2 = addBtn.getAttribute('data-pdfadd');
-      var inp = document.getElementById('tr-pdf-add-'+tid2);
-      if(inp) inp.click();
-      return;
-    }
+
   });
 }
 
@@ -3187,62 +2970,8 @@ function renderStilling(){
 }
 
 
-function trainingAddPdf(input, trainingId){
-  var file=input.files[0];
-  if(!file) return;
-  if(file.size>5*1024*1024){toast('⚠️ PDF er for stor (maks 5 MB)');input.value='';return;}
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var t=trainings.find(function(x){return x.id===trainingId;});
-    if(!t) return;
-    t.pdf=e.target.result;
-    t.pdfName=file.name;
-    saveTrainings();
-    renderPdfSection(trainingId);
-    toast('✅ PDF vedhæftet: '+file.name);
-  };
-  reader.readAsDataURL(file);
-}
 
-function trainingDeletePdf(trainingId){
-  if(!confirm('Slet vedhæftet PDF?')) return;
-  var t=trainings.find(function(x){return x.id===trainingId;});
-  if(!t) return;
-  t.pdf=null; t.pdfName=null;
-  saveTrainings();
-  renderPdfSection(trainingId);
-  toast('🗑️ PDF slettet');
-}
 
-function renderPdfSection(trainingId){
-  var sec=document.getElementById('tr-pdf-section-'+trainingId);
-  if(!sec) return;
-  var t=trainings.find(function(x){return x.id===trainingId;});
-  if(!t) return;
-  if(t.pdf){
-    sec.innerHTML=
-      '<div class="pdf-attached">'+
-        '<span class="pdf-attached-name">📎 '+(t.pdfName||'Træningsplan.pdf')+'</span>'+
-        '<button class="pdf-view-btn" data-openpdf="'+trainingId+'">📄 Åbn / Download</button>'+
-        '<button class="pdf-del-btn" data-delpdf="'+trainingId+'" title="Slet PDF">🗑️</button>'+
-      '</div>';
-  } else {
-    var inp=document.createElement('input');
-    inp.type='file'; inp.accept='.pdf'; inp.style.display='none';
-    inp.id='tr-pdf-add-'+trainingId;
-    inp.addEventListener('change',function(){ trainingAddPdf(this,trainingId); });
-    var btn=document.createElement('button');
-    btn.className='btn-import';
-    btn.style.cssText='margin-top:0;padding:6px 10px;font-size:11px;';
-    btn.textContent='📎 Vedhæft PDF til træning';
-    btn.addEventListener('click',function(){ inp.click(); });
-    sec.innerHTML='';
-    sec.appendChild(inp);
-    sec.appendChild(btn);
-  }
-}
-
-// ── Cup tilmeldinger ──────────────────────────────────────────────────────────
 
 function saveCups(){
   try{ localStorage.setItem('fcs-cups', JSON.stringify(cups)); }catch(e){}
