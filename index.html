@@ -379,6 +379,18 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .img-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;}
 .img-overlay img{max-width:100%;max-height:80vh;border-radius:8px;object-fit:contain;}
 .img-overlay-close{position:absolute;top:16px;right:16px;background:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+.player-ex-list{margin-top:6px;display:flex;flex-direction:column;gap:3px;}
+.player-ex-item{display:flex;align-items:center;gap:6px;background:var(--g50);border:1px solid var(--g200);border-radius:5px;padding:4px 8px;}
+.player-ex-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0;}
+.player-ex-name{font-size:11px;font-weight:600;color:var(--text-mid);flex:1;}
+.player-ex-del{background:none;border:none;cursor:pointer;color:var(--g400);font-size:13px;padding:0 2px;line-height:1;}
+.player-ex-del:hover{color:#dc2626;}
+.player-ex-add{display:flex;gap:5px;margin-top:5px;}
+.player-ex-add input{flex:1;font-size:11px;padding:5px 8px;}
+.player-ex-add button{padding:5px 10px;background:var(--navy);color:var(--yellow);border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.player-ex-label{font-size:9px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;display:block;}
+.player-ex-max{font-size:9px;color:var(--g400);margin-top:3px;}
 </style>
 </head>
 <body>
@@ -389,7 +401,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div class="login-border" style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--yellow);border-radius:16px 16px 0 0;"></div>
     <div class="login-crest">FCS</div>
     <div class="login-title">FC Skanderborg</div>
-    <div class="login-sub">Pigeudvalg · Spillerstyring</div>
+    <div class="login-sub">Pige talent · Spillerstyring</div>
     <div class="login-fg">
       <label>Brugernavn</label>
       <input type="text" id="login-user" placeholder="brugernavn" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
@@ -418,7 +430,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div class="hdr-crest">FCS</div>
     <div>
       <div class="hdr-title">FC Skanderborg</div>
-      <div class="hdr-sub">Spillerstyring · Pigeudvalg</div>
+      <div class="hdr-sub">Spillerstyring · Pige talent</div>
     </div>
   </div>
   <div class="hdr-right">
@@ -889,6 +901,15 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       </div>
     </div>
     <div class="fg"><label>Udviklingsmål</label><textarea id="m-goal"></textarea></div>
+    <div class="fg">
+      <label>Udviklingsøvelser <span style="font-weight:400;color:var(--text-soft);">(maks 4)</span></label>
+      <div id="m-ex-list" style="display:flex;flex-direction:column;gap:4px;margin-bottom:6px;"></div>
+      <div class="player-ex-add" id="m-ex-add-row">
+        <input type="text" id="m-ex-inp" placeholder="fx Stigeøvelser…" onkeydown="if(event.key==='Enter')addPlayerEx()">
+        <button onclick="addPlayerEx()">+ Tilføj</button>
+      </div>
+      <div class="player-ex-max" id="m-ex-max"></div>
+    </div>
     <hr class="stats-divider">
     <div class="modal-section-title">📊 Stats</div>
     <div class="stats-grid-modal">
@@ -1073,6 +1094,41 @@ function applyRole(){
 }
 
 let fCls='',fPos=[],mCls='',mPos=[],activeClsFilter='alle',activePosFilter='alle',activeTeamFilter='alle',searchQ='',editId=null,syncTimer=null;
+
+let mPlayerExercises = [];
+
+function renderModalExList(){
+  var el = document.getElementById('m-ex-list');
+  var addRow = document.getElementById('m-ex-add-row');
+  var maxEl = document.getElementById('m-ex-max');
+  if(!el) return;
+  el.innerHTML = mPlayerExercises.map(function(ex, i){
+    return '<div class="player-ex-item">'+
+      '<div class="player-ex-dot"></div>'+
+      '<span class="player-ex-name">'+ex+'</span>'+
+      '<button class="player-ex-del" onclick="removePlayerEx('+i+')" title="Fjern">×</button>'+
+    '</div>';
+  }).join('');
+  var atMax = mPlayerExercises.length >= 4;
+  if(addRow) addRow.style.display = atMax ? 'none' : 'flex';
+  if(maxEl) maxEl.textContent = atMax ? 'Maks 4 øvelser nået — slet en for at tilføje ny' : '';
+}
+
+function addPlayerEx(){
+  if(mPlayerExercises.length >= 4){ toast('⚠️ Maks 4 øvelser per spiller'); return; }
+  var inp = document.getElementById('m-ex-inp');
+  if(!inp) return;
+  var name = inp.value.trim();
+  if(!name) return;
+  mPlayerExercises.push(name);
+  inp.value = '';
+  renderModalExList();
+}
+
+function removePlayerEx(i){
+  mPlayerExercises.splice(i, 1);
+  renderModalExList();
+}
 
 let mMatchToggle='ja';
 
@@ -1358,7 +1414,7 @@ function addPlayer(){
   const jersey=document.getElementById('f-jersey').value;
   const goal=document.getElementById('f-goal').value.trim();
   if(!name||!age||!fCls){toast('⚠️ Udfyld navn, alder og klassifikation');return;}
-  players.push({id:uid(),name,age:parseInt(age),team,jersey:jersey||'',cls:fCls,pos:fPos.slice(),goal});
+  players.push({id:uid(),name,age:parseInt(age),team,jersey:jersey||'',cls:fCls,pos:fPos.slice(),goal,exercises:[]});
   saveAll();
   document.getElementById('f-name').value='';document.getElementById('f-age').value='';
   if(document.getElementById('f-team-checks')) setCheckedTeams('f-team-checks',[]);document.getElementById('f-jersey').value='';document.getElementById('f-goal').value='';
@@ -1379,6 +1435,9 @@ function openEdit(id){
   setTimeout(function(){setCheckedTeams('m-team-checks',pTeams);},0);
   document.getElementById('m-jersey').value=p.jersey||'';
   document.getElementById('m-goal').value=p.goal||'';
+  // Exercises
+  mPlayerExercises = JSON.parse(JSON.stringify(p.exercises||[]));
+  renderModalExList();
   // Stats
   const st=p.stats||{};
   mMatches=JSON.parse(JSON.stringify(st.matches||[]));
@@ -1431,7 +1490,7 @@ function saveEdit(){
     min:parseInt(document.getElementById('m-min').value)||0,
     vende:parseInt(document.getElementById('m-vende').value)||0
   };
-  players[i]={...players[i],name,age:parseInt(age),team,jersey:jersey||'',cls:mCls,pos:mPos.slice(),goal,stats};
+  players[i]={...players[i],name,age:parseInt(age),team,jersey:jersey||'',cls:mCls,pos:mPos.slice(),goal,exercises:mPlayerExercises.slice(),stats};
   saveAll();closeModal();render();toast('✅ Ændringer gemt');
 }
 
@@ -1578,6 +1637,14 @@ function render(){
     const pArr=Array.isArray(p.pos)?p.pos.filter(Boolean):(p.pos?[p.pos]:[]);
     const posTag=pArr.length?pArr.map(pos=>'<span class="tag tag-pos">'+(POS_LABELS[pos]||pos)+'</span>').join(''):'<span class="tag tag-missing">Pos. mangler</span>';
     const goalHtml=p.goal?'<div class="card-goal"><span class="goal-lbl">🎯 Udviklingsmål</span>'+p.goal+'</div>':'';
+    const exArr=p.exercises||[];
+    const exHtmlCard=exArr.length?
+      '<div class="card-goal" style="margin-top:4px;">'+
+        '<span class="player-ex-label">💪 Udviklingsøvelser</span>'+
+        '<div class="player-ex-list">'+
+          exArr.map(function(ex){ return '<div class="player-ex-item"><div class="player-ex-dot"></div><span class="player-ex-name">'+ex+'</span></div>'; }).join('')+
+        '</div>'+
+      '</div>':'';
     const st=p.stats||{};
     const matches=st.matches||[];
     const hasStats=st.skud||st.afl||st.assists||st.min||st.vende||matches.length;
@@ -1591,7 +1658,7 @@ function render(){
       '</div>'+
       (matches.length?'<div class="card-matches">'+matches.map(m=>'<div class="card-match-row"><span class="card-match-name">'+m.name+'</span><span class="card-match-badge '+m.udtaget+'">'+(m.udtaget==='ja'?'✅ Udtaget':'❌ Ikke udtaget')+'</span></div>').join('')+'</div>':''):'';
     const jerseyTag=p.jersey?'<span class="tag tag-jersey">#'+p.jersey+'</span>':'';
-    return '<div class="card"><div class="card-top"><div class="avatar">'+(p.jersey?'#'+p.jersey:initials(p.name))+'</div><div class="card-info"><div class="card-name">'+p.name+'</div><div class="card-meta">'+p.age+' år'+((Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).length?' · '+(Array.isArray(p.team)?p.team.join(', '):p.team):'')+'</div></div><div class="card-acts"><button class="cbtn" onclick="openEdit(\''+p.id+'\')">✏️</button><button class="cbtn del" onclick="deletePlayer(\''+p.id+'\')">🗑️</button></div></div><div class="tags"><span class="tag tag-'+p.cls.toLowerCase()+'">'+p.cls+'-spiller</span>'+posTag+'</div>'+statsHtml+goalHtml+'</div>';
+    return '<div class="card"><div class="card-top"><div class="avatar">'+(p.jersey?'#'+p.jersey:initials(p.name))+'</div><div class="card-info"><div class="card-name">'+p.name+'</div><div class="card-meta">'+p.age+' år'+((Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).length?' · '+(Array.isArray(p.team)?p.team.join(', '):p.team):'')+'</div></div><div class="card-acts"><button class="cbtn" onclick="openEdit(\''+p.id+'\')">✏️</button><button class="cbtn del" onclick="deletePlayer(\''+p.id+'\')">🗑️</button></div></div><div class="tags"><span class="tag tag-'+p.cls.toLowerCase()+'">'+p.cls+'-spiller</span>'+posTag+'</div>'+statsHtml+goalHtml+exHtmlCard+'</div>';
   }).join('');
   let html='';
   teams.filter(t=>withTeam[t]).forEach(t=>{html+='<div class="group-hdr" style="cursor:pointer;" onclick="togglePlayerGroup(\'grp-'+t+'\')">'+'<span class="group-name">'+t+'</span><span class="group-cnt">'+withTeam[t].length+'</span><div class="group-line"></div><span style="font-size:11px;color:var(--g400);">▾</span></div><div class="cards" id="grp-'+t+'">'+cards(withTeam[t])+'</div>';});
@@ -1670,10 +1737,10 @@ function exportSinglePdf(){
   var trainingSection=playerTrainings.length?'<div><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3mm;">⚽ Træningsdeltagelse ('+playerTrainings.length+' registrerede)</div><table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Dato</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Træning</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Indhold</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Status</th></tr></thead><tbody>'+trRows+'</tbody></table></div>':'';
 
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=DM+Mono:wght@500&display=swap\');@page{size:A4 portrait;margin:12mm 14mm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.page{display:flex;flex-direction:column;gap:6mm;}.header{display:flex;align-items:center;justify-content:space-between;padding-bottom:5mm;border-bottom:3px solid #F5C400;}.avatar{width:16mm;height:16mm;border-radius:50%;background:#0A2342;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#F5C400;flex-shrink:0;margin-right:5mm;}.stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;}.stat-box{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:5px 4px;text-align:center;}.stat-val{font-size:18px;font-weight:700;color:#0A2342;font-family:\'DM Mono\',monospace;line-height:1.1;}.stat-lbl{font-size:7px;color:#5A7A9F;text-transform:uppercase;letter-spacing:.05em;margin-top:1px;}table tr:nth-child(even) td{background:#F8FAFC;}<\/style><\/head><body><div class="page">';
-  html+='<div class="header"><div style="display:flex;align-items:center;"><div class="avatar">'+ava+'</div><div><div style="font-size:20px;font-weight:700;">'+p.name+'</div><div style="font-size:10px;color:#5A7A9F;margin-top:2px;">'+p.age+' år'+((Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).length?' · '+(Array.isArray(p.team)?p.team.join(', '):p.team):'')+'</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:3mm;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;">'+p.cls+'-spiller</span>'+jerseyBadge+posBadges+'</div></div></div><div style="text-align:right;"><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.1em;">FC Skanderborg</div><div style="font-size:11px;font-weight:700;color:#0A2342;">Pigeudvalg</div></div></div>';
+  html+='<div class="header"><div style="display:flex;align-items:center;"><div class="avatar">'+ava+'</div><div><div style="font-size:20px;font-weight:700;">'+p.name+'</div><div style="font-size:10px;color:#5A7A9F;margin-top:2px;">'+p.age+' år'+((Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).length?' · '+(Array.isArray(p.team)?p.team.join(', '):p.team):'')+'</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:3mm;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;">'+p.cls+'-spiller</span>'+jerseyBadge+posBadges+'</div></div></div><div style="text-align:right;"><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.1em;">FC Skanderborg</div><div style="font-size:11px;font-weight:700;color:#0A2342;">Pige talent</div></div></div>';
   html+='<div><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3mm;">📊 Sæsonstatistik</div><div class="stats-grid"><div class="stat-box"><div class="stat-val">'+matches.length+'</div><div class="stat-lbl">Kampe</div></div><div class="stat-box" style="background:'+(udtaget>0?'#DCFCE7':'#F8FAFC')+';border-color:'+(udtaget>0?'#86efac':'#E2E8F0')+'"><div class="stat-val" style="color:'+(udtaget>0?'#16A34A':'#0A2342')+'">'+udtaget+'</div><div class="stat-lbl">Udtaget</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.skud)+'</div><div class="stat-lbl">Skud på mål</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.afl)+'</div><div class="stat-lbl">Afleveringer</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.assists)+'</div><div class="stat-lbl">Assists</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.min)+'</div><div class="stat-lbl">Min. spillet</div></div></div></div>';
   html+=matchSection+trainingSection+goalSection;
-  html+='<div style="margin-top:auto;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;"><span style="font-size:8px;color:#94A3B8;">FC Skanderborg · Pigeudvalg · Genereret '+new Date().toLocaleDateString('da-DK')+'</span><span style="font-size:8px;font-weight:700;color:#0A2342;">'+p.name+'</span></div>';
+  html+='<div style="margin-top:auto;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;"><span style="font-size:8px;color:#94A3B8;">FC Skanderborg · Pige talent · Genereret '+new Date().toLocaleDateString('da-DK')+'</span><span style="font-size:8px;font-weight:700;color:#0A2342;">'+p.name+'</span></div>';
   html+='</div><\/body><\/html>';
   openPdfWindow(html);
 }
@@ -1700,9 +1767,9 @@ function exportAllPdf(){
     rows+='<tr><td style="font-weight:700;color:#F5C400;background:#0A2342;text-align:center;">'+( p.jersey?p.jersey:'')+'</td><td><strong>'+p.name+'</strong></td><td style="text-align:center;">'+p.age+'</td><td>'+(p.team||'–')+'</td><td style="text-align:center;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:8px;font-weight:700;padding:1px 6px;border-radius:3px;">'+p.cls+'</span></td><td>'+(posArr.join(' / ')||'–')+'</td><td style="text-align:center;">'+matches.length+'</td><td style="text-align:center;">'+udtaget+'</td><td style="text-align:center;">'+(st.skud||0)+'</td><td style="text-align:center;">'+(st.afl||0)+'</td><td style="text-align:center;">'+(st.assists||0)+'</td><td style="text-align:center;">'+(st.min||0)+'</td><td style="text-align:center;">'+(st.vende||0)+'</td><td style="text-align:center;">'+pTrainings.length+'</td><td style="text-align:center;font-weight:700;color:'+pctColor+';">'+pctStr+'</td><td style="font-size:8px;color:#475569;font-style:italic;">'+(p.goal||'–')+'</td></tr>';
   }
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap\');@page{size:A4 landscape;margin:8mm 10mm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:9px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:3mm;border-bottom:3px solid #F5C400;margin-bottom:4mm;}table{width:100%;border-collapse:collapse;}thead th{background:#0A2342;color:#F5C400;padding:4px 5px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}tbody tr:nth-child(even){background:#F8FAFC;}tbody td{padding:4px 5px;border-bottom:1px solid #E2E8F0;color:#2C4A72;vertical-align:top;font-size:9px;}.ftr{margin-top:3mm;border-top:1px solid #E2E8F0;padding-top:2mm;display:flex;justify-content:space-between;font-size:7px;color:#94A3B8;}<\/style><\/head><body>';
-  html+='<div class="hdr"><div><div style="font-size:15px;font-weight:700;">FC Skanderborg · Spilleroversigt</div><div style="font-size:9px;color:#5A7A9F;margin-top:1px;">Pigeudvalg · '+players.length+' spillere · Genereret '+new Date().toLocaleDateString('da-DK')+'</div></div><div style="font-size:8px;color:#94A3B8;text-align:right;">Fortroligt · Til intern brug</div></div>';
+  html+='<div class="hdr"><div><div style="font-size:15px;font-weight:700;">FC Skanderborg · Spilleroversigt</div><div style="font-size:9px;color:#5A7A9F;margin-top:1px;">Pige talent · '+players.length+' spillere · Genereret '+new Date().toLocaleDateString('da-DK')+'</div></div><div style="font-size:8px;color:#94A3B8;text-align:right;">Fortroligt · Til intern brug</div></div>';
   html+='<table><thead><tr><th style="width:8mm">#</th><th style="width:38mm">Navn</th><th>Alder</th><th>Hold</th><th>Klasse</th><th>Position</th><th>Kampe</th><th>Udtaget</th><th>Skud</th><th>Aflev.</th><th>Assists</th><th>Min.</th><th>Vende</th><th>Træn.</th><th>Fremmøde</th><th>Udviklingsmål</th></tr></thead><tbody>'+rows+'</tbody></table>';
-  html+='<div class="ftr"><span>FC Skanderborg Pigeudvalg</span><span>'+new Date().toLocaleDateString('da-DK',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'</span></div>';
+  html+='<div class="ftr"><span>FC Skanderborg Pige talent</span><span>'+new Date().toLocaleDateString('da-DK',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'</span></div>';
   html+='<\/body><\/html>';
   openPdfWindow(html);
 }
@@ -1965,10 +2032,10 @@ function exportSinglePdf(){
   var trainingSection=playerTrainings.length?'<div><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3mm;">⚽ Træningsdeltagelse ('+playerTrainings.length+' registrerede)</div><table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Dato</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Træning</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Indhold</th><th style="background:#153561;color:#F5C400;padding:4px 8px;text-align:left;font-size:8px;text-transform:uppercase;">Status</th></tr></thead><tbody>'+trRows+'</tbody></table></div>':'';
 
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=DM+Mono:wght@500&display=swap\');@page{size:A4 portrait;margin:12mm 14mm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.page{display:flex;flex-direction:column;gap:6mm;}.header{display:flex;align-items:center;justify-content:space-between;padding-bottom:5mm;border-bottom:3px solid #F5C400;}.avatar{width:16mm;height:16mm;border-radius:50%;background:#0A2342;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#F5C400;flex-shrink:0;margin-right:5mm;}.stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;}.stat-box{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:5px 4px;text-align:center;}.stat-val{font-size:18px;font-weight:700;color:#0A2342;font-family:\'DM Mono\',monospace;line-height:1.1;}.stat-lbl{font-size:7px;color:#5A7A9F;text-transform:uppercase;letter-spacing:.05em;margin-top:1px;}table tr:nth-child(even) td{background:#F8FAFC;}<\/style><\/head><body><div class="page">';
-  html+='<div class="header"><div style="display:flex;align-items:center;"><div class="avatar">'+ava+'</div><div><div style="font-size:20px;font-weight:700;">'+p.name+'</div><div style="font-size:10px;color:#5A7A9F;margin-top:2px;">'+p.age+' år'+((Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).length?' · '+(Array.isArray(p.team)?p.team.join(', '):p.team):'')+'</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:3mm;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;">'+p.cls+'-spiller</span>'+jerseyBadge+posBadges+'</div></div></div><div style="text-align:right;"><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.1em;">FC Skanderborg</div><div style="font-size:11px;font-weight:700;color:#0A2342;">Pigeudvalg</div></div></div>';
+  html+='<div class="header"><div style="display:flex;align-items:center;"><div class="avatar">'+ava+'</div><div><div style="font-size:20px;font-weight:700;">'+p.name+'</div><div style="font-size:10px;color:#5A7A9F;margin-top:2px;">'+p.age+' år'+((Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).length?' · '+(Array.isArray(p.team)?p.team.join(', '):p.team):'')+'</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:3mm;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;">'+p.cls+'-spiller</span>'+jerseyBadge+posBadges+'</div></div></div><div style="text-align:right;"><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.1em;">FC Skanderborg</div><div style="font-size:11px;font-weight:700;color:#0A2342;">Pige talent</div></div></div>';
   html+='<div><div style="font-size:9px;font-weight:700;color:#5A7A9F;text-transform:uppercase;letter-spacing:.12em;margin-bottom:3mm;">📊 Sæsonstatistik</div><div class="stats-grid"><div class="stat-box"><div class="stat-val">'+matches.length+'</div><div class="stat-lbl">Kampe</div></div><div class="stat-box" style="background:'+(udtaget>0?'#DCFCE7':'#F8FAFC')+';border-color:'+(udtaget>0?'#86efac':'#E2E8F0')+'"><div class="stat-val" style="color:'+(udtaget>0?'#16A34A':'#0A2342')+'">'+udtaget+'</div><div class="stat-lbl">Udtaget</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.skud)+'</div><div class="stat-lbl">Skud på mål</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.afl)+'</div><div class="stat-lbl">Afleveringer</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.assists)+'</div><div class="stat-lbl">Assists</div></div><div class="stat-box"><div class="stat-val">'+statVal(st.min)+'</div><div class="stat-lbl">Min. spillet</div></div></div></div>';
   html+=matchSection+trainingSection+goalSection;
-  html+='<div style="margin-top:auto;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;"><span style="font-size:8px;color:#94A3B8;">FC Skanderborg · Pigeudvalg · Genereret '+new Date().toLocaleDateString('da-DK')+'</span><span style="font-size:8px;font-weight:700;color:#0A2342;">'+p.name+'</span></div>';
+  html+='<div style="margin-top:auto;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;"><span style="font-size:8px;color:#94A3B8;">FC Skanderborg · Pige talent · Genereret '+new Date().toLocaleDateString('da-DK')+'</span><span style="font-size:8px;font-weight:700;color:#0A2342;">'+p.name+'</span></div>';
   html+='</div><\/body><\/html>';
   openPdfWindow(html);
 }
@@ -1995,9 +2062,9 @@ function exportAllPdf(){
     rows+='<tr><td style="font-weight:700;color:#F5C400;background:#0A2342;text-align:center;">'+( p.jersey?p.jersey:'')+'</td><td><strong>'+p.name+'</strong></td><td style="text-align:center;">'+p.age+'</td><td>'+(p.team||'–')+'</td><td style="text-align:center;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:8px;font-weight:700;padding:1px 6px;border-radius:3px;">'+p.cls+'</span></td><td>'+(posArr.join(' / ')||'–')+'</td><td style="text-align:center;">'+matches.length+'</td><td style="text-align:center;">'+udtaget+'</td><td style="text-align:center;">'+(st.skud||0)+'</td><td style="text-align:center;">'+(st.afl||0)+'</td><td style="text-align:center;">'+(st.assists||0)+'</td><td style="text-align:center;">'+(st.min||0)+'</td><td style="text-align:center;">'+(st.vende||0)+'</td><td style="text-align:center;">'+pTrainings.length+'</td><td style="text-align:center;font-weight:700;color:'+pctColor+';">'+pctStr+'</td><td style="font-size:8px;color:#475569;font-style:italic;">'+(p.goal||'–')+'</td></tr>';
   }
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap\');@page{size:A4 landscape;margin:8mm 10mm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:9px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:3mm;border-bottom:3px solid #F5C400;margin-bottom:4mm;}table{width:100%;border-collapse:collapse;}thead th{background:#0A2342;color:#F5C400;padding:4px 5px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}tbody tr:nth-child(even){background:#F8FAFC;}tbody td{padding:4px 5px;border-bottom:1px solid #E2E8F0;color:#2C4A72;vertical-align:top;font-size:9px;}.ftr{margin-top:3mm;border-top:1px solid #E2E8F0;padding-top:2mm;display:flex;justify-content:space-between;font-size:7px;color:#94A3B8;}<\/style><\/head><body>';
-  html+='<div class="hdr"><div><div style="font-size:15px;font-weight:700;">FC Skanderborg · Spilleroversigt</div><div style="font-size:9px;color:#5A7A9F;margin-top:1px;">Pigeudvalg · '+players.length+' spillere · Genereret '+new Date().toLocaleDateString('da-DK')+'</div></div><div style="font-size:8px;color:#94A3B8;text-align:right;">Fortroligt · Til intern brug</div></div>';
+  html+='<div class="hdr"><div><div style="font-size:15px;font-weight:700;">FC Skanderborg · Spilleroversigt</div><div style="font-size:9px;color:#5A7A9F;margin-top:1px;">Pige talent · '+players.length+' spillere · Genereret '+new Date().toLocaleDateString('da-DK')+'</div></div><div style="font-size:8px;color:#94A3B8;text-align:right;">Fortroligt · Til intern brug</div></div>';
   html+='<table><thead><tr><th style="width:8mm">#</th><th style="width:38mm">Navn</th><th>Alder</th><th>Hold</th><th>Klasse</th><th>Position</th><th>Kampe</th><th>Udtaget</th><th>Skud</th><th>Aflev.</th><th>Assists</th><th>Min.</th><th>Vende</th><th>Træn.</th><th>Fremmøde</th><th>Udviklingsmål</th></tr></thead><tbody>'+rows+'</tbody></table>';
-  html+='<div class="ftr"><span>FC Skanderborg Pigeudvalg</span><span>'+new Date().toLocaleDateString('da-DK',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'</span></div>';
+  html+='<div class="ftr"><span>FC Skanderborg Pige talent</span><span>'+new Date().toLocaleDateString('da-DK',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'</span></div>';
   html+='<\/body><\/html>';
   openPdfWindow(html);
 }
@@ -2838,7 +2905,7 @@ function exportTraeningPdf(){
     '<div class="hdr"><div>'+
       '<div style="font-size:18px;font-weight:700;margin-bottom:2px;">'+t.title+'</div>'+
       '<div style="font-size:10px;color:#5A7A9F;">'+dateStr+'</div>'+
-    '</div><div style="text-align:right;font-size:9px;color:#94A3B8;">FC Skanderborg · Pigeudvalg<br>'+new Date().toLocaleDateString('da-DK')+'</div></div>'+
+    '</div><div style="text-align:right;font-size:9px;color:#94A3B8;">FC Skanderborg · Pige talent<br>'+new Date().toLocaleDateString('da-DK')+'</div></div>'+
     '<div class="stat-row">'+
       '<div class="stat-box"><div class="stat-v">'+players.length+'</div><div class="stat-l">Spillere</div></div>'+
       '<div class="stat-box" style="background:#DCFCE7;border-color:#86efac"><div class="stat-v" style="color:#16A34A">'+jaCount+'</div><div class="stat-l">Deltaget</div></div>'+
@@ -2849,7 +2916,7 @@ function exportTraeningPdf(){
     '<table><thead><tr><th>Spiller</th><th>Hold</th><th>Alder</th><th>Status</th></tr></thead><tbody>'+attRows+'</tbody></table>'+
     exHtml+
     '<div style="margin-top:5mm;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;font-size:8px;color:#94A3B8;">'+
-      '<span>FC Skanderborg · Pigeudvalg</span><span>'+t.title+' · '+dateStr+'</span></div>'+
+      '<span>FC Skanderborg · Pige talent</span><span>'+t.title+' · '+dateStr+'</span></div>'+
     '<\/body><\/html>';
   openPdfWindow(html);
 }
@@ -2908,7 +2975,7 @@ function exportKampPdf(){
         (kamp.score?'<span style="background:#FEF9C3;color:#854D0E;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;margin-left:6px;">⚽ '+kamp.score+'</span>':'')+
         (kamp.hold?'<span style="background:#F1F5F9;color:#475569;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;margin-left:6px;">'+kamp.hold+'</span>':'')+
       '</div>'+
-    '</div><div style="text-align:right;font-size:9px;color:#94A3B8;">FC Skanderborg · Pigeudvalg<br>'+new Date().toLocaleDateString('da-DK')+'</div></div>'+
+    '</div><div style="text-align:right;font-size:9px;color:#94A3B8;">FC Skanderborg · Pige talent<br>'+new Date().toLocaleDateString('da-DK')+'</div></div>'+
     '<div class="stat-row">'+
       '<div class="stat-box" style="background:#DCFCE7;border-color:#86efac"><div class="stat-v" style="color:#16A34A">'+jaList.length+'</div><div class="stat-l">Udtaget</div></div>'+
       '<div class="stat-box" style="background:#FEE2E2;border-color:#fecaca"><div class="stat-v" style="color:#dc2626">'+nejList.length+'</div><div class="stat-l">Ikke udtaget</div></div>'+
@@ -2918,7 +2985,7 @@ function exportKampPdf(){
     '<div class="bar-wrap"><div class="bar" style="width:'+pct+'%"></div></div>'+
     '<table><thead><tr><th>Spiller</th><th>Hold</th><th>Alder</th><th>Position</th><th>Status</th></tr></thead><tbody>'+allRows+'</tbody></table>'+
     '<div style="margin-top:5mm;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;font-size:8px;color:#94A3B8;">'+
-      '<span>FC Skanderborg · Pigeudvalg</span><span>'+kamp.opponent+' · '+dateStr+'</span></div>'+
+      '<span>FC Skanderborg · Pige talent</span><span>'+kamp.opponent+' · '+dateStr+'</span></div>'+
     '<\/body><\/html>';
   openPdfWindow(html);
 }
@@ -3483,12 +3550,12 @@ function exportCupPdf(cupId){
         '<span style="background:#DCFCE7;color:#16A34A;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;">'+totalAll+' spillere i alt</span>'+
       '</div>'+
     '</div>'+
-    '<div style="text-align:right;font-size:9px;color:#94A3B8;">FC Skanderborg · Pigeudvalg<br>'+new Date().toLocaleDateString('da-DK')+'</div>'+
+    '<div style="text-align:right;font-size:9px;color:#94A3B8;">FC Skanderborg · Pige talent<br>'+new Date().toLocaleDateString('da-DK')+'</div>'+
   '</div>';
 
   html+=holdsHtml;
   html+='<div style="margin-top:5mm;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;font-size:8px;color:#94A3B8;">'+
-    '<span>FC Skanderborg · Pigeudvalg</span>'+
+    '<span>FC Skanderborg · Pige talent</span>'+
     '<span>'+cup.name+'</span>'+
   '</div>';
   html+='</body></html>';
