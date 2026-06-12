@@ -3574,6 +3574,22 @@ document.addEventListener('change', function(e){
 });
 
 
+// ── Persistent kampe click delegation ────────────────────────────────────────
+document.addEventListener('click', function(e){
+  var list = document.getElementById('kampe-list');
+  if(!list || !list.contains(e.target)) return;
+  // Toggle kampkort
+  var hdr = e.target.closest('[data-ktoggle]');
+  if(hdr){ toggleKampDetail(hdr.getAttribute('data-ktoggle')); return; }
+  // Fremmøde knapper
+  var btn = e.target.closest('.att-btn[data-kn]');
+  if(btn){ setKampAttendance(btn.getAttribute('data-kn'), btn.getAttribute('data-pid'), btn.getAttribute('data-val')); return; }
+  // Gem til GitHub
+  var saveBtn = e.target.closest('[data-savekamp]');
+  if(saveBtn){ saveAll(); syncToSheets(true); return; }
+});
+
+
 </script>
 </body>
 </html>
