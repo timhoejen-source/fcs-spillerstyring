@@ -1005,13 +1005,34 @@ function trPdfClear(){
   document.getElementById('tr-pdf-zone').style.display = 'block';
 }
 
-function openPdf(base64){
-  var win = window.open('');
-  if(!win){ toast('⚠️ Tillad popups for at åbne PDF'); return; }
-  win.document.write('<iframe src="'+base64+'" style="width:100%;height:100vh;border:none;"></iframe>');
-  win.document.close();
-}
-let mMatches=[];
+function openPdf(base64, fileName){
+  if(!base64){ toast('⚠️ Ingen PDF fundet'); return; }
+  fileName = fileName || 'traening.pdf';
+  var isMobile = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+    (navigator.userAgent.includes('Mac') && navigator.maxTouchPoints > 1);
+  try{
+    var byteStr = atob(base64.split(',')[1]);
+    var ab = new ArrayBuffer(byteStr.length);
+    var ia = new Uint8Array(ab);
+    for(var i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
+    var blob = new Blob([ab],{type:'application/pdf'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.style.display = 'none';
+    if(isMobile){ a.download = fileName; toast('📥 '+fileName+' gemmes...'); }
+    else { a.target = '_blank'; a.rel = 'noopener'; }
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+  }catch(e){
+    var a2 = document.createElement('a');
+    a2.href = base64; a2.download = fileName;
+    document.body.appendChild(a2); a2.click(); document.body.removeChild(a2);
+    toast('📥 Downloader '+fileName+'...');
+  }
+}let mMatches=[];
 
 function setMatchToggle(v){
   mMatchToggle=v;
