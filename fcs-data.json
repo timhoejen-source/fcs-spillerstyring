@@ -116,7 +116,9 @@
       "id": "mq4rdodj0njfxaks1fun",
       "name": "Alberte Kyed",
       "age": 15,
-      "team": [],
+      "team": [
+        "Ikke placeret"
+      ],
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -137,7 +139,8 @@
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjl0908sxnbk",
@@ -279,7 +282,9 @@
       "id": "mq4rdodj085iq1n9c95d",
       "name": "Filippa Knudsen",
       "age": 13,
-      "team": [],
+      "team": [
+        "U14 liga 2"
+      ],
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -288,7 +293,7 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": "nej"
+            "udtaget": ""
           },
           {
             "name": "Fortuna Oure (14. jun.)",
@@ -300,7 +305,8 @@
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjhw1h8xwmdgm",
@@ -372,7 +378,9 @@
       "id": "mq4rdodj07icnpsqkzif",
       "name": "Islam Moubachir",
       "age": 15,
-      "team": [],
+      "team": [
+        "Ikke placeret"
+      ],
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -381,7 +389,7 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": "nej"
+            "udtaget": ""
           },
           {
             "name": "Fortuna Oure (14. jun.)",
@@ -393,7 +401,8 @@
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodj2cgix7j2jz8",
@@ -511,7 +520,7 @@
           },
           {
             "name": "Fortuna Oure (14. jun.)",
-            "udtaget": "nej"
+            "udtaget": ""
           }
         ],
         "skud": 0,
@@ -575,7 +584,7 @@
           },
           {
             "name": "Fortuna Oure (14. jun.)",
-            "udtaget": "nej"
+            "udtaget": ""
           }
         ],
         "skud": 0,
@@ -653,7 +662,9 @@
       "id": "mq4rdodjb5bgjtigmh7",
       "name": "Marie Bøgh Høncke",
       "age": 15,
-      "team": [],
+      "team": [
+        "Ikke placeret"
+      ],
       "cls": "C",
       "pos": [],
       "jersey": "",
@@ -662,11 +673,11 @@
         "matches": [
           {
             "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": "nej"
+            "udtaget": ""
           },
           {
             "name": "Fortuna Oure (14. jun.)",
-            "udtaget": "nej"
+            "udtaget": ""
           }
         ],
         "skud": 0,
@@ -674,7 +685,8 @@
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjt8c1epp5m8g",
@@ -790,7 +802,7 @@
           },
           {
             "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": "nej"
+            "udtaget": ""
           }
         ],
         "skud": 0,
@@ -1000,7 +1012,8 @@
   ],
   "teams": [
     "U14 liga 2",
-    "U15 liga 2"
+    "U15 liga 2",
+    "Ikke placeret"
   ],
   "trainings": [
     {
@@ -1196,5 +1209,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-12T19:14:06.524Z"
+  "savedAt": "2026-06-12T19:40:14.827Z"
 }
