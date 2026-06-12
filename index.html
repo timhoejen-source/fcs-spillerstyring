@@ -1246,13 +1246,10 @@ async function loadFromSheets(silent=false){
     if(payload.boardLineups) window._boardLineups=payload.boardLineups;
     // DBU stilling
     if(Array.isArray(payload.dbuStilling)) dbuStilling=payload.dbuStilling;
-    // Cups
-    if(Array.isArray(payload.cups)) cups=payload.cups;
-    // Matches
-    if(Array.isArray(payload.matches)) matches=payload.matches;
-    // Hold
+    // Cups og matches håndteres nedenfor med merge
+    // Hold — GitHub vinder, ingen merge (undgår dubletter)
     if(Array.isArray(payload.teams)&&payload.teams.length){
-      teams=[...new Set([...payload.teams,...teams])];
+      teams=[...new Set(payload.teams)];
     }
     // Træninger
     if(Array.isArray(payload.trainings)&&payload.trainings.length){
@@ -1262,18 +1259,16 @@ async function loadFromSheets(silent=false){
       saveTrainings();
       renderTrainings();
     }
-    // Sync cups
-    if(Array.isArray(payload.cups)&&payload.cups.length){
-      var cupIds=new Set(payload.cups.map(function(x){return x.id;}));
-      var localCups=cups.filter(function(x){return !cupIds.has(x.id);});
-      cups=[...payload.cups,...localCups];
+    // Sync cups — GitHub vinder
+    if(Array.isArray(payload.cups)){
+      cups=payload.cups;
       try{localStorage.setItem('fcs-cups',JSON.stringify(cups));}catch(e){}
     }
-    // Sync matches
+    // Sync matches — GitHub vinder, bevar kun lokale der ikke er i GitHub
     if(Array.isArray(payload.matches)&&payload.matches.length){
       var mIds=new Set(payload.matches.map(function(x){return x.id;}));
-      var localMatches=matches.filter(function(x){return !mIds.has(x.id);});
-      matches=[...payload.matches,...localMatches];
+      var localMatchesOnly=matches.filter(function(x){return !mIds.has(x.id);});
+      matches=[...payload.matches,...localMatchesOnly];
       try{localStorage.setItem('fcs-matches',JSON.stringify(matches));}catch(e){}
     }
     // Sync trainings + PDFs
