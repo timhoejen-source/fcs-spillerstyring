@@ -1882,7 +1882,7 @@ function renderTrainings(){
         (t.pdf?
           '<div class="pdf-attached">'+
             '<span class="pdf-attached-name">📎 '+(t.pdfName||'Træningsplan.pdf')+'</span>'+
-            '<button class="pdf-view-btn" data-openpdf="'+t.id+'">📄 Åbn</button>'+
+            '<button class="pdf-view-btn" data-openpdf="'+t.id+'">📄 Åbn / Download</button>'+
             '<button class="pdf-del-btn" data-delpdf="'+t.id+'" title="Slet PDF">🗑️</button>'+
           '</div>'
         :
@@ -3153,7 +3153,7 @@ function renderPdfSection(trainingId){
     sec.innerHTML=
       '<div class="pdf-attached">'+
         '<span class="pdf-attached-name">📎 '+(t.pdfName||'Træningsplan.pdf')+'</span>'+
-        '<button class="pdf-view-btn" data-openpdf="'+trainingId+'">📄 Åbn</button>'+
+        '<button class="pdf-view-btn" data-openpdf="'+trainingId+'">📄 Åbn / Download</button>'+
         '<button class="pdf-del-btn" data-delpdf="'+trainingId+'" title="Slet PDF">🗑️</button>'+
       '</div>';
   } else {
