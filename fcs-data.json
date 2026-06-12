@@ -1033,21 +1033,8 @@
         "mq4rdodjn00ufiqe0ls",
         "mq4rdodjyjmnpj7iuao"
       ],
-      "loanees": [
-        {
-          "id": "loan-mqakgmplyvmcg12g24b",
-          "name": "Anne Ø",
-          "team": "U13",
-          "isLoanee": true
-        },
-        {
-          "id": "loan-mqakgtk97p2afpvgsmx",
-          "name": "Sofie",
-          "team": "U13",
-          "isLoanee": true
-        }
-      ]
+      "loanees": []
     }
   },
-  "savedAt": "2026-06-12T07:28:17.431Z"
+  "savedAt": "2026-06-12T07:48:23.948Z"
 }
