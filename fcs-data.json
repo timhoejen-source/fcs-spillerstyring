@@ -124,16 +124,7 @@
       "jersey": "",
       "goal": "",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": ""
-          },
-          {
-            "name": "Fortuna Oure (14. jun.)",
-            "udtaget": "nej"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -265,10 +256,6 @@
           {
             "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
-          },
-          {
-            "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": ""
           }
         ],
         "skud": 0,
@@ -276,7 +263,8 @@
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodj085iq1n9c95d",
@@ -294,10 +282,6 @@
           {
             "name": "Dalum/Næsby (13. jun.)",
             "udtaget": ""
-          },
-          {
-            "name": "Fortuna Oure (14. jun.)",
-            "udtaget": "nej"
           }
         ],
         "skud": 0,
@@ -386,16 +370,7 @@
       "jersey": "",
       "goal": "Alt taktisk og boldkontrol",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": ""
-          },
-          {
-            "name": "Fortuna Oure (14. jun.)",
-            "udtaget": "nej"
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -485,10 +460,6 @@
           {
             "name": "Dalum/Næsby (13. jun.)",
             "udtaget": ""
-          },
-          {
-            "name": "Fortuna Oure (14. jun.)",
-            "udtaget": "nej"
           }
         ],
         "skud": 0,
@@ -496,7 +467,8 @@
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjunxf94vgzw",
@@ -517,10 +489,6 @@
           {
             "name": "Dalum/Næsby (13. jun.)",
             "udtaget": "ja"
-          },
-          {
-            "name": "Fortuna Oure (14. jun.)",
-            "udtaget": ""
           }
         ],
         "skud": 0,
@@ -528,7 +496,8 @@
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodj2p61syd2m28",
@@ -581,10 +550,6 @@
           {
             "name": "Dalum/Næsby (13. jun.)",
             "udtaget": "nej"
-          },
-          {
-            "name": "Fortuna Oure (14. jun.)",
-            "udtaget": ""
           }
         ],
         "skud": 0,
@@ -592,7 +557,8 @@
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodj5j7yktc3q8f",
@@ -670,16 +636,7 @@
       "jersey": "",
       "goal": "Agilitet\nAgressivitet\nOp på tæerne\nBoldkontrol",
       "stats": {
-        "matches": [
-          {
-            "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": ""
-          },
-          {
-            "name": "Fortuna Oure (14. jun.)",
-            "udtaget": ""
-          }
-        ],
+        "matches": [],
         "skud": 0,
         "afl": 0,
         "assists": 0,
@@ -768,10 +725,6 @@
       "stats": {
         "matches": [
           {
-            "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": ""
-          },
-          {
             "name": "Fortuna Oure (14. jun.)",
             "udtaget": "nej"
           }
@@ -781,7 +734,8 @@
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodj8z8mbxa08jp",
@@ -799,10 +753,6 @@
           {
             "name": "Fortuna Oure (14. jun.)",
             "udtaget": "ja"
-          },
-          {
-            "name": "Dalum/Næsby (13. jun.)",
-            "udtaget": ""
           }
         ],
         "skud": 0,
@@ -810,7 +760,8 @@
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjf4oeaovcoiq",
@@ -1209,5 +1160,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-12T19:41:54.029Z"
+  "savedAt": "2026-06-12T22:47:43.458Z"
 }
