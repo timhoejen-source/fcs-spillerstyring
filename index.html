@@ -396,6 +396,20 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .kamp-spiller-label{font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;}
 .kamp-spiller-sel{flex:1;font-size:12px;font-weight:600;padding:6px 10px;border:1.5px solid var(--g200);border-radius:7px;background:var(--white);font-family:'DM Sans',sans-serif;cursor:pointer;}
 .kamp-spiller-badge{display:inline-flex;align-items:center;gap:5px;background:#FEF9C3;border:1px solid #F5C400;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:#854D0E;}
+
+.kamp-result-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--g50);border-bottom:1px solid var(--g200);flex-wrap:wrap;gap:6px;}
+.kamp-result-inp{width:70px;font-size:13px;font-weight:700;text-align:center;padding:5px 8px;border:1.5px solid var(--g200);border-radius:7px;font-family:'DM Sans',sans-serif;background:var(--white);}
+.kamp-result-inp:focus{border-color:var(--blue);outline:none;}
+.kamp-result-sep{font-size:16px;font-weight:700;color:var(--navy);}
+.kamp-place-inp{width:50px;font-size:12px;font-weight:700;text-align:center;padding:5px 8px;border:1.5px solid var(--g200);border-radius:7px;font-family:'DM Sans',sans-serif;background:var(--white);}
+.kamp-result-label{font-size:10px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;}
+.kamp-result-save{padding:5px 12px;background:var(--navy);color:var(--yellow);border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.kamp-result-save:hover{opacity:.85;}
+.kamp-result-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:12px;}
+.kamp-result-badge.win{background:#DCFCE7;color:#16A34A;}
+.kamp-result-badge.draw{background:#FEF9C3;color:#854D0E;}
+.kamp-result-badge.loss{background:#FEE2E2;color:#dc2626;}
+.kamp-place-badge{background:#DBEAFE;color:#1A6EC0;font-size:11px;font-weight:700;padding:2px 9px;border-radius:12px;}
 </style>
 </head>
 <body>
@@ -2436,7 +2450,42 @@ function renderKampe(){
 
     // Slet-knap fjernet — slet kampe via administrer hold
 
+    // Result bar
+    var homeGoals = kamp.resultHome !== undefined && kamp.resultHome !== '' ? kamp.resultHome : '';
+    var awayGoals = kamp.resultAway !== undefined && kamp.resultAway !== '' ? kamp.resultAway : '';
+    var placering  = kamp.placering || '';
+    var hasResult  = homeGoals !== '' && awayGoals !== '';
+    var resultBadge = '';
+    if(hasResult && kamp.venue){
+      var h=parseInt(homeGoals), a=parseInt(awayGoals);
+      var fcsGoals = kamp.venue==='H' ? h : a;
+      var oppGoals = kamp.venue==='H' ? a : h;
+      if(fcsGoals>oppGoals)       resultBadge='<span class="kamp-result-badge win">✅ '+homeGoals+'-'+awayGoals+' Sejr</span>';
+      else if(fcsGoals===oppGoals) resultBadge='<span class="kamp-result-badge draw">🤝 '+homeGoals+'-'+awayGoals+' Uafgjort</span>';
+      else                         resultBadge='<span class="kamp-result-badge loss">❌ '+homeGoals+'-'+awayGoals+' Nederlag</span>';
+    } else if(hasResult){
+      resultBadge='<span class="kamp-result-badge draw">⚽ '+homeGoals+'-'+awayGoals+'</span>';
+    }
+    var placeringBadge = placering ? '<span class="kamp-place-badge">🏅 '+placering+'. plads</span>' : '';
+
+    var resultBar = (currentRole==='admin') ?
+      '<div class="kamp-result-bar">'+
+        '<span class="kamp-result-label">Resultat</span>'+
+        '<input class="kamp-result-inp" type="number" min="0" max="30" placeholder="–" value="'+homeGoals+'" data-resH="'+kamp.id+'" title="Hjemmehold mål">'+
+        '<span class="kamp-result-sep">–</span>'+
+        '<input class="kamp-result-inp" type="number" min="0" max="30" placeholder="–" value="'+awayGoals+'" data-resA="'+kamp.id+'" title="Udehold mål">'+
+        '<span class="kamp-result-label" style="margin-left:8px;">Placering</span>'+
+        '<input class="kamp-place-inp" type="number" min="1" max="20" placeholder="–" value="'+placering+'" data-place="'+kamp.id+'">'+
+        '<button class="kamp-result-save" data-saveres="'+kamp.id+'">Gem</button>'+
+        (resultBadge||placeringBadge ? '<div style="margin-left:auto;display:flex;gap:6px;">'+resultBadge+placeringBadge+'</div>' : '')+
+      '</div>'
+    :
+      (resultBadge||placeringBadge ?
+        '<div class="kamp-result-bar" style="gap:6px;">'+resultBadge+placeringBadge+'</div>'
+      : '');
+
     return '<div class="kamp-card">'+
+      resultBar+
       '<div class="kamp-header" data-ktoggle="'+name+'" style="cursor:pointer;">'+
         '<div style="flex:1;min-width:0;">'+
           '<div class="kamp-name">🏆 '+name+'</div>'+
@@ -3939,6 +3988,9 @@ document.addEventListener('change', function(e){
 document.addEventListener('click', function(e){
   var list = document.getElementById('kampe-list');
   if(!list || !list.contains(e.target)) return;
+  // Save result/placering
+  var saveRes = e.target.closest('[data-saveres]');
+  if(saveRes){ saveKampResult(saveRes.getAttribute('data-saveres')); return; }
   // Toggle kampkort
   var hdr = e.target.closest('[data-ktoggle]');
   if(hdr){ toggleKampDetail(hdr.getAttribute('data-ktoggle')); return; }
@@ -3980,6 +4032,20 @@ function setKampSpiller(kampName, playerId){
   var row = document.querySelector('[data-kampspiller="'+kampName+'"]');
   if(row) row.style.borderColor = playerId ? '#F5C400' : '';
   toast(playerId ? '⭐ Kampens spiller gemt' : 'Valg nulstillet');
+}
+
+function saveKampResult(kampId){
+  var kamp = matches.find(function(m){ return m.id===kampId; });
+  if(!kamp) return;
+  var h = document.querySelector('[data-resH="'+kampId+'"]');
+  var a = document.querySelector('[data-resA="'+kampId+'"]');
+  var p = document.querySelector('[data-place="'+kampId+'"]');
+  if(h) kamp.resultHome = h.value;
+  if(a) kamp.resultAway = a.value;
+  if(p) kamp.placering  = p.value;
+  saveAll();
+  renderKampe();
+  toast('✅ Resultat og placering gemt');
 }
 
 </script>
