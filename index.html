@@ -391,6 +391,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .player-ex-add button{padding:5px 10px;background:var(--navy);color:var(--yellow);border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
 .player-ex-label{font-size:9px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;display:block;}
 .player-ex-max{font-size:9px;color:var(--g400);margin-top:3px;}
+
+.kamp-spiller-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--g200);}
+.kamp-spiller-label{font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;}
+.kamp-spiller-sel{flex:1;font-size:12px;font-weight:600;padding:6px 10px;border:1.5px solid var(--g200);border-radius:7px;background:var(--white);font-family:'DM Sans',sans-serif;cursor:pointer;}
+.kamp-spiller-badge{display:inline-flex;align-items:center;gap:5px;background:#FEF9C3;border:1px solid #F5C400;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:#854D0E;}
 </style>
 </head>
 <body>
@@ -2953,6 +2958,7 @@ function exportTraeningPdf(){
     '</div>'+exCards+'</div>';
   }
 
+  var kampSpillerHtml=''; if(kamp.kampSpiller){var sp=players.find(function(p){return p.id===kamp.kampSpiller;});if(sp) kampSpillerHtml='<div style="display:inline-flex;align-items:center;gap:6px;background:#FEF9C3;border:2px solid #F5C400;border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;color:#854D0E;margin-top:5mm;">⭐ Kampens spiller: '+sp.name+'</div>';}
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'+
     '<style>@page{size:A4 portrait;margin:12mm 14mm;}@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap\');'+
     '*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}'+
@@ -3018,6 +3024,7 @@ function exportKampPdf(){
     makeRows(nejList,'❌ Ikke udtaget','#FEE2E2','#dc2626')+
     makeRows(noneList,'– Ikke registreret','#F8FAFC','#94A3B8');
 
+  var kampSpillerHtml=''; if(kamp.kampSpiller){var sp=players.find(function(p){return p.id===kamp.kampSpiller;});if(sp) kampSpillerHtml='<div style="display:inline-flex;align-items:center;gap:6px;background:#FEF9C3;border:2px solid #F5C400;border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;color:#854D0E;margin-top:5mm;">⭐ Kampens spiller: '+sp.name+'</div>';}
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'+
     '<style>@page{size:A4 portrait;margin:12mm 14mm;}@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap\');'+
     '*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}'+
@@ -3044,6 +3051,7 @@ function exportKampPdf(){
       '<div class="stat-box"><div class="stat-v">'+noneList.length+'</div><div class="stat-l">Ikke registreret</div></div>'+
       '<div class="stat-box"><div class="stat-v">'+pct+'%</div><div class="stat-l">Udtagelsespct.</div></div>'+
     '</div>'+
+    kampSpillerHtml+
     '<div class="bar-wrap"><div class="bar" style="width:'+pct+'%"></div></div>'+
     '<table><thead><tr><th>Spiller</th><th>Hold</th><th>Alder</th><th>Position</th><th>Status</th></tr></thead><tbody>'+allRows+'</tbody></table>'+
     '<div style="margin-top:5mm;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;font-size:8px;color:#94A3B8;">'+
@@ -3593,6 +3601,7 @@ function exportCupPdf(cupId){
 
   var totalAll=cup.holds.reduce(function(a,h){return a+h.players.length+(h.loanees||[]).length;},0);
 
+  var kampSpillerHtml=''; if(kamp.kampSpiller){var sp=players.find(function(p){return p.id===kamp.kampSpiller;});if(sp) kampSpillerHtml='<div style="display:inline-flex;align-items:center;gap:6px;background:#FEF9C3;border:2px solid #F5C400;border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;color:#854D0E;margin-top:5mm;">⭐ Kampens spiller: '+sp.name+'</div>';}
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'+
     '<style>@page{size:A4 portrait;margin:12mm 14mm;}'+
     '@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap\');'+
@@ -3817,6 +3826,31 @@ function togglePlayerGroup(id){
   var el = document.getElementById(id);
   if(!el) return;
   el.style.display = el.style.display === 'none' ? '' : 'none';
+}
+
+function buildKampSpillerRow(kampName, kamp, eligiblePlayers){
+  var saved = kamp.kampSpiller || '';
+  var opts = '<option value="">– Ingen valgt –</option>' +
+    eligiblePlayers.map(function(p){
+      return '<option value="'+p.id+'"'+(saved===p.id?' selected':'')+'>'+
+        (p.jersey?'#'+p.jersey+' ':'')+p.name+'</option>';
+    }).join('');
+  return '<div class="kamp-spiller-row">'+
+    '<span class="kamp-spiller-label">⭐ Kampens spiller</span>'+
+    '<select class="kamp-spiller-sel" data-kampspiller="'+kampName+'">'+opts+'</select>'+
+  '</div>';
+}
+
+function setKampSpiller(kampName, playerId){
+  // Save on the match object
+  var kamp = matches.find(function(m){ return m.name===kampName; });
+  if(!kamp) return;
+  kamp.kampSpiller = playerId;
+  saveAll();
+  // Update badge text
+  var row = document.querySelector('[data-kampspiller="'+kampName+'"]');
+  if(row) row.style.borderColor = playerId ? '#F5C400' : '';
+  toast(playerId ? '⭐ Kampens spiller gemt' : 'Valg nulstillet');
 }
 
 </script>
