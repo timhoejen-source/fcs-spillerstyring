@@ -410,6 +410,22 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .kamp-result-badge.draw{background:#FEF9C3;color:#854D0E;}
 .kamp-result-badge.loss{background:#FEE2E2;color:#dc2626;}
 .kamp-place-badge{background:#DBEAFE;color:#1A6EC0;font-size:11px;font-weight:700;padding:2px 9px;border-radius:12px;}
+
+.card-summary{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;user-select:none;}
+.card-summary:hover{background:var(--g50);}
+.card-avatar-sm{width:36px;height:36px;border-radius:50%;background:var(--navy);color:var(--yellow);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.card-summary-info{flex:1;min-width:0;}
+.card-summary-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-summary-meta{font-size:10px;color:var(--text-soft);margin-top:1px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.card-summary-pill{background:var(--g100);padding:1px 7px;border-radius:8px;font-size:9px;font-weight:600;color:var(--text-mid);}
+.card-summary-pill.cls-a{background:#fef9c3;color:#854d0e;}
+.card-summary-pill.cls-b{background:#dbeafe;color:#1a6ec0;}
+.card-summary-pill.cls-c{background:#f3e8ff;color:#7e22ce;}
+.card-chev{font-size:11px;color:var(--g400);transition:transform .2s;flex-shrink:0;}
+.card-chev.open{transform:rotate(180deg);}
+.card-body{display:none;border-top:1px solid var(--g100);padding:10px 12px;}
+.card-body.open{display:block;}
+.card-acts-row{display:flex;gap:6px;margin-top:8px;}
 </style>
 </head>
 <body>
@@ -4071,6 +4087,14 @@ function saveKampResult(kampId){
   var form3 = document.getElementById('kres-'+kampId);
   if(form3) form3.style.display = 'none';
   toast('✅ Resultat og placering gemt');
+}
+
+function toggleCard(id){
+  var body = document.getElementById('cardbody-'+id);
+  var chev = document.getElementById('chev-'+id);
+  if(!body) return;
+  var open = body.classList.toggle('open');
+  if(chev) chev.classList.toggle('open', open);
 }
 
 </script>
