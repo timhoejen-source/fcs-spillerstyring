@@ -437,12 +437,13 @@
             "udtaget": "nej"
           }
         ],
-        "skud": 0,
+        "skud": 1,
         "afl": 0,
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjldiuuabgdgi",
@@ -491,7 +492,7 @@
             "udtaget": "ja"
           }
         ],
-        "skud": 0,
+        "skud": 1,
         "afl": 0,
         "assists": 0,
         "min": 0,
@@ -524,12 +525,13 @@
             "udtaget": "ja"
           }
         ],
-        "skud": 0,
+        "skud": 2,
         "afl": 0,
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjcww4yz9olkb",
@@ -704,12 +706,13 @@
             "udtaget": "nej"
           }
         ],
-        "skud": 0,
+        "skud": 2,
         "afl": 0,
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjp5czdg4eprc",
@@ -953,12 +956,13 @@
             "udtaget": "nej"
           }
         ],
-        "skud": 0,
+        "skud": 3,
         "afl": 0,
         "assists": 0,
         "min": 0,
         "vende": 0
-      }
+      },
+      "exercises": []
     }
   ],
   "teams": [
@@ -1160,5 +1164,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-12T22:47:43.458Z"
+  "savedAt": "2026-06-13T11:10:42.957Z"
 }
