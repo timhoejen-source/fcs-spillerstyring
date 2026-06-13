@@ -230,12 +230,18 @@
             "udtaget": "ja"
           }
         ],
-        "skud": 0,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
-      }
+        "kampStats": {
+          "Dalum/Næsby (13. jun.)": {
+            "maal": 1,
+            "skud": 0,
+            "afl": 0,
+            "assists": 0,
+            "min": 0,
+            "vende": 0
+          }
+        }
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjcijpk2cwa9m",
@@ -437,11 +443,16 @@
             "udtaget": "nej"
           }
         ],
-        "skud": 1,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
+        "kampStats": {
+          "Dalum/Næsby (13. jun.)": {
+            "maal": 1,
+            "skud": 0,
+            "afl": 0,
+            "assists": 0,
+            "min": 0,
+            "vende": 0
+          }
+        }
       },
       "exercises": []
     },
@@ -492,11 +503,16 @@
             "udtaget": "ja"
           }
         ],
-        "skud": 1,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
+        "kampStats": {
+          "Dalum/Næsby (13. jun.)": {
+            "maal": 1,
+            "skud": 0,
+            "afl": 0,
+            "assists": 0,
+            "min": 0,
+            "vende": 0
+          }
+        }
       },
       "exercises": []
     },
@@ -525,11 +541,16 @@
             "udtaget": "ja"
           }
         ],
-        "skud": 2,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
+        "kampStats": {
+          "Dalum/Næsby (13. jun.)": {
+            "maal": 2,
+            "skud": 0,
+            "afl": 0,
+            "assists": 0,
+            "min": 0,
+            "vende": 0
+          }
+        }
       },
       "exercises": []
     },
@@ -706,11 +727,16 @@
             "udtaget": "nej"
           }
         ],
-        "skud": 2,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
+        "kampStats": {
+          "Dalum/Næsby (13. jun.)": {
+            "maal": 2,
+            "skud": 0,
+            "afl": 0,
+            "assists": 0,
+            "min": 0,
+            "vende": 0
+          }
+        }
       },
       "exercises": []
     },
@@ -956,11 +982,16 @@
             "udtaget": "nej"
           }
         ],
-        "skud": 3,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
+        "kampStats": {
+          "Dalum/Næsby (13. jun.)": {
+            "maal": 3,
+            "skud": 0,
+            "afl": 0,
+            "assists": 0,
+            "min": 0,
+            "vende": 0
+          }
+        }
       },
       "exercises": []
     }
@@ -1164,5 +1195,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-13T11:10:58.035Z"
+  "savedAt": "2026-06-13T17:24:31.154Z"
 }
