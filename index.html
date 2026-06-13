@@ -2468,20 +2468,26 @@ function renderKampe(){
     }
     var placeringBadge = placering ? '<span class="kamp-place-badge">🏅 '+placering+'. plads</span>' : '';
 
-    var resultBar = (currentRole==='admin') ?
-      '<div class="kamp-result-bar">'+
-        '<span class="kamp-result-label">Resultat</span>'+
-        '<input class="kamp-result-inp" type="number" min="0" max="30" placeholder="–" value="'+homeGoals+'" data-resH="'+kamp.id+'" title="Hjemmehold mål">'+
-        '<span class="kamp-result-sep">–</span>'+
-        '<input class="kamp-result-inp" type="number" min="0" max="30" placeholder="–" value="'+awayGoals+'" data-resA="'+kamp.id+'" title="Udehold mål">'+
-        '<span class="kamp-result-label" style="margin-left:8px;">Placering</span>'+
-        '<input class="kamp-place-inp" type="number" min="1" max="20" placeholder="–" value="'+placering+'" data-place="'+kamp.id+'">'+
-        '<button class="kamp-result-save" data-saveres="'+kamp.id+'">Gem</button>'+
-        (resultBadge||placeringBadge ? '<div style="margin-left:auto;display:flex;gap:6px;">'+resultBadge+placeringBadge+'</div>' : '')+
-      '</div>'
-    :
-      (resultBadge||placeringBadge ?
-        '<div class="kamp-result-bar" style="gap:6px;">'+resultBadge+placeringBadge+'</div>'
+    var resultBar =
+      '<div class="kamp-result-bar" style="cursor:default;">'+
+        (resultBadge||placeringBadge ? '<div style="display:flex;gap:6px;flex:1;">'+resultBadge+placeringBadge+'</div>' : '<div style="flex:1;"></div>')+
+        (currentRole==='admin' ?
+          '<button class="kamp-result-toggle" data-restoggle="'+kamp.id+'" style="padding:4px 10px;background:var(--g100);color:var(--text-mid);border:1px solid var(--g200);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">✏️ Rediger</button>'
+        : '')+
+      '</div>'+
+      (currentRole==='admin' ?
+        '<div class="kamp-result-form" id="kres-'+kamp.id+'" style="display:none;padding:10px 14px;background:#F0F7FF;border-bottom:1px solid #bfdbfe;">'+
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+
+            '<span class="kamp-result-label">Resultat</span>'+
+            '<input class="kamp-result-inp" type="number" min="0" max="30" placeholder="–" value="'+homeGoals+'" data-resH="'+kamp.id+'" title="Hjemmehold mål">'+
+            '<span class="kamp-result-sep">–</span>'+
+            '<input class="kamp-result-inp" type="number" min="0" max="30" placeholder="–" value="'+awayGoals+'" data-resA="'+kamp.id+'" title="Udehold mål">'+
+            '<span class="kamp-result-label" style="margin-left:8px;">Placering</span>'+
+            '<input class="kamp-place-inp" type="number" min="1" max="20" placeholder="–" value="'+placering+'" data-place="'+kamp.id+'">'+
+            '<button class="kamp-result-save" data-saveres="'+kamp.id+'" style="margin-left:auto;">💾 Gem</button>'+
+            '<button data-resclose="'+kamp.id+'" style="padding:5px 10px;background:var(--white);color:var(--g400);border:1px solid var(--g200);border-radius:6px;font-size:11px;cursor:pointer;">Luk</button>'+
+          '</div>'+
+        '</div>'
       : '');
 
     return '<div class="kamp-card">'+
@@ -3988,6 +3994,21 @@ document.addEventListener('change', function(e){
 document.addEventListener('click', function(e){
   var list = document.getElementById('kampe-list');
   if(!list || !list.contains(e.target)) return;
+  // Toggle result form
+  var resToggle = e.target.closest('[data-restoggle]');
+  if(resToggle){
+    var id = resToggle.getAttribute('data-restoggle');
+    var form = document.getElementById('kres-'+id);
+    if(form){ form.style.display = form.style.display==='none' ? 'block' : 'none'; }
+    return;
+  }
+  // Close result form
+  var resClose = e.target.closest('[data-resclose]');
+  if(resClose){
+    var form2 = document.getElementById('kres-'+resClose.getAttribute('data-resclose'));
+    if(form2) form2.style.display = 'none';
+    return;
+  }
   // Save result/placering
   var saveRes = e.target.closest('[data-saveres]');
   if(saveRes){ saveKampResult(saveRes.getAttribute('data-saveres')); return; }
@@ -4044,7 +4065,11 @@ function saveKampResult(kampId){
   if(a) kamp.resultAway = a.value;
   if(p) kamp.placering  = p.value;
   saveAll();
+  // Update badges without full re-render for speed
   renderKampe();
+  // Close form
+  var form3 = document.getElementById('kres-'+kampId);
+  if(form3) form3.style.display = 'none';
   toast('✅ Resultat og placering gemt');
 }
 
