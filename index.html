@@ -938,13 +938,23 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <div class="player-ex-max" id="m-ex-max"></div>
     </div>
     <hr class="stats-divider">
-    <div class="modal-section-title">📊 Stats</div>
-    <div class="stats-grid-modal">
-      <div class="fg"><label>Skud på mål</label><input type="number" id="m-skud" placeholder="0" min="0"></div>
-      <div class="fg"><label>Afleveringer</label><input type="number" id="m-afl" placeholder="0" min="0"></div>
-      <div class="fg"><label>Assists</label><input type="number" id="m-assists" placeholder="0" min="0"></div>
-      <div class="fg"><label>Minutter spillet</label><input type="number" id="m-min" placeholder="0" min="0"></div>
-      <div class="fg"><label>Vende spillet</label><input type="number" id="m-vende" placeholder="0" min="0"></div>
+    <div class="modal-section-title">📊 Stats per kamp</div>
+    <div style="font-size:10px;color:var(--text-soft);margin-bottom:8px;">Vælg en kamp for at registrere stats til den</div>
+    <div class="fg" style="margin-bottom:8px;">
+      <label>Vælg kamp</label>
+      <select id="m-stats-kamp-sel" onchange="renderModalKampStats()" style="font-size:12px;">
+        <option value="">– Vælg kamp –</option>
+      </select>
+    </div>
+    <div id="m-stats-kamp-form" style="display:none;">
+      <div class="stats-grid-modal">
+        <div class="fg"><label>Mål</label><input type="number" id="m-maal" placeholder="0" min="0"></div>
+        <div class="fg"><label>Skud på mål</label><input type="number" id="m-skud" placeholder="0" min="0"></div>
+        <div class="fg"><label>Afleveringer</label><input type="number" id="m-afl" placeholder="0" min="0"></div>
+        <div class="fg"><label>Assists</label><input type="number" id="m-assists" placeholder="0" min="0"></div>
+        <div class="fg"><label>Minutter spillet</label><input type="number" id="m-min" placeholder="0" min="0"></div>
+        <div class="fg"><label>Vende spillet</label><input type="number" id="m-vende" placeholder="0" min="0"></div>
+      </div>
     </div>
     <hr class="stats-divider">
     <div class="modal-section-title">🏆 Kampudtagelse per kamp</div>
@@ -1169,6 +1179,38 @@ function trSaveToken(val){
   }
 }
 
+let mKampStats = {}; // {kampName: {maal,skud,afl,assists,min,vende}}
+
+function renderModalKampStats(){
+  var sel = document.getElementById('m-stats-kamp-sel');
+  var form = document.getElementById('m-stats-kamp-form');
+  if(!sel||!form) return;
+  var name = sel.value;
+  if(!name){ form.style.display='none'; return; }
+  form.style.display='block';
+  var s = mKampStats[name] || {};
+  document.getElementById('m-maal').value    = s.maal||'';
+  document.getElementById('m-skud').value    = s.skud||'';
+  document.getElementById('m-afl').value     = s.afl||'';
+  document.getElementById('m-assists').value = s.assists||'';
+  document.getElementById('m-min').value     = s.min||'';
+  document.getElementById('m-vende').value   = s.vende||'';
+}
+
+function saveCurrentKampStats(){
+  var sel = document.getElementById('m-stats-kamp-sel');
+  if(!sel||!sel.value) return;
+  var name = sel.value;
+  mKampStats[name] = {
+    maal:    parseInt(document.getElementById('m-maal').value)||0,
+    skud:    parseInt(document.getElementById('m-skud').value)||0,
+    afl:     parseInt(document.getElementById('m-afl').value)||0,
+    assists: parseInt(document.getElementById('m-assists').value)||0,
+    min:     parseInt(document.getElementById('m-min').value)||0,
+    vende:   parseInt(document.getElementById('m-vende').value)||0
+  };
+}
+
 let mMatchToggle='ja';
 
 
@@ -1189,13 +1231,23 @@ function addMatch(){
   mMatches.push({name,udtaget:mMatchToggle});
   inp.value='';
   renderMatchList();
+  refreshStatsKampSel();
 }
 
 function removeMatch(i){
   mMatches.splice(i,1);
   renderMatchList();
+  refreshStatsKampSel();
 }
 
+function refreshStatsKampSel(){
+  var sel=document.getElementById('m-stats-kamp-sel');
+  if(!sel) return;
+  var cur=sel.value;
+  sel.innerHTML='<option value="">– Vælg kamp –</option>'+
+    mMatches.map(function(m){ return '<option value="'+m.name+'">'+m.name+'</option>'; }).join('');
+  sel.value=cur;
+}
 function renderMatchList(){
   const el=document.getElementById('m-match-list');
   if(!el) return;
@@ -1480,12 +1532,16 @@ function openEdit(id){
   // Stats
   const st=p.stats||{};
   mMatches=JSON.parse(JSON.stringify(st.matches||[]));
+  mKampStats=JSON.parse(JSON.stringify(st.kampStats||{}));
   setMatchToggle('ja');
-  document.getElementById('m-skud').value=st.skud||'';
-  document.getElementById('m-afl').value=st.afl||'';
-  document.getElementById('m-assists').value=st.assists||'';
-  document.getElementById('m-min').value=st.min||'';
-  document.getElementById('m-vende').value=st.vende||'';
+  // Per-kamp stats — populate kamp select
+  var kampSel=document.getElementById('m-stats-kamp-sel');
+  if(kampSel){
+    kampSel.innerHTML='<option value="">– Vælg kamp –</option>'+
+      mMatches.map(function(m){ return '<option value="'+m.name+'">'+m.name+'</option>'; }).join('');
+    kampSel.value='';
+    document.getElementById('m-stats-kamp-form').style.display='none';
+  }
   setTimeout(renderMatchList,0);
   document.querySelectorAll('#m-cls-picker .cls-btn').forEach(b=>{b.className='cls-btn';if(b.dataset.c===p.cls)b.classList.add('act-'+p.cls.toLowerCase());});
   document.querySelectorAll('#m-pos-grid .pos-btn').forEach(b=>{b.classList.remove('active');const pArr=Array.isArray(p.pos)?p.pos:(p.pos?[p.pos]:[]);if(pArr.some(function(px){return POS_LABELS[px]===b.textContent.trim();}))b.classList.add('active');});
@@ -1521,13 +1577,11 @@ function saveEdit(){
   const goal=document.getElementById('m-goal').value.trim();
   if(!name||!age||!mCls){toast('⚠️ Udfyld navn, alder og klassifikation');return;}
   const i=players.findIndex(p=>p.id===editId);if(i===-1)return;
+  // Save current kamp stats before collecting
+  saveCurrentKampStats();
   const stats={
     matches:mMatches,
-    skud:parseInt(document.getElementById('m-skud').value)||0,
-    afl:parseInt(document.getElementById('m-afl').value)||0,
-    assists:parseInt(document.getElementById('m-assists').value)||0,
-    min:parseInt(document.getElementById('m-min').value)||0,
-    vende:parseInt(document.getElementById('m-vende').value)||0
+    kampStats: mKampStats
   };
   players[i]={...players[i],name,age:parseInt(age),team,jersey:jersey||'',cls:mCls,pos:mPos.slice(),goal,exercises:mPlayerExercises.slice(),stats};
   saveAll();closeModal();render();toast('✅ Ændringer gemt');
@@ -2294,10 +2348,12 @@ function renderKampe(){
     var seenIds = new Set(eligiblePlayers.map(function(p){ return p.id; }));
     alreadyRegistered.forEach(function(p){ if(!seenIds.has(p.id)){ eligiblePlayers.push(p); seenIds.add(p.id); } });
     var attRows=eligiblePlayers.sort(function(a,b){return a.name.localeCompare(b.name,'da');}).map(function(p){
+      var ks=((p.stats||{}).kampStats||{})[name]||{};
+      var maalBadge=ks.maal?'<span style="background:#DCFCE7;color:#16A34A;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;">⚽ '+ks.maal+'</span>':'';
       var existing=((p.stats||{}).matches||[]).find(function(m){return m.name===name;});
       var v=existing?existing.udtaget:'';
       return '<div class="kamp-att-row">'+
-        '<span class="kamp-att-name">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+'</span>'+
+        '<span class="kamp-att-name">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+'</span>'+maalBadge+
         '<div class="att-toggle">'+
           '<button id="katt-ja-'+encodeURIComponent(name)+'-'+p.id+'" class="att-btn'+(v==='ja'?' sel-ja':'')+'" data-kn="'+name+'" data-pid="'+p.id+'" data-val="ja">✅</button>'+
           '<button id="katt-nej-'+encodeURIComponent(name)+'-'+p.id+'" class="att-btn'+(v==='nej'?' sel-nej':'')+'" data-kn="'+name+'" data-pid="'+p.id+'" data-val="nej">❌</button>'+
