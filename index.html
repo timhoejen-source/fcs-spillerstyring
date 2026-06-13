@@ -1798,7 +1798,40 @@ function render(){
       '</div>'+
       (matches.length?'<div class="card-matches">'+matches.map(m=>'<div class="card-match-row"><span class="card-match-name">'+m.name+'</span><span class="card-match-badge '+m.udtaget+'">'+(m.udtaget==='ja'?'✅ Udtaget':'❌ Ikke udtaget')+'</span></div>').join('')+'</div>':''):'';
     const jerseyTag=p.jersey?'<span class="tag tag-jersey">#'+p.jersey+'</span>':'';
-    return '<div class="card"><div class="card-top"><div class="avatar">'+(p.jersey?'#'+p.jersey:initials(p.name))+'</div><div class="card-info"><div class="card-name">'+p.name+'</div><div class="card-meta">'+p.age+' år'+((Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).length?' · '+(Array.isArray(p.team)?p.team.join(', '):p.team):'')+'</div></div><div class="card-acts"><button class="cbtn" onclick="openEdit(\''+p.id+'\')">✏️</button><button class="cbtn del" onclick="deletePlayer(\''+p.id+'\')">🗑️</button></div></div><div class="tags"><span class="tag tag-'+p.cls.toLowerCase()+'">'+p.cls+'-spiller</span>'+posTag+'</div>'+statsHtml+goalHtml+exHtmlCard+'</div>';
+    var ageStr = p.age ? p.age+' år' : '–';
+    if(p.dob){
+      var dob=new Date(p.dob);
+      var monthNames=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+      ageStr = p.age+' år ('+monthNames[dob.getMonth()]+' '+dob.getFullYear()+')';
+    }
+    var pTeamsStr=(Array.isArray(p.team)?p.team:(p.team?[p.team]:[])).filter(Boolean).join(', ');
+    var clsCls='cls-'+(p.cls||'b').toLowerCase();
+    var posShort=pArr.map(function(px){return POS_LABELS[px]||px;}).join(' / ')||'–';
+    return '<div class="card" id="card-'+p.id+'">'
+      // Summary — always visible
+      +'<div class="card-summary" onclick="toggleCard(\''+p.id+'\')">'
+        +'<div class="card-avatar-sm">'+(p.jersey?'#'+p.jersey:initials(p.name))+'</div>'
+        +'<div class="card-summary-info">'
+          +'<div class="card-summary-name">'+p.name+'</div>'
+          +'<div class="card-summary-meta">'
+            +'<span>'+ageStr+'</span>'
+            +(pTeamsStr?'<span class="card-summary-pill">'+pTeamsStr+'</span>':'')
+            +'<span class="card-summary-pill '+clsCls+'">'+( p.cls||'B')+'-spiller</span>'
+            +(posShort&&posShort!=='–'?'<span style="font-size:10px;color:var(--blue);font-weight:600;">'+posShort+'</span>':'')
+          +'</div>'
+        +'</div>'
+        +'<span class="card-chev" id="chev-'+p.id+'">▾</span>'
+      +'</div>'
+      // Body — hidden until toggled
+      +'<div class="card-body" id="cardbody-'+p.id+'">'
+        +'<div class="tags"><span class="tag tag-'+p.cls.toLowerCase()+'">'+p.cls+'-spiller</span>'+posTag+'</div>'
+        +statsHtml+goalHtml+exHtmlCard
+        +'<div class="card-acts-row">'
+          +'<button class="cbtn" onclick="openEdit(\''+p.id+'\')" >✏️ Rediger</button>'
+          +'<button class="cbtn del" onclick="deletePlayer(\''+p.id+'\')" >🗑️ Slet</button>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
   }).join('');
   let html='';
   teams.filter(t=>withTeam[t]).forEach(t=>{html+='<div class="group-hdr" style="cursor:pointer;" onclick="togglePlayerGroup(\'grp-'+t+'\')">'+'<span class="group-name">'+t+'</span><span class="group-cnt">'+withTeam[t].length+'</span><div class="group-line"></div><span style="font-size:11px;color:var(--g400);">▾</span></div><div class="cards" id="grp-'+t+'">'+cards(withTeam[t])+'</div>';});
