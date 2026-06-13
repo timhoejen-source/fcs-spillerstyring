@@ -1120,7 +1120,10 @@
       "sted": "ALPI Arena Næsby",
       "score": "",
       "hold": "U15 liga 2",
-      "name": "Dalum/Næsby (13. jun.)"
+      "name": "Dalum/Næsby (13. jun.)",
+      "resultHome": "0",
+      "resultAway": "10",
+      "placering": "2"
     },
     {
       "id": "mq9fvne1te117li0mvm",
@@ -1195,5 +1198,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-13T17:47:49.311Z"
+  "savedAt": "2026-06-13T18:24:38.185Z"
 }
