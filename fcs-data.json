@@ -1117,6 +1117,15 @@
   ],
   "matches": [
     {
+      "id": "mqe71dj696fwo288fsg",
+      "date": "2026-06-22",
+      "time": "19:00",
+      "opponent": "Vinder semifinale",
+      "venue": "N",
+      "hold": "U14 liga 2",
+      "name": "Vinder semifinale (22. jun.)"
+    },
+    {
       "id": "mq8jxz4elijizwo9w1g",
       "kampnr": "574639",
       "date": "2026-06-13",
@@ -1209,5 +1218,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-14T12:31:27.495Z"
+  "savedAt": "2026-06-14T19:45:12.042Z"
 }
