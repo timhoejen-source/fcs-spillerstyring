@@ -549,6 +549,14 @@
             "assists": 0,
             "min": 0,
             "vende": 0
+          },
+          "Fortuna Oure (14. jun.)": {
+            "maal": 1,
+            "skud": 0,
+            "afl": 0,
+            "assists": 0,
+            "min": 0,
+            "vende": 0
           }
         }
       },
@@ -1137,7 +1145,10 @@
       "sted": "SfB Ryttervej",
       "score": "",
       "hold": "U14 liga 2",
-      "name": "Fortuna Oure (14. jun.)"
+      "name": "Fortuna Oure (14. jun.)",
+      "resultHome": "1",
+      "resultAway": "1",
+      "placering": ""
     }
   ],
   "dbuStilling": [],
@@ -1198,5 +1209,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-13T18:53:23.142Z"
+  "savedAt": "2026-06-14T12:25:35.430Z"
 }
