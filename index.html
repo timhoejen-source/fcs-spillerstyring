@@ -1074,8 +1074,8 @@ function doLogin(){
   const user = USERS[u];
   if(user && p === user.pass){
     currentRole = user.role;
-    sessionStorage.setItem('fcs-auth', user.role);
-    sessionStorage.setItem('fcs-user', u);
+    localStorage.setItem('fcs-auth', user.role);
+    localStorage.setItem('fcs-user', u);
     document.getElementById('loginOverlay').style.display = 'none';
     // Show welcome screen — applyRole called when user presses Fortsæt
     var wmsgs = {
@@ -4130,6 +4130,27 @@ function toggleCard(id){
   var open = body.classList.toggle('open');
   if(chev) chev.classList.toggle('open', open);
 }
+
+// ── Startup init ──────────────────────────────────────────────────────────────
+(function(){
+  var savedRole = localStorage.getItem('fcs-auth');
+  var validRoles = ['admin','viewer','player'];
+  if(savedRole && validRoles.indexOf(savedRole) !== -1){
+    // Allerede logget ind — skip login
+    currentRole = savedRole;
+    document.getElementById('loginOverlay').style.display = 'none';
+    renderTeams(); renderSelects(); render(); populateExportSelectors();
+    // Restore last active tab
+    var lastTab = localStorage.getItem('fcs-active-tab') || 'spillere';
+    try{ switchTab(lastTab); }catch(e){}
+    applyRole();
+    setTimeout(function(){ loadFromSheets(true); }, 800);
+  } else {
+    // Vis login
+    document.getElementById('loginOverlay').style.display = 'flex';
+    renderTeams(); renderSelects(); render();
+  }
+})();
 
 </script>
 </body>
