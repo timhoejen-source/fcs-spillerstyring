@@ -3189,7 +3189,15 @@ function exportTraeningPdf(){
   var guestExportCount=(t.guests||[]).length;
   var totalAttended=jaCount+guestExportCount;
 
-  var attRows=[].concat(players).sort(function(a,b){return a.name.localeCompare(b.name,'da');}).map(function(p){
+  // Sort by classification A→B→C then alphabetically
+  var clsOrder={'A':0,'B':1,'C':2};
+  var sortedPlayers=[].concat(players).sort(function(a,b){
+    var ca=clsOrder[a.cls]!==undefined?clsOrder[a.cls]:9;
+    var cb=clsOrder[b.cls]!==undefined?clsOrder[b.cls]:9;
+    if(ca!==cb) return ca-cb;
+    return a.name.localeCompare(b.name,'da');
+  });
+  var attRows=sortedPlayers.map(function(p){
     var v=(t.attendance||{})[p.id]||'';
     var bg=v==='ja'?'#DCFCE7':v==='nej'?'#FEE2E2':'#F8FAFC';
     var col=v==='ja'?'#16A34A':v==='nej'?'#dc2626':'#94A3B8';
@@ -3199,6 +3207,11 @@ function exportTraeningPdf(){
       '<td style="padding:5px 10px;font-weight:600;font-size:11px;">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</td>'+
       '<td style="padding:5px 10px;font-size:10px;color:#5A7A9F;">'+pTeams+'</td>'+
       '<td style="padding:5px 10px;font-size:10px;">'+p.age+' år</td>'+
+      '<td style="padding:5px 10px;font-size:10px;">'+
+        '<span style="background:'+(p.cls==='A'?'#fef9c3':p.cls==='B'?'#dbeafe':'#f3e8ff')+
+        ';color:'+(p.cls==='A'?'#854d0e':p.cls==='B'?'#1a6ec0':'#7e22ce')+
+        ';font-size:8px;font-weight:700;padding:1px 6px;border-radius:3px;">'+p.cls+'-spiller</span>'+
+      '</td>'+
       '<td style="padding:5px 10px;font-weight:700;color:'+col+';font-size:10px;">'+status+'</td>'+
     '</tr>';
   }).join('');
@@ -3260,7 +3273,7 @@ function exportTraeningPdf(){
       '<div class="stat-box"><div class="stat-v">'+(players.length-jaCount-nejCount)+'</div><div class="stat-l">Ikke registreret</div></div>'+
     '</div>'+
     (t.desc?'<div style="background:#EBF2FB;border-left:4px solid #1A6EC0;border-radius:0 6px 6px 0;padding:4mm 5mm;margin-bottom:5mm;font-size:11px;color:#2C4A72;line-height:1.7;"><div style="font-size:9px;font-weight:700;color:#1A6EC0;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2mm;">📋 Træningsindhold</div>'+t.desc+'</div>':'')+
-    '<table><thead><tr><th>Spiller</th><th>Hold</th><th>Alder</th><th>Status</th></tr></thead><tbody>'+attRows+'</tbody></table>'+
+    '<table><thead><tr><th>Spiller</th><th>Hold</th><th>Alder</th><th>Klassifikation</th><th>Status</th></tr></thead><tbody>'+attRows+'</tbody></table>'+
     exHtml+
     '<div style="margin-top:5mm;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;font-size:8px;color:#94A3B8;">'+
       '<span>FC Skanderborg · Pige talent</span><span>'+t.title+' · '+dateStr+'</span></div>'+
