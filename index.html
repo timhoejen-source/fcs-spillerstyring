@@ -2184,6 +2184,21 @@ document.addEventListener('click', function(e){
     deleteTraining(del.getAttribute('data-del'));
     return;
   }
+  // Save training
+  var saveTr=e.target.closest('[data-savetraining]');
+  if(saveTr && saveTr.closest('#training-list')){
+    saveTrainings(); syncToSheets(false); return;
+  }
+  // Add guest
+  var addGuest=e.target.closest('[data-addguest]');
+  if(addGuest && addGuest.closest('#training-list')){
+    addTrGuest(addGuest.getAttribute('data-addguest')); return;
+  }
+  // Remove guest
+  var delGuest=e.target.closest('[data-delguest]');
+  if(delGuest && delGuest.closest('#training-list')){
+    removeTrGuest(delGuest.getAttribute('data-trid'), parseInt(delGuest.getAttribute('data-delguest'))); return;
+  }
 });
 
 // ── Render export select ──────────────────────────────────────────────────────
