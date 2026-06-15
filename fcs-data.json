@@ -1119,7 +1119,31 @@
       "date": "2026-06-16",
       "title": "Åben træning incl. AGF",
       "desc": "Teknisk og taktisk",
-      "attendance": {},
+      "attendance": {
+        "mq4rdodjl0908sxnbk": "ja",
+        "mq4rdodjte78cpjrbd8": "ja",
+        "mq4rdodj2bdm175960h": "ja",
+        "mq4rdodjcijpk2cwa9m": "ja",
+        "mq4rdodj085iq1n9c95d": "ja",
+        "mq4rdodjhw1h8xwmdgm": "ja",
+        "mq4rdodj2cgix7j2jz8": "ja",
+        "mq4rdodjmm8xblygcs": "ja",
+        "mq4rdodjldiuuabgdgi": "ja",
+        "mq4rdodjunxf94vgzw": "ja",
+        "mq4rdodj2p61syd2m28": "ja",
+        "mq4rdodj5j7yktc3q8f": "ja",
+        "mq4rdodjcww4yz9olkb": "ja",
+        "mq4rdodjcibqin1j1rq": "ja",
+        "mq4rdodjb5bgjtigmh7": "ja",
+        "mq4rdodjt8c1epp5m8g": "ja",
+        "mq4rdodjru64dehr3xb": "ja",
+        "mq4rdodjp5czdg4eprc": "ja",
+        "mq4rdodj8z8mbxa08jp": "ja",
+        "mq4rdodjf4oeaovcoiq": "ja",
+        "mq4rdodjwgaeo0u6p6h": "ja",
+        "mq4rdodj3dko74qwk7c": "ja",
+        "mq4rdodjn00ufiqe0ls": "ja"
+      },
       "exercises": []
     }
   ],
@@ -1226,5 +1250,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-15T08:57:53.907Z"
+  "savedAt": "2026-06-15T14:36:10.682Z"
 }
