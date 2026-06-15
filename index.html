@@ -426,6 +426,16 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .card-body{display:none;border-top:1px solid var(--g100);padding:10px 12px;}
 .card-body.open{display:block;}
 .card-acts-row{display:flex;gap:6px;margin-top:8px;}
+
+.tr-guest-section{margin-top:10px;border-top:1px solid var(--g200);padding-top:10px;}
+.tr-guest-item{display:flex;align-items:center;gap:8px;padding:5px 8px;background:#EBF2FB;border:1px solid #bfdbfe;border-radius:6px;margin-bottom:4px;}
+.tr-guest-name{flex:1;font-size:11px;font-weight:600;color:#1A6EC0;}
+.tr-guest-meta{font-size:10px;color:#5A7A9F;}
+.tr-guest-del{background:none;border:none;cursor:pointer;color:#94A3B8;font-size:14px;padding:0 2px;line-height:1;}
+.tr-guest-del:hover{color:#dc2626;}
+.tr-guest-add{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-top:6px;}
+.tr-guest-add input{font-size:11px;padding:5px 8px;}
+.tr-guest-add button{padding:5px 12px;background:var(--navy);color:var(--yellow);border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -2145,6 +2155,7 @@ function renderTrainings(){
           '<div style="margin-top:10px;"><div style="font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Fremmøde</div>'+
           '<div class="attendance-grid">'+attRows+'</div></div>':'')+
         renderExSection(t)+
+        renderTrGuestSection(t)+
         '<div class="training-actions">'+
           '<button class="btn-primary" style="margin-top:0;width:auto;padding:6px 14px;font-size:11px;" data-savetraining="'+t.id+'">☁️ Gem til GitHub</button>'+
           '<button class="btn-training-del" data-del="'+t.id+'">🗑️ Slet træning</button>'+
@@ -4151,6 +4162,68 @@ function toggleCard(id){
     renderTeams(); renderSelects(); render();
   }
 })();
+
+function renderTrGuestSection(t){
+  var guests = t.guests || [];
+  var isAdmin = currentRole === 'admin';
+  var guestItems = guests.map(function(g, i){
+    return '<div class="tr-guest-item">'+
+      '<span class="tr-guest-name">'+g.name+'</span>'+
+      (g.team?'<span class="tr-guest-meta">('+g.team+')</span>':'')+
+      (isAdmin?'<button class="tr-guest-del" data-delguest="'+i+'" data-trid="'+t.id+'" title="Fjern">×</button>':'')+
+    '</div>';
+  }).join('');
+
+  var addForm = isAdmin ?
+    '<div class="tr-guest-add">'+
+      '<input type="text" id="tg-name-'+t.id+'" placeholder="Gæstens navn…">'+
+      '<input type="text" id="tg-team-'+t.id+'" placeholder="Hold/klub">'+
+      '<button data-addguest="'+t.id+'">+ Tilføj</button>'+
+    '</div>' : '';
+
+  return '<div class="tr-guest-section">'+
+    '<div style="font-size:9px;font-weight:700;color:#1A6EC0;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">'+
+      '🏃 Gæster til træning'+(guests.length?' ('+guests.length+')':'')+
+    '</div>'+
+    (guests.length ? '<div>'+guestItems+'</div>' : (!isAdmin?'<div style="font-size:11px;color:var(--text-soft);">Ingen gæster</div>':''))+
+    addForm+
+  '</div>';
+}
+
+function addTrGuest(trid){
+  var nameEl = document.getElementById('tg-name-'+trid);
+  var teamEl = document.getElementById('tg-team-'+trid);
+  if(!nameEl||!nameEl.value.trim()){ toast('⚠️ Skriv gæstens navn'); return; }
+  var t = trainings.find(function(x){ return x.id===trid; });
+  if(!t) return;
+  if(!t.guests) t.guests=[];
+  t.guests.push({name:nameEl.value.trim(), team:(teamEl?teamEl.value.trim():'')});
+  saveTrainings();
+  refreshTrainingBody(trid);
+  toast('✅ Gæst tilføjet: '+nameEl.value.trim());
+}
+
+function removeTrGuest(trid, idx){
+  var t = trainings.find(function(x){ return x.id===trid; });
+  if(!t||!t.guests) return;
+  t.guests.splice(idx,1);
+  saveTrainings();
+  refreshTrainingBody(trid);
+}
+
+function refreshTrainingBody(trid){
+  var body = document.getElementById('tr-body-'+trid);
+  if(!body||!body.classList.contains('open')) return;
+  var t = trainings.find(function(x){ return x.id===trid; });
+  if(!t) return;
+  // Re-render guest section only
+  var gs = body.querySelector('.tr-guest-section');
+  if(gs){
+    var tmp = document.createElement('div');
+    tmp.innerHTML = renderTrGuestSection(t);
+    gs.replaceWith(tmp.firstChild);
+  }
+}
 
 </script>
 </body>
