@@ -3294,6 +3294,19 @@ function exportKampPdf(){
     var ksp=players.find(function(p){return p.id===kamp.kampSpiller;});
     if(ksp) kampSpillerHtml='<div style="display:inline-flex;align-items:center;gap:6px;background:#FEF9C3;border:2px solid #F5C400;border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;color:#854D0E;margin-top:5mm;">⭐ Kampens spiller: '+ksp.name+'</div>';
   }
+  // Result
+  var resH = (kamp.resultHome!==undefined&&kamp.resultHome!=='') ? String(kamp.resultHome) : '';
+  var resA = (kamp.resultAway!==undefined&&kamp.resultAway!=='') ? String(kamp.resultAway) : '';
+  var hasRes = resH!==''&&resA!=='';
+  var resDisplay = hasRes ? resH+' – '+resA : (kamp.score||'');
+  var resLabel=''; var resColor='#0A2342'; var resBg='#F8FAFC';
+  if(hasRes){
+    var fcs=kamp.venue==='H'?parseInt(resH):parseInt(resA);
+    var opp=kamp.venue==='H'?parseInt(resA):parseInt(resH);
+    if(fcs>opp){  resLabel='SEJR';    resColor='#16A34A'; resBg='#DCFCE7'; }
+    else if(fcs===opp){ resLabel='UAFGJORT'; resColor='#854D0E'; resBg='#FEF9C3'; }
+    else{          resLabel='NEDERLAG'; resColor='#dc2626'; resBg='#FEE2E2'; }
+  }
   var dateStr=kamp.date?new Date(kamp.date).toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
   var venueLabel=kamp.venue==='H'?'Hjemmekamp':kamp.venue==='U'?'Udekamp':'Neutral';
 
@@ -3308,8 +3321,9 @@ function exportKampPdf(){
       var pTeams=Array.isArray(p.team)?p.team.join(', '):(p.team||'');
       var posArr=Array.isArray(p.pos)?p.pos:(p.pos?[p.pos]:[]);
       var ks=(p.stats||{}).kampStats||{};
-      var pMaal=Object.values(ks).reduce(function(s,k){return s+(k.maal||0);},0);
+      var pMaal=(ks[name]||{}).maal||0;
       var maalBadge=pMaal>0?' <span style="background:#DCFCE7;color:#16A34A;font-size:8px;font-weight:700;padding:1px 6px;border-radius:8px;">⚽ '+pMaal+'</span>':'';
+
       return '<tr style="background:'+bg+'">'+'<td style="padding:5px 10px;font-weight:700;font-size:11px;">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+maalBadge+'</td>'+
         '<td style="padding:5px 10px;font-size:10px;color:#5A7A9F;">'+pTeams+'</td>'+
         '<td style="padding:5px 10px;font-size:10px;">'+p.age+' år</td>'+
@@ -3349,6 +3363,12 @@ function exportKampPdf(){
       '<div class="stat-box"><div class="stat-v">'+noneList.length+'</div><div class="stat-l">Ikke registreret</div></div>'+
       '<div class="stat-box"><div class="stat-v">'+pct+'%</div><div class="stat-l">Udtagelsespct.</div></div>'+
     '</div>'+
+    (resDisplay?
+      '<div style="text-align:center;background:'+resBg+';border:3px solid '+resColor+';border-radius:12px;padding:8mm 0 6mm;margin:5mm 0;">'+
+        '<div style="font-size:52px;font-weight:700;color:'+resColor+';letter-spacing:6px;line-height:1;">'+resDisplay+'</div>'+
+        (resLabel?'<div style="font-size:14px;font-weight:700;color:'+resColor+';letter-spacing:.2em;text-transform:uppercase;margin-top:3mm;">'+resLabel+'</div>':'')+
+      '</div>'
+    :'')+
     kampSpillerHtml+
     '<div class="bar-wrap"><div class="bar" style="width:'+pct+'%"></div></div>'+
     '<table><thead><tr><th>Spiller</th><th>Hold</th><th>Alder</th><th>Position</th><th>Status</th></tr></thead><tbody>'+allRows+'</tbody></table>'+
