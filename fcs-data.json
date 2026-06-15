@@ -1149,6 +1149,10 @@
       "exercises": [],
       "guests": [
         {
+          "name": "Kaya Sørensen",
+          "team": "AGF"
+        },
+        {
           "name": "Frigg (Duddi)",
           "team": "AGF"
         },
@@ -1161,7 +1165,7 @@
           "team": "AGF"
         },
         {
-          "name": "Kaya",
+          "name": "Camilla",
           "team": "AGF"
         }
       ]
@@ -1270,5 +1274,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-15T15:06:22.280Z"
+  "savedAt": "2026-06-15T15:07:42.280Z"
 }
