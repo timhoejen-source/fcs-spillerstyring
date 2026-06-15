@@ -1998,6 +1998,11 @@ let activeKampFilter = 'alle';
 
 function saveTrainings(){
   try{localStorage.setItem('fcs-trainings',JSON.stringify(trainings));}catch(e){}
+  // Auto-sync to GitHub for admin
+  if(currentRole==='admin' && cfg.ghtoken){
+    clearTimeout(window._trSyncTimer);
+    window._trSyncTimer = setTimeout(function(){ syncToSheets(false); }, 2000);
+  }
 }
 
 function switchTab(tab){
@@ -2089,7 +2094,7 @@ function updateTrainingSummary(trainingId){
   const nej=vals.filter(v=>v==='nej').length;
   const none=players.length-ja-nej;
   el.innerHTML=
-    '<span class="training-stat-pill" style="background:#DCFCE7;color:#16A34A;">✅ '+ja+' deltaget</span>'+
+    '<span class="training-stat-pill" style="background:#DCFCE7;color:#16A34A;">✅ '+jaWithGuests+' deltaget'+(guestCount?' (inkl. '+guestCount+' gæster)':'')+' </span>'+
     '<span class="training-stat-pill" style="background:#FEE2E2;color:#dc2626;">❌ '+nej+' fraværende</span>'+
     (none>0?'<span class="training-stat-pill" style="background:var(--g100);color:var(--g400);">– '+none+' ikke registreret</span>':'');
 }
@@ -2117,6 +2122,8 @@ function renderTrainings(){
     var ja=vals.filter(function(v){return v==='ja';}).length;
     var nej=vals.filter(function(v){return v==='nej';}).length;
     var none=players.length-ja-nej;
+    var guestCount=(t.guests||[]).length;
+    var jaWithGuests=ja+guestCount;
     var dateStr=t.date?new Date(t.date).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'}):'';
 
     var attRows=players.length?[].concat(players).sort(function(a,b){return a.name.localeCompare(b.name,'da');}).map(function(p){
@@ -2147,7 +2154,7 @@ function renderTrainings(){
 
         (currentRole!=='player'?
           '<div class="training-stats-bar" id="tr-summary-'+t.id+'">'+
-            '<span class="training-stat-pill" style="background:#DCFCE7;color:#16A34A;">✅ '+ja+' deltaget</span>'+
+            '<span class="training-stat-pill" style="background:#DCFCE7;color:#16A34A;">✅ '+jaWithGuests+' deltaget'+(guestCount?' (inkl. '+guestCount+' gæster)':'')+' </span>'+
             '<span class="training-stat-pill" style="background:#FEE2E2;color:#dc2626;">❌ '+nej+' fraværende</span>'+
             (none>0?'<span class="training-stat-pill" style="background:var(--g100);color:var(--g400);">– '+none+' ikke registreret</span>':'')+
           '</div>':'')+
@@ -2421,7 +2428,7 @@ function updateTrainingSummary(trainingId){
   const nej=vals.filter(v=>v==='nej').length;
   const none=players.length-ja-nej;
   el.innerHTML=
-    '<span class="training-stat-pill" style="background:#DCFCE7;color:#16A34A;">✅ '+ja+' deltaget</span>'+
+    '<span class="training-stat-pill" style="background:#DCFCE7;color:#16A34A;">✅ '+jaWithGuests+' deltaget'+(guestCount?' (inkl. '+guestCount+' gæster)':'')+' </span>'+
     '<span class="training-stat-pill" style="background:#FEE2E2;color:#dc2626;">❌ '+nej+' fraværende</span>'+
     (none>0?'<span class="training-stat-pill" style="background:var(--g100);color:var(--g400);">– '+none+' ikke registreret</span>':'');
 }
