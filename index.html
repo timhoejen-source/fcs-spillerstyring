@@ -3307,8 +3307,10 @@ function exportKampPdf(){
     return list.map(function(p){
       var pTeams=Array.isArray(p.team)?p.team.join(', '):(p.team||'');
       var posArr=Array.isArray(p.pos)?p.pos:(p.pos?[p.pos]:[]);
-      return '<tr style="background:'+bg+'">'+
-        '<td style="padding:5px 10px;font-weight:700;font-size:11px;">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+'</td>'+
+      var ks=(p.stats||{}).kampStats||{};
+      var pMaal=Object.values(ks).reduce(function(s,k){return s+(k.maal||0);},0);
+      var maalBadge=pMaal>0?' <span style="background:#DCFCE7;color:#16A34A;font-size:8px;font-weight:700;padding:1px 6px;border-radius:8px;">⚽ '+pMaal+'</span>':'';
+      return '<tr style="background:'+bg+'">'+'<td style="padding:5px 10px;font-weight:700;font-size:11px;">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+maalBadge+'</td>'+
         '<td style="padding:5px 10px;font-size:10px;color:#5A7A9F;">'+pTeams+'</td>'+
         '<td style="padding:5px 10px;font-size:10px;">'+p.age+' år</td>'+
         '<td style="padding:5px 10px;font-size:10px;">'+(posArr.map(function(px){return POS_LABELS[px]||px;}).join(' / ')||'–')+'</td>'+
