@@ -1146,7 +1146,25 @@
         "mq4rdodj0njfxaks1fun": "nej",
         "mq4rdodjkfd21t4l0es": "nej"
       },
-      "exercises": []
+      "exercises": [],
+      "guests": [
+        {
+          "name": "Kaya Sørensen",
+          "team": "AGF"
+        },
+        {
+          "name": "Frigg (Duddi)",
+          "team": "AGF"
+        },
+        {
+          "name": "Ida Frost",
+          "team": "AGF"
+        },
+        {
+          "name": "Alma Stelling",
+          "team": "AGF"
+        }
+      ]
     }
   ],
   "matches": [
@@ -1252,5 +1270,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-15T14:37:05.219Z"
+  "savedAt": "2026-06-15T14:59:16.161Z"
 }
