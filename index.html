@@ -1075,6 +1075,7 @@ function doLogin(){
   if(user && p === user.pass){
     currentRole = user.role;
     sessionStorage.setItem('fcs-auth', user.role);
+    sessionStorage.setItem('fcs-user', u);
     document.getElementById('loginOverlay').style.display = 'none';
     // Show welcome screen — applyRole called when user presses Fortsæt
     var wmsgs = {
