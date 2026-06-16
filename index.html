@@ -3977,6 +3977,7 @@ function renderExSection(t){
   var totalMin = exs.reduce(function(a,e){ return a+(parseInt(e.min)||0); }, 0);
   var isAdmin = currentRole === 'admin';
 
+  var tId = t.id;
   var cards = exs.map(function(ex, i){
     var imgHtml = ex.img ?
       '<img class="ex-img" src="'+ex.img+'" alt="'+ex.name+'" data-viewimg="'+i+'" data-trid="'+t.id+'">' : '';
@@ -3989,13 +3990,14 @@ function renderExSection(t){
     '</div>' : '';
 
     return '<div class="ex-card">'+
-      '<div class="ex-card-top">'+
+      '<div class="ex-card-top" '+(isAdmin?'style="cursor:pointer;" onclick="openExEdit(\''+tId+'\','+i+')"':'')+'>'+
         '<div class="ex-num">'+(i+1)+'</div>'+
         '<span class="ex-name">'+ex.name+'</span>'+
         (ex.min?'<span class="ex-min">'+ex.min+' min</span>':'')+
+        (isAdmin?'<span style="font-size:9px;color:var(--blue);margin-left:4px;">✏️</span>':'')+
       '</div>'+
-      '<div class="ex-body">'+
-        (ex.desc?'<div class="ex-desc">'+ex.desc+'</div>':'')+
+      '<div class="ex-body" id="ex-body-'+tId+'-'+i+'">'+
+        (ex.desc?'<div class="ex-desc">'+ex.desc.split('\n').join('<br>')+'</div>':'')+
         imgHtml+
         actHtml+
       '</div>'+
@@ -4374,6 +4376,58 @@ function cancelTrainingEdit(trid){
 
 function escHtml(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function openExEdit(trid, idx){
+  var t = trainings.find(function(x){ return x.id===trid; });
+  if(!t||!t.exercises[idx]) return;
+  var ex = t.exercises[idx];
+  var bodyEl = document.getElementById('ex-body-'+trid+'-'+idx);
+  if(!bodyEl) return;
+  bodyEl.innerHTML =
+    '<div class="tr-edit-form" style="margin:0;">'+
+      '<div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">✏️ Rediger øvelse</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 70px;gap:6px;margin-bottom:6px;">'+
+        '<input class="tr-edit-title" id="ex-ename-'+trid+'-'+idx+'" value="'+escHtml(ex.name||'')+'" placeholder="Øvelsesnavn…">'+
+        '<input type="number" class="tr-edit-title" id="ex-emin-'+trid+'-'+idx+'" value="'+(ex.min||'')+'" placeholder="Min" min="0" max="90">'+
+      '</div>'+
+      '<div class="tr-edit-toolbar">'+
+        '<button class="tr-toolbar-btn" onclick="exInsert(\''+trid+'\','+idx+',\'\\n• \')" >• Liste</button>'+
+        '<button class="tr-toolbar-btn" onclick="exInsert(\''+trid+'\','+idx+',\'\\n\\n\')" >¶ Afsnit</button>'+
+        '<button class="tr-toolbar-btn" onclick="exInsert(\''+trid+'\','+idx+',\'\\n→ \')" >→ Pil</button>'+
+        '<button class="tr-toolbar-btn" onclick="exInsert(\''+trid+'\','+idx+',\'\\n── \')" >── Linje</button>'+
+      '</div>'+
+      '<textarea class="tr-edit-desc" id="ex-edesc-'+trid+'-'+idx+'">'+escHtml(ex.desc||'')+'</textarea>'+
+      '<div class="tr-edit-actions">'+
+        '<button class="btn-primary" style="margin-top:0;" onclick="saveExEdit(\''+trid+'\','+idx+')">💾 Gem</button>'+
+        '<button class="btn-cancel" onclick="renderTrainings()">Annuller</button>'+
+      '</div>'+
+    '</div>';
+  var ta = document.getElementById('ex-edesc-'+trid+'-'+idx);
+  if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+}
+
+function exInsert(trid, idx, text){
+  var ta = document.getElementById('ex-edesc-'+trid+'-'+idx);
+  if(!ta) return;
+  var start = ta.selectionStart;
+  ta.value = ta.value.slice(0,start) + text + ta.value.slice(start);
+  ta.selectionStart = ta.selectionEnd = start + text.length;
+  ta.focus();
+}
+
+function saveExEdit(trid, idx){
+  var t = trainings.find(function(x){ return x.id===trid; });
+  if(!t||!t.exercises[idx]) return;
+  var nameEl = document.getElementById('ex-ename-'+trid+'-'+idx);
+  var minEl  = document.getElementById('ex-emin-'+trid+'-'+idx);
+  var descEl = document.getElementById('ex-edesc-'+trid+'-'+idx);
+  if(nameEl&&nameEl.value.trim()) t.exercises[idx].name = nameEl.value.trim();
+  if(minEl)  t.exercises[idx].min  = parseInt(minEl.value)||0;
+  if(descEl) t.exercises[idx].desc = descEl.value;
+  saveTrainings();
+  renderTrainings();
+  toast('✅ Øvelse opdateret');
 }
 
 </script>
