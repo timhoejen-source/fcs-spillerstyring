@@ -4556,21 +4556,10 @@ function buildCupPuljeHtml(cupId, hold){
   var isAdmin=currentRole==='admin';
   var kampe=hold.puljeKampe||[];
 
-  // Get eligible players for this hold
-  var holdPlayers=players.filter(function(p){
-    var pTeams=Array.isArray(p.team)?p.team:(p.team?[p.team]:[]);
-    var normHold=hold.name.toLowerCase().split('').filter(function(ch){return (ch>='a'&&ch<='z')||(ch>='0'&&ch<='9');}).join('');
-    return pTeams.some(function(t){
-      var nt=t.toLowerCase().split('').filter(function(ch){return (ch>='a'&&ch<='z')||(ch>='0'&&ch<='9');}).join('');
-      return nt===normHold;
-    });
-  });
-  // Also include cup hold members
-  var holdPlayerIds=new Set(hold.players||[]);
-  players.forEach(function(p){ if(holdPlayerIds.has(p.id)) holdPlayers.push(p); });
-  // Deduplicate
-  var seen=new Set();
-  holdPlayers=holdPlayers.filter(function(p){ if(seen.has(p.id)) return false; seen.add(p.id); return true; });
+  // Use players explicitly assigned to this cup hold
+  var holdPlayerIds = new Set(hold.players||[]);
+  var holdPlayers = players.filter(function(p){ return holdPlayerIds.has(p.id); });
+  holdPlayers.sort(function(a,b){ return a.name.localeCompare(b.name,'da'); });
 
   var loanees=hold.loanees||[];
 
