@@ -3823,7 +3823,8 @@ function renderCupHold(cup, hold){
     '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px;margin-bottom:10px;">'+playerBtns+'</div>'+
     (hold.loanees&&hold.loanees.length?'<div style="font-size:9px;font-weight:700;color:#1A6EC0;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Lånespillere</div>'+loaneeList:'')+
     loaneeForm+
-  +'<div id="cup-pulje-wrap-'+hold.id+'" style="margin-top:10px;border-top:1px solid var(--g200);padding-top:10px;">'+buildCupPuljeHtml(cup.id,hold)+'</div>'+'</div>';
+    '<div id="cup-pulje-wrap-'+hold.id+'" style="margin-top:10px;border-top:1px solid var(--g200);padding-top:10px;">'+buildCupPuljeHtml(cup.id,hold)+'</div>'+
+  '</div>';
 }
 
 function renderCupBody(cupId){
