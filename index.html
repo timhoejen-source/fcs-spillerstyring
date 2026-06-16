@@ -445,6 +445,28 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .tr-edit-desc{width:100%;min-height:120px;font-size:12px;padding:8px;border:1.5px solid var(--g200);border-radius:6px;font-family:'DM Sans',sans-serif;resize:vertical;line-height:1.7;}
 .tr-edit-desc:focus,.tr-edit-title:focus{border-color:var(--blue);outline:none;}
 .tr-edit-actions{display:flex;gap:6px;margin-top:8px;}
+
+.cup-pulje{background:var(--white);border:1.5px solid var(--g200);border-radius:8px;margin-bottom:10px;overflow:hidden;}
+.cup-pulje-hdr{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--g50);border-bottom:1px solid var(--g200);cursor:pointer;}
+.cup-pulje-title{font-size:12px;font-weight:700;color:var(--navy);flex:1;}
+.cup-pulje-body{display:none;padding:10px 12px;}
+.cup-pulje-body.open{display:block;}
+.cup-pkamp{background:var(--g50);border:1px solid var(--g200);border-radius:6px;margin-bottom:6px;overflow:hidden;}
+.cup-pkamp-row{display:flex;align-items:center;gap:8px;padding:7px 10px;font-size:11px;cursor:pointer;}
+.cup-pkamp-row:hover{background:var(--g100);}
+.cup-pkamp-date{font-size:10px;color:var(--text-soft);white-space:nowrap;}
+.cup-pkamp-opp{font-weight:600;flex:1;}
+.cup-pkamp-res{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;}
+.cup-pkamp-res.win{background:#DCFCE7;color:#16A34A;}
+.cup-pkamp-res.draw{background:#FEF9C3;color:#854D0E;}
+.cup-pkamp-res.loss{background:#FEE2E2;color:#dc2626;}
+.cup-pkamp-res.none{background:var(--g100);color:var(--g400);}
+.cup-pkamp-body{display:none;border-top:1px solid var(--g200);padding:10px;}
+.cup-pkamp-body.open{display:block;}
+.cup-min-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px;margin-top:6px;}
+.cup-min-row{display:flex;align-items:center;gap:6px;padding:4px 8px;background:var(--white);border:1px solid var(--g200);border-radius:5px;font-size:11px;}
+.cup-min-name{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cup-min-inp{width:54px;font-size:11px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px;text-align:center;font-family:'DM Sans',sans-serif;}
 </style>
 </head>
 <body>
@@ -3650,7 +3672,7 @@ function saveNewCup(){
   if(!name){ toast('⚠️ Skriv cup navn'); return; }
   cups.unshift({
     id:uid(), name, dateFrom, dateTo, location,
-    holds:[] // [{id, name, players:[playerId], loanees:[{id,name,team,dob,contact}]}]
+    holds:[] // [{id, name, players:[playerId], loanees:[{id,name,team,dob,contact}], puljeKampe:[{id,date,time,opponent,resH,resA,minutes:{playerId:min}}]}]
   });
   saveCups();
   toggleNewCupForm();
@@ -3801,10 +3823,10 @@ function renderCupHold(cup, hold){
     '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px;margin-bottom:10px;">'+playerBtns+'</div>'+
     (hold.loanees&&hold.loanees.length?'<div style="font-size:9px;font-weight:700;color:#1A6EC0;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Lånespillere</div>'+loaneeList:'')+
     loaneeForm+
-  '</div>';
+  +'<div id="cup-pulje-wrap-'+hold.id+'" style="margin-top:10px;border-top:1px solid var(--g200);padding-top:10px;">'+buildCupPuljeHtml(cup.id,hold)+'</div>'+'</div>';
 }
 
-function renderCupBody(cupId){
+function renderCupBodypBody(cupId){
   var bodyEl=document.getElementById('cup-body-'+cupId);
   if(!bodyEl||!bodyEl.classList.contains('open')) return;
   var cup=cups.find(function(c){ return c.id===cupId; });
@@ -3821,6 +3843,7 @@ function renderCupBody(cupId){
     '<div style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap;">'+
       (isAdmin?'<button class="btn-primary" style="margin-top:0;width:auto;padding:8px 16px;" data-savecup="'+cupId+'">☁️ Gem til GitHub</button>':'')+ 
       '<button class="btn-export" style="width:auto;padding:8px 16px;" data-exportcup="'+cupId+'">📄 Eksporter PDF</button>'+
+      '<button class="btn-export" style="width:auto;padding:8px 16px;background:#16A34A;color:#fff;border-color:#16A34A;" data-excelcup="'+cupId+'">📊 Excel eksport</button>'+
       (isAdmin?'<button class="cup-del-btn" data-delcup="'+cupId+'">🗑️ Slet cup</button>':'')+
     '</div>';
 }
@@ -3892,6 +3915,9 @@ document.addEventListener('click', function(e){
   // Export cup PDF
   var expCup=e.target.closest('[data-exportcup]');
   if(expCup){ exportCupPdf(expCup.getAttribute('data-exportcup')); return; }
+  // Export cup Excel
+  var excelCup=e.target.closest('[data-excelcup]');
+  if(excelCup){ exportCupExcel(excelCup.getAttribute('data-excelcup')); return; }
   // Save cup to GitHub
   var saveCupBtn=e.target.closest('[data-savecup]');
   if(saveCupBtn){
@@ -4456,6 +4482,215 @@ function saveExEdit(trid, idx){
   renderTrainings();
   toast('✅ Øvelse opdateret');
 }
+
+// ── Cup puljekampe ────────────────────────────────────────────────────────────
+
+function getCupHold(cupId, holdId){
+  var cup=cups.find(function(c){return c.id===cupId;});
+  return cup?(cup.holds||[]).find(function(h){return h.id===holdId;}):null;
+}
+
+function toggleCupPulje(cupId, holdId){
+  var el=document.getElementById('cpulje-'+holdId);
+  if(el) el.classList.toggle('open');
+}
+
+function toggleCupPKamp(kampId){
+  var el=document.getElementById('cpkamp-body-'+kampId);
+  if(el) el.classList.toggle('open');
+}
+
+function addCupPKamp(cupId, holdId){
+  var hold=getCupHold(cupId,holdId);
+  if(!hold) return;
+  if(!hold.puljeKampe) hold.puljeKampe=[];
+  var date=document.getElementById('cpk-date-'+holdId).value;
+  var time=document.getElementById('cpk-time-'+holdId).value;
+  var opp =document.getElementById('cpk-opp-'+holdId).value.trim();
+  if(!opp){toast('⚠️ Skriv modstander');return;}
+  hold.puljeKampe.push({id:uid(),date,time,opponent:opp,resH:'',resA:'',minutes:{}});
+  saveCups();
+  renderCupPuljeSection(cupId, holdId);
+  toast('✅ Kamp tilføjet');
+}
+
+function deleteCupPKamp(cupId, holdId, kampId){
+  var hold=getCupHold(cupId,holdId);
+  if(!hold) return;
+  hold.puljeKampe=(hold.puljeKampe||[]).filter(function(k){return k.id!==kampId;});
+  saveCups();
+  renderCupPuljeSection(cupId, holdId);
+}
+
+function saveCupPKampResult(cupId, holdId, kampId){
+  var hold=getCupHold(cupId,holdId);
+  if(!hold) return;
+  var kamp=(hold.puljeKampe||[]).find(function(k){return k.id===kampId;});
+  if(!kamp) return;
+  var h=document.getElementById('cpkres-h-'+kampId);
+  var a=document.getElementById('cpkres-a-'+kampId);
+  if(h) kamp.resH=h.value;
+  if(a) kamp.resA=a.value;
+  // Save minutes
+  var allPids=hold.players.concat((hold.loanees||[]).map(function(l){return l.id;}));
+  if(!kamp.minutes) kamp.minutes={};
+  allPids.forEach(function(pid){
+    var inp=document.getElementById('cpkmin-'+kampId+'-'+pid);
+    if(inp) kamp.minutes[pid]=parseInt(inp.value)||0;
+  });
+  saveCups();
+  renderCupPuljeSection(cupId, holdId);
+  toast('✅ Gemt');
+}
+
+function renderCupPuljeSection(cupId, holdId){
+  var el=document.getElementById('cup-pulje-wrap-'+holdId);
+  if(!el) return;
+  var hold=getCupHold(cupId,holdId);
+  if(!hold) return;
+  el.innerHTML=buildCupPuljeHtml(cupId, hold);
+}
+
+function buildCupPuljeHtml(cupId, hold){
+  var isAdmin=currentRole==='admin';
+  var kampe=hold.puljeKampe||[];
+
+  // Get eligible players for this hold
+  var holdPlayers=players.filter(function(p){
+    var pTeams=Array.isArray(p.team)?p.team:(p.team?[p.team]:[]);
+    var normHold=hold.name.toLowerCase().split('').filter(function(ch){return (ch>='a'&&ch<='z')||(ch>='0'&&ch<='9');}).join('');
+    return pTeams.some(function(t){
+      var nt=t.toLowerCase().split('').filter(function(ch){return (ch>='a'&&ch<='z')||(ch>='0'&&ch<='9');}).join('');
+      return nt===normHold;
+    });
+  });
+  // Also include cup hold members
+  var holdPlayerIds=new Set(hold.players||[]);
+  players.forEach(function(p){ if(holdPlayerIds.has(p.id)) holdPlayers.push(p); });
+  // Deduplicate
+  var seen=new Set();
+  holdPlayers=holdPlayers.filter(function(p){ if(seen.has(p.id)) return false; seen.add(p.id); return true; });
+
+  var loanees=hold.loanees||[];
+
+  var kampHtml=kampe.map(function(kamp){
+    var dateStr=kamp.date?new Date(kamp.date).toLocaleDateString('da-DK',{day:'numeric',month:'short'}):'–';
+    var hasRes=kamp.resH!==''&&kamp.resA!=='';
+    var resCls='none'; var resText='–';
+    if(hasRes){
+      resText=kamp.resH+'-'+kamp.resA;
+      var fcs=parseInt(kamp.resH),opp=parseInt(kamp.resA);
+      resCls=fcs>opp?'win':fcs===opp?'draw':'loss';
+    }
+    // Minutter grid
+    var minGrid=holdPlayers.map(function(p){
+      var val=(kamp.minutes||{})[p.id]||'';
+      return '<div class="cup-min-row">'+
+        '<span class="cup-min-name">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</span>'+
+        (isAdmin?'<input class="cup-min-inp" type="number" min="0" max="120" placeholder="–" value="'+val+'" id="cpkmin-'+kamp.id+'-'+p.id+'">'
+                :'<span style="font-size:11px;font-weight:700;">'+( val||'–')+'</span>')+
+      '</div>';
+    }).join('');
+    var loaneeGrid=loanees.map(function(l){
+      var val=(kamp.minutes||{})[l.id]||'';
+      return '<div class="cup-min-row" style="background:#EBF2FB;">'+
+        '<span class="cup-min-name" style="color:#1A6EC0;">'+l.name+' <span style="font-size:9px;background:#1A6EC0;color:#fff;padding:1px 4px;border-radius:3px;">LÅN</span></span>'+
+        (isAdmin?'<input class="cup-min-inp" type="number" min="0" max="120" placeholder="–" value="'+val+'" id="cpkmin-'+kamp.id+'-'+l.id+'">'
+                :'<span style="font-size:11px;font-weight:700;">'+( val||'–')+'</span>')+
+      '</div>';
+    }).join('');
+    return '<div class="cup-pkamp">'+
+      '<div class="cup-pkamp-row" onclick="toggleCupPKamp(\''+kamp.id+'\')">'+
+        '<span class="cup-pkamp-date">'+dateStr+(kamp.time?' '+kamp.time:'')+'</span>'+
+        '<span class="cup-pkamp-opp">vs. '+kamp.opponent+'</span>'+
+        '<span class="cup-pkamp-res '+resCls+'">'+resText+'</span>'+
+        (isAdmin?'<button class="cup-del-btn" style="font-size:10px;padding:2px 6px;" onclick="event.stopPropagation();deleteCupPKamp(\''+cupId+'\',\''+hold.id+'\',\''+kamp.id+'\')" >🗑️</button>':'')+
+        '<span class="kamp-chev" id="cpkchev-'+kamp.id+'">▾</span>'+
+      '</div>'+
+      '<div class="cup-pkamp-body" id="cpkamp-body-'+kamp.id+'">'+
+        (isAdmin?
+          '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--g200);">'+
+            '<span style="font-size:10px;font-weight:700;color:var(--text-soft);">Resultat</span>'+
+            '<input type="number" min="0" max="30" placeholder="–" value="'+kamp.resH+'" id="cpkres-h-'+kamp.id+'" style="width:50px;font-size:12px;font-weight:700;text-align:center;padding:4px;border:1.5px solid var(--g200);border-radius:5px;">'+
+            '<span style="font-weight:700;">–</span>'+
+            '<input type="number" min="0" max="30" placeholder="–" value="'+kamp.resA+'" id="cpkres-a-'+kamp.id+'" style="width:50px;font-size:12px;font-weight:700;text-align:center;padding:4px;border:1.5px solid var(--g200);border-radius:5px;">'+
+            '<button class="kamp-result-save" onclick="saveCupPKampResult(\''+cupId+'\',\''+hold.id+'\',\''+kamp.id+'\')">💾 Gem</button>'+
+          '</div>'
+        :'')+
+        '<div style="font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Spiller (minutter)</div>'+
+        '<div class="cup-min-grid">'+minGrid+loaneeGrid+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  var addKampForm=isAdmin?
+    '<div style="display:grid;grid-template-columns:100px 70px 1fr auto;gap:6px;margin-top:8px;">'+
+      '<input type="date" id="cpk-date-'+hold.id+'" style="font-size:11px;padding:5px;">'+
+      '<input type="time" id="cpk-time-'+hold.id+'" style="font-size:11px;padding:5px;">'+
+      '<input type="text" id="cpk-opp-'+hold.id+'" placeholder="Modstander…" style="font-size:11px;padding:5px;">'+
+      '<button class="btn-cup-add-hold" onclick="addCupPKamp(\''+cupId+'\',\''+hold.id+'\')" style="font-size:11px;padding:5px 10px;">+ Kamp</button>'+
+    '</div>':'';
+
+  return '<div style="margin-top:4px;font-size:10px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">'+
+    '📋 Puljekampe ('+kampe.length+')</div>'+
+    kampHtml+addKampForm;
+}
+
+// ── Excel export for cup ──────────────────────────────────────────────────────
+function exportCupExcel(cupId){
+  var cup=cups.find(function(c){return c.id===cupId;});
+  if(!cup||!(cup.holds||[]).length){toast('⚠️ Ingen hold i cup');return;}
+  var wb=XLSX.utils.book_new();
+  (cup.holds||[]).forEach(function(hold){
+    var holdPlayers=players.filter(function(p){
+      var ids=new Set(hold.players||[]);
+      return ids.has(p.id);
+    });
+    // Build rows
+    var kampe=hold.puljeKampe||[];
+    var loanees=hold.loanees||[];
+    var allPlayerRows=holdPlayers.concat(loanees.map(function(l){return {id:l.id,name:l.name+(l.team?' ('+l.team+')':''),jersey:'',isLoanee:true};}));
+
+    // Header
+    var header=['Spiller','Rygnr'].concat(kampe.map(function(k){
+      var d=k.date?new Date(k.date).toLocaleDateString('da-DK',{day:'numeric',month:'short'}):'';
+      return 'vs. '+k.opponent+(d?' ('+d+')':'');
+    })).concat(['Total min.']);
+    var rows=[header];
+
+    // Result row
+    var resRow=['Resultat',''].concat(kampe.map(function(k){
+      return (k.resH!==''&&k.resA!=='')?k.resH+'-'+k.resA:'–';
+    })).concat(['']);
+    rows.push(resRow);
+
+    // Player rows
+    allPlayerRows.forEach(function(p){
+      var totalMin=0;
+      var row=[p.name, p.jersey||''].concat(kampe.map(function(k){
+        var m=(k.minutes||{})[p.id]||0;
+        totalMin+=m;
+        return m||'';
+      })).concat([totalMin||'']);
+      rows.push(row);
+    });
+
+    var ws=XLSX.utils.aoa_to_sheet(rows);
+    // Column widths
+    ws['!cols']=[{wch:24},{wch:6}].concat(kampe.map(function(){return {wch:18};})).concat([{wch:10}]);
+    XLSX.utils.book_append_sheet(wb, ws, hold.name.slice(0,31));
+  });
+
+  var buf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+  var blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download=cup.name+'.xlsx';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},10000);
+  toast('✅ Excel eksporteret: '+cup.name+'.xlsx');
+}
+
 
 </script>
 </body>
