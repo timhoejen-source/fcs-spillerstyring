@@ -436,6 +436,15 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .tr-guest-add{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-top:6px;}
 .tr-guest-add input{font-size:11px;padding:5px 8px;}
 .tr-guest-add button{padding:5px 12px;background:var(--navy);color:var(--yellow);border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+
+.tr-edit-form{background:var(--g50);border:1.5px solid var(--blue);border-radius:8px;padding:12px;margin-bottom:10px;}
+.tr-edit-toolbar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--g200);}
+.tr-toolbar-btn{padding:3px 8px;background:var(--white);border:1px solid var(--g200);border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text);}
+.tr-toolbar-btn:hover{background:var(--g100);}
+.tr-edit-title{width:100%;font-size:13px;font-weight:700;padding:6px 8px;border:1.5px solid var(--g200);border-radius:6px;font-family:'DM Sans',sans-serif;margin-bottom:6px;}
+.tr-edit-desc{width:100%;min-height:120px;font-size:12px;padding:8px;border:1.5px solid var(--g200);border-radius:6px;font-family:'DM Sans',sans-serif;resize:vertical;line-height:1.7;}
+.tr-edit-desc:focus,.tr-edit-title:focus{border-color:var(--blue);outline:none;}
+.tr-edit-actions{display:flex;gap:6px;margin-top:8px;}
 </style>
 </head>
 <body>
@@ -2150,7 +2159,17 @@ function renderTrainings(){
         '<span class="training-chev" id="tr-chev-'+t.id+'">▾</span>'+
       '</div>'+
       '<div class="training-body" id="tr-body-'+t.id+'">'+
-        (t.desc?'<div class="training-desc"><div class="training-desc-label">📋 Træningsindhold</div>'+t.desc+'</div>':'')+
+        '<div id="tr-edit-wrap-'+t.id+'">'+(currentRole==='admin'?
+          '<div class="training-desc" style="cursor:pointer;" onclick="openTrainingEdit(\''+t.id+'\')" title="Klik for at redigere">'+
+            '<div class="training-desc-label" style="display:flex;justify-content:space-between;">'+
+              '<span>📋 Træningsindhold</span>'+
+              '<span style="font-size:9px;color:var(--blue);font-weight:600;">✏️ Rediger</span>'+
+            '</div>'+
+            (t.desc?t.desc.split('\n').join('<br>'):'<span style="color:var(--text-soft);font-style:italic;">Klik for at tilføje beskrivelse…</span>')+
+          '</div>'
+        :
+          (t.desc?'<div class="training-desc"><div class="training-desc-label">📋 Træningsindhold</div>'+t.desc.split('\n').join('<br>')+'</div>':'')
+        )+'</div>'+
 
         (currentRole!=='player'?
           '<div class="training-stats-bar" id="tr-summary-'+t.id+'">'+
@@ -4295,6 +4314,66 @@ function refreshTrainingBody(trid){
     tmp.innerHTML = renderTrGuestSection(t);
     gs.replaceWith(tmp.firstChild);
   }
+}
+
+function openTrainingEdit(trid){
+  var t = trainings.find(function(x){ return x.id===trid; });
+  if(!t) return;
+  var wrap = document.getElementById('tr-edit-wrap-'+trid);
+  if(!wrap) return;
+  wrap.innerHTML =
+    '<div class="tr-edit-form">' +
+      '<div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">✏️ Rediger træning</div>'+
+      '<input class="tr-edit-title" id="tr-etitle-'+trid+'" value="'+escHtml(t.title||'')+'" placeholder="Titel…">' +
+      '<div class="tr-edit-toolbar">' +
+        '<button class="tr-toolbar-btn" onclick="trInsert(\''+trid+'\',\'\\n• \')" title="Tilføj punkt">• Liste</button>' +
+        '<button class="tr-toolbar-btn" onclick="trInsert(\''+trid+'\',\'\\n\\n\')" title="Nyt afsnit">¶ Afsnit</button>' +
+        '<button class="tr-toolbar-btn" onclick="trInsert(\''+trid+'\',\'\\n→ \')" title="Tilføj pil">→ Pil</button>' +
+        '<button class="tr-toolbar-btn" onclick="trInsert(\''+trid+'\',\'\\n── \')" title="Separator">── Linje</button>' +
+      '</div>' +
+      '<textarea class="tr-edit-desc" id="tr-edesc-'+trid+'">'+escHtml(t.desc||'')+'</textarea>' +
+      '<div class="tr-edit-actions">' +
+        '<button class="btn-primary" style="margin-top:0;" onclick="saveTrainingEdit(\''+trid+'\')" >💾 Gem ændringer</button>' +
+        '<button class="btn-cancel" onclick="cancelTrainingEdit(\''+trid+'\')" >Annuller</button>' +
+      '</div>' +
+    '</div>';
+  // Focus textarea
+  var ta = document.getElementById('tr-edesc-'+trid);
+  if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+}
+
+function trInsert(trid, text){
+  var ta = document.getElementById('tr-edesc-'+trid);
+  if(!ta) return;
+  var start = ta.selectionStart;
+  var val = ta.value;
+  ta.value = val.slice(0,start) + text + val.slice(start);
+  ta.selectionStart = ta.selectionEnd = start + text.length;
+  ta.focus();
+}
+
+function saveTrainingEdit(trid){
+  var t = trainings.find(function(x){ return x.id===trid; });
+  if(!t) return;
+  var titleEl = document.getElementById('tr-etitle-'+trid);
+  var descEl  = document.getElementById('tr-edesc-'+trid);
+  if(titleEl) t.title = titleEl.value.trim();
+  if(descEl)  t.desc  = descEl.value;
+  saveTrainings();
+  // Re-render the training card header (title may have changed)
+  var titleDisplay = document.querySelector('#tr-body-'+trid+' .training-date ~ *');
+  // Simpler: re-render entire list
+  renderTrainings();
+  toast('✅ Træning opdateret');
+}
+
+function cancelTrainingEdit(trid){
+  // Re-render just the desc wrap
+  renderTrainings();
+}
+
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 </script>
