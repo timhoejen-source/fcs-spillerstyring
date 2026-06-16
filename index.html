@@ -3195,6 +3195,33 @@ function populateExportSelectors(){
 }
 
 // ── Export Træning PDF ────────────────────────────────────────────────────────
+function formatTextToHtml(text){
+  if(!text) return '';
+  var lines = text.split('\n');
+  var html = '';
+  var inList = false;
+  lines.forEach(function(line){
+    var l = line;
+    if(l.startsWith('• ')){
+      if(!inList){ html += '<ul style="margin:0 0 4px 14px;padding:0;">'; inList=true; }
+      html += '<li style="margin-bottom:2px;">'+l.slice(2)+'</li>';
+    } else {
+      if(inList){ html += '</ul>'; inList=false; }
+      if(l.startsWith('→ ')){
+        html += '<div style="padding:2px 0;">→ '+l.slice(2)+'</div>';
+      } else if(l.startsWith('── ')||l==='──'||l.trim()==='---'){
+        html += '<hr style="border:none;border-top:1px solid #C7D9EF;margin:4px 0;">';
+      } else if(l.trim()===''){
+        html += '<div style="height:4px;"></div>';
+      } else {
+        html += '<div style="padding:1px 0;">'+l+'</div>';
+      }
+    }
+  });
+  if(inList) html += '</ul>';
+  return html;
+}
+
 function exportTraeningPdf(){
   var sel=document.getElementById('export-traening-sel');
   if(!sel||!sel.value){toast('⚠️ Vælg en træning til eksport');return;}
@@ -3259,7 +3286,7 @@ function exportTraeningPdf(){
           (ex.min?'<span style="font-size:10px;background:rgba(255,255,255,.2);padding:1px 8px;border-radius:10px;">'+ex.min+' min</span>':'')+
         '</div>'+
         '<div style="border:1px solid #E2E8F0;border-top:none;border-radius:0 0 6px 6px;padding:8px 10px;">'+
-          (ex.desc?'<div style="font-size:11px;color:#2C4A72;line-height:1.7;margin-bottom:'+(ex.img?'8px':'0')+';">'+ex.desc+'</div>':'')+
+          (ex.desc?'<div style="font-size:11px;color:#2C4A72;line-height:1.7;margin-bottom:'+(ex.img?'8px':'0')+';">'+formatTextToHtml(ex.desc)+'</div>':'')+
           (ex.img?'<img src="'+ex.img+'" style="width:100%;max-height:180px;object-fit:contain;border-radius:4px;background:#F8FAFC;">':'')+
         '</div>'+
       '</div>';
