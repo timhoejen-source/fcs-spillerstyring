@@ -83,6 +83,44 @@
               "dob": "",
               "contact": ""
             }
+          ],
+          "puljeKampe": [
+            {
+              "id": "mqh2g0xcfao1ibn178",
+              "date": "2026-06-26",
+              "time": "18:00",
+              "opponent": "Ry Fodbold",
+              "resH": "",
+              "resA": "",
+              "minutes": {}
+            },
+            {
+              "id": "mqh2m827lr4kvvfctaq",
+              "date": "2026-06-27",
+              "time": "09:30",
+              "opponent": "Tjørring IF",
+              "resH": "",
+              "resA": "",
+              "minutes": {}
+            },
+            {
+              "id": "mqh2ordovk0gv2lio6",
+              "date": "2026-06-27",
+              "time": "12:30",
+              "opponent": "Lemvig GF",
+              "resH": "",
+              "resA": "",
+              "minutes": {}
+            },
+            {
+              "id": "mqh2sf8yzr75w3whpgb",
+              "date": "2026-06-27",
+              "time": "16:45",
+              "opponent": "Vildbjerg SF",
+              "resH": "",
+              "resA": "",
+              "minutes": {}
+            }
           ]
         },
         {
@@ -1296,5 +1334,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-16T08:41:53.840Z"
+  "savedAt": "2026-06-16T20:13:08.099Z"
 }
