@@ -3826,7 +3826,7 @@ function renderCupHold(cup, hold){
   +'<div id="cup-pulje-wrap-'+hold.id+'" style="margin-top:10px;border-top:1px solid var(--g200);padding-top:10px;">'+buildCupPuljeHtml(cup.id,hold)+'</div>'+'</div>';
 }
 
-function renderCupBodypBody(cupId){
+function renderCupBody(cupId){
   var bodyEl=document.getElementById('cup-body-'+cupId);
   if(!bodyEl||!bodyEl.classList.contains('open')) return;
   var cup=cups.find(function(c){ return c.id===cupId; });
