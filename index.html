@@ -4571,11 +4571,15 @@ function buildCupPuljeHtml(cupId, hold){
   var isAdmin=currentRole==='admin';
   var kampe=hold.puljeKampe||[];
 
-  // Use players explicitly assigned to this cup hold
+  // Show all players — prioritize those assigned to hold, then rest
   var holdPlayerIds = new Set(hold.players||[]);
+  // First: players explicitly on hold
   var holdPlayers = players.filter(function(p){ return holdPlayerIds.has(p.id); });
+  // If no players assigned yet, show all club players
+  if(holdPlayers.length === 0){
+    holdPlayers = players.slice();
+  }
   holdPlayers.sort(function(a,b){ return a.name.localeCompare(b.name,'da'); });
-
   var loanees=hold.loanees||[];
 
   var kampHtml=kampe.map(function(kamp){
