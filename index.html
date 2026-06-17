@@ -1059,6 +1059,8 @@ let players=(function(){
     return pl;
   }catch(e){console.warn('players parse error',e);return [];}
 })();
+let activeKampFilter='alle';
+let mCurrentPlayer=null;
 let teams=(function(){try{return JSON.parse(localStorage.getItem('fcs-t5')||'null')||['U15 Liga2','U14 Liga2'];}catch(e){return ['U15 Liga2','U14 Liga2'];}})();
 let trainings=(function(){try{return JSON.parse(localStorage.getItem('fcs-trainings')||'[]');}catch(e){return [];}})();
 // PDFs loaded separately after DOM ready
