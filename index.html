@@ -3901,6 +3901,18 @@ document.addEventListener('click', function(e){
     toggleCupPlayer(pbtn.getAttribute('data-cup'),pbtn.getAttribute('data-hold'),pbtn.getAttribute('data-player'));
     return;
   }
+  // Toggle pkamp body
+  var togglePK=e.target.closest('[data-togglepkamp]');
+  if(togglePK){ toggleCupPKamp(togglePK.getAttribute('data-togglepkamp')); return; }
+  // Save pkamp result
+  var savePK=e.target.closest('[data-savecuppkamp-cup]');
+  if(savePK){ saveCupPKampResult(savePK.getAttribute('data-savecuppkamp-cup'),savePK.getAttribute('data-savecuppkamp-hold'),savePK.getAttribute('data-savecuppkamp-kamp')); return; }
+  // Delete pkamp
+  var delPK=e.target.closest('[data-delcuppkamp-cup]');
+  if(delPK){ deleteCupPKamp(delPK.getAttribute('data-delcuppkamp-cup'),delPK.getAttribute('data-delcuppkamp-hold'),delPK.getAttribute('data-delcuppkamp-kamp')); return; }
+  // Add kamp to cup pulje
+  var addKampBtn=e.target.closest('[data-addcupkamp-cup]');
+  if(addKampBtn){ addCupPKamp(addKampBtn.getAttribute('data-addcupkamp-cup'), addKampBtn.getAttribute('data-addcupkamp-hold')); return; }
   // Add hold to cup
   var addHold=e.target.closest('[data-addcuphold]');
   if(addHold){ addCupHold(addHold.getAttribute('data-addcuphold')); return; }
@@ -4498,7 +4510,11 @@ function toggleCupPulje(cupId, holdId){
 
 function toggleCupPKamp(kampId){
   var el=document.getElementById('cpkamp-body-'+kampId);
-  if(el) el.classList.toggle('open');
+  var chev=document.getElementById('cpkchev-'+kampId);
+  if(!el) return;
+  var open = el.style.display === 'none' || el.style.display === '';
+  el.style.display = open ? 'block' : 'none';
+  if(chev) chev.style.transform = open ? 'rotate(180deg)' : '';
 }
 
 function addCupPKamp(cupId, holdId){
@@ -4568,87 +4584,118 @@ function renderCupPuljeSection(cupId, holdId){
 }
 
 function buildCupPuljeHtml(cupId, hold){
-  var isAdmin=currentRole==='admin';
-  var kampe=hold.puljeKampe||[];
+  var isAdmin = currentRole === 'admin';
+  var kampe = hold.puljeKampe || [];
 
-  // Show all players — prioritize those assigned to hold, then rest
-  var holdPlayerIds = new Set(hold.players||[]);
-  // First: players explicitly on hold
-  var holdPlayers = players.filter(function(p){ return holdPlayerIds.has(p.id); });
-  // If no players assigned yet, show all club players
-  if(holdPlayers.length === 0){
-    holdPlayers = players.slice();
+  // All players sorted alphabetically
+  var allPlayers = [].concat(players).sort(function(a,b){ return a.name.localeCompare(b.name,'da'); });
+  var loanees = hold.loanees || [];
+
+  // ── Add kamp form ──────────────────────────────────────────────────────────
+  var addForm = isAdmin ?
+    '<div style="margin-top:8px;background:var(--g50);border-radius:7px;padding:8px;display:grid;grid-template-columns:110px 70px 1fr auto;gap:6px;">'+
+      '<input type="date" id="cpk-date-'+hold.id+'" style="font-size:11px;padding:5px;border:1px solid var(--g200);border-radius:5px;">'+
+      '<input type="time" id="cpk-time-'+hold.id+'" style="font-size:11px;padding:5px;border:1px solid var(--g200);border-radius:5px;">'+
+      '<input type="text" id="cpk-opp-'+hold.id+'" placeholder="Modstander…" style="font-size:11px;padding:5px;border:1px solid var(--g200);border-radius:5px;">'+
+      '<button data-addcupkamp-cup="'+cupId+'" data-addcupkamp-hold="'+hold.id+'" style="background:var(--navy);color:var(--yellow);border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">+ Kamp</button>'+
+    '</div>' : '';
+
+  if(kampe.length === 0){
+    return '<div style="border-top:1px solid var(--g200);margin-top:10px;padding-top:10px;">'+
+      '<div style="font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">📋 Puljekampe</div>'+
+      '<div style="font-size:11px;color:var(--text-soft);margin-bottom:6px;">Ingen kampe endnu</div>'+
+      addForm+
+    '</div>';
   }
-  holdPlayers.sort(function(a,b){ return a.name.localeCompare(b.name,'da'); });
-  var loanees=hold.loanees||[];
 
-  var kampHtml=kampe.map(function(kamp){
-    var dateStr=kamp.date?new Date(kamp.date).toLocaleDateString('da-DK',{day:'numeric',month:'short'}):'–';
-    var hasRes=kamp.resH!==''&&kamp.resA!=='';
-    var resCls='none'; var resText='–';
+  // ── Kamp cards ─────────────────────────────────────────────────────────────
+  var kampCards = kampe.map(function(kamp){
+    var dateStr = kamp.date ? new Date(kamp.date).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'}) : '–';
+    var timeStr = kamp.time || '';
+    var hasRes = kamp.resH !== '' && kamp.resA !== '';
+    var resText = hasRes ? kamp.resH+'-'+kamp.resA : '–';
+    var resCls = 'none';
     if(hasRes){
-      resText=kamp.resH+'-'+kamp.resA;
-      var fcs=parseInt(kamp.resH),opp=parseInt(kamp.resA);
-      resCls=fcs>opp?'win':fcs===opp?'draw':'loss';
+      var f=parseInt(kamp.resH), o=parseInt(kamp.resA);
+      resCls = f>o?'win':f===o?'draw':'loss';
     }
-    // Minutter grid
-    var minGrid=holdPlayers.map(function(p){
-      var val=(kamp.minutes||{})[p.id]||'';
-      return '<div class="cup-min-row">'+
-        '<span class="cup-min-name">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</span>'+
-        (isAdmin?'<input class="cup-min-inp" type="number" min="0" max="120" placeholder="–" value="'+val+'" id="cpkmin-'+kamp.id+'-'+p.id+'" data-mincup="'+cupId+'" data-minhold="'+hold.id+'" data-minkamp="'+kamp.id+'" data-minpid="'+p.id+'">'
-                :'<span style="font-size:11px;font-weight:700;">'+( val||'–')+'</span>')+
-      '</div>';
+
+    // Player minute rows
+    var pRows = allPlayers.map(function(p){
+      var min = (kamp.minutes||{})[p.id] || '';
+      return '<tr>'+
+        '<td style="padding:6px 12px;font-size:12px;">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+'</td>'+
+        '<td style="padding:6px 12px;text-align:center;">'+
+          (isAdmin ?
+            '<input type="number" min="0" max="120" placeholder="0"'+
+            ' value="'+min+'"'+
+            ' data-mincup="'+cupId+'" data-minhold="'+hold.id+'" data-minkamp="'+kamp.id+'" data-minpid="'+p.id+'"'+
+            ' style="width:64px;font-size:12px;font-weight:700;text-align:center;padding:4px 6px;border:1.5px solid var(--g200);border-radius:5px;font-family:inherit;">'
+          :
+            '<span style="font-size:12px;font-weight:700;">'+(min||'0')+'</span>'
+          )+
+        '</td>'+
+      '</tr>';
     }).join('');
-    var loaneeGrid=loanees.map(function(l){
-      var val=(kamp.minutes||{})[l.id]||'';
-      return '<div class="cup-min-row" style="background:#EBF2FB;">'+
-        '<span class="cup-min-name" style="color:#1A6EC0;">'+l.name+' <span style="font-size:9px;background:#1A6EC0;color:#fff;padding:1px 4px;border-radius:3px;">LÅN</span></span>'+
-        (isAdmin?'<input class="cup-min-inp" type="number" min="0" max="120" placeholder="–" value="'+val+'" id="cpkmin-'+kamp.id+'-'+l.id+'" data-mincup="'+cupId+'" data-minhold="'+hold.id+'" data-minkamp="'+kamp.id+'" data-minpid="'+l.id+'">'
-                :'<span style="font-size:11px;font-weight:700;">'+( val||'–')+'</span>')+
-      '</div>';
+
+    var lRows = loanees.map(function(l){
+      var min = (kamp.minutes||{})[l.id] || '';
+      return '<tr style="background:#EBF2FB;">'+
+        '<td style="padding:6px 12px;font-size:12px;color:#1A6EC0;font-weight:600;">'+l.name+
+          ' <span style="font-size:9px;background:#1A6EC0;color:#fff;padding:1px 4px;border-radius:3px;">LÅN</span>'+
+          (l.team?' <span style="font-size:10px;font-weight:400;">('+l.team+')</span>':'')+
+        '</td>'+
+        '<td style="padding:6px 12px;text-align:center;">'+
+          (isAdmin ?
+            '<input type="number" min="0" max="120" placeholder="0"'+
+            ' value="'+min+'"'+
+            ' data-mincup="'+cupId+'" data-minhold="'+hold.id+'" data-minkamp="'+kamp.id+'" data-minpid="'+l.id+'"'+
+            ' style="width:64px;font-size:12px;font-weight:700;text-align:center;padding:4px 6px;border:1.5px solid #bfdbfe;border-radius:5px;font-family:inherit;">'
+          :
+            '<span style="font-size:12px;font-weight:700;">'+(min||'0')+'</span>'
+          )+
+        '</td>'+
+      '</tr>';
     }).join('');
-    return '<div class="cup-pkamp">'+
-      '<div class="cup-pkamp-row" onclick="toggleCupPKamp(\''+kamp.id+'\')">'+
-        '<span class="cup-pkamp-date">'+dateStr+(kamp.time?' '+kamp.time:'')+'</span>'+
-        '<span class="cup-pkamp-opp">vs. '+kamp.opponent+'</span>'+
-        '<span class="cup-pkamp-res '+resCls+'">'+resText+'</span>'+
-        (isAdmin?'<button class="cup-del-btn" style="font-size:10px;padding:2px 6px;" onclick="event.stopPropagation();deleteCupPKamp(\''+cupId+'\',\''+hold.id+'\',\''+kamp.id+'\')" >🗑️</button>':'')+
-        '<span class="kamp-chev" id="cpkchev-'+kamp.id+'">▾</span>'+
+
+    return '<div style="border:1.5px solid var(--g200);border-radius:8px;margin-bottom:8px;overflow:hidden;">'+
+      // Kamp header — always visible
+      '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--g50);cursor:pointer;" data-togglepkamp=\""+kamp.id+"\"">'+
+        '<span style="font-size:11px;font-weight:700;flex:1;">vs. '+kamp.opponent+'</span>'+
+        '<span style="font-size:10px;color:var(--text-soft);">'+dateStr+(timeStr?' · '+timeStr:'')+'</span>'+
+        '<span class="cup-pkamp-res '+resCls+'" style="margin-left:4px;">'+resText+'</span>'+
+        (isAdmin?'<button data-delcuppkamp-cup="'+cupId+'" data-delcuppkamp-hold="'+hold.id+'" data-delcuppkamp-kamp="'+kamp.id+'" onclick="event.stopPropagation()" style="background:none;border:1px solid #fecaca;border-radius:4px;color:#dc2626;cursor:pointer;padding:2px 6px;font-size:10px;">🗑️</button>':'')+
+        '<span style="font-size:11px;color:var(--g400);transition:transform .2s;" id="cpkchev-'+kamp.id+'">▾</span>'+
       '</div>'+
-      '<div class="cup-pkamp-body" id="cpkamp-body-'+kamp.id+'" data-cupid="'+cupId+'" data-holdid="'+hold.id+'" data-kampid="'+kamp.id+'">'+ 
+      // Kamp body — toggled
+      '<div id="cpkamp-body-'+kamp.id+'" style="display:none;">'+
+        // Resultat row (admin only)
         (isAdmin?
-          '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--g200);">'+
+          '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--g100);background:#F0F7FF;">'+
             '<span style="font-size:10px;font-weight:700;color:var(--text-soft);">Resultat</span>'+
-            '<input type="number" min="0" max="30" placeholder="–" value="'+kamp.resH+'" id="cpkres-h-'+kamp.id+'" style="width:50px;font-size:12px;font-weight:700;text-align:center;padding:4px;border:1.5px solid var(--g200);border-radius:5px;">'+
-            '<span style="font-weight:700;">–</span>'+
-            '<input type="number" min="0" max="30" placeholder="–" value="'+kamp.resA+'" id="cpkres-a-'+kamp.id+'" style="width:50px;font-size:12px;font-weight:700;text-align:center;padding:4px;border:1.5px solid var(--g200);border-radius:5px;">'+
-            '<button class="kamp-result-save" onclick="saveCupPKampResult(\''+cupId+'\',\''+hold.id+'\',\''+kamp.id+'\')">💾 Gem</button>'+
+            '<input type="number" min="0" max="30" placeholder="–" value="'+kamp.resH+'" id="cpkres-h-'+kamp.id+'" style="width:52px;font-size:13px;font-weight:700;text-align:center;padding:4px;border:1.5px solid var(--g200);border-radius:5px;">'+
+            '<span style="font-weight:700;font-size:15px;">–</span>'+
+            '<input type="number" min="0" max="30" placeholder="–" value="'+kamp.resA+'" id="cpkres-a-'+kamp.id+'" style="width:52px;font-size:13px;font-weight:700;text-align:center;padding:4px;border:1.5px solid var(--g200);border-radius:5px;">'+
+            '<button data-savecuppkamp-cup="'+cupId+'" data-savecuppkamp-hold="'+hold.id+'" data-savecuppkamp-kamp="'+kamp.id+'" style="background:var(--navy);color:var(--yellow);border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">💾 Gem</button>'+
           '</div>'
         :'')+
-        '<div style="font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Spiller (minutter)</div>'+
-        (holdPlayers.length===0&&loanees.length===0?
-          '<div style="font-size:11px;color:var(--text-soft);padding:8px;background:var(--g50);border-radius:6px;">'+
-            '⚠️ Ingen spillere tilknyttet dette hold. Tilføj spillere ved at klikke på spillernavnene øverst i holdafsnittet.'+
-          '</div>'
-        :
-          '<div class="cup-min-grid">'+minGrid+loaneeGrid+'</div>'
-        )+
+        // Player minutes table
+        '<table style="width:100%;border-collapse:collapse;">'+
+          '<thead><tr style="background:var(--navy);">'+
+            '<th style="padding:6px 12px;text-align:left;font-size:9px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.08em;">Spiller</th>'+
+            '<th style="padding:6px 12px;text-align:center;font-size:9px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.08em;">Min. spillet</th>'+
+          '</tr></thead>'+
+          '<tbody>'+pRows+lRows+'</tbody>'+
+        '</table>'+
       '</div>'+
     '</div>';
   }).join('');
 
-  var addKampForm=isAdmin?
-    '<div style="display:grid;grid-template-columns:100px 70px 1fr auto;gap:6px;margin-top:8px;">'+
-      '<input type="date" id="cpk-date-'+hold.id+'" style="font-size:11px;padding:5px;">'+
-      '<input type="time" id="cpk-time-'+hold.id+'" style="font-size:11px;padding:5px;">'+
-      '<input type="text" id="cpk-opp-'+hold.id+'" placeholder="Modstander…" style="font-size:11px;padding:5px;">'+
-      '<button class="btn-cup-add-hold" onclick="addCupPKamp(\''+cupId+'\',\''+hold.id+'\')" style="font-size:11px;padding:5px 10px;">+ Kamp</button>'+
-    '</div>':'';
-
-  return '<div style="margin-top:4px;font-size:10px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">'+
-    '📋 Puljekampe ('+kampe.length+')</div>'+
-    kampHtml+addKampForm;
+  return '<div style="border-top:1px solid var(--g200);margin-top:10px;padding-top:10px;">'+
+    '<div style="font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">📋 Puljekampe ('+kampe.length+')</div>'+
+    kampCards+
+    addForm+
+  '</div>';
 }
 
 // ── Excel export for cup ──────────────────────────────────────────────────────
