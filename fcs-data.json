@@ -276,7 +276,7 @@
         "U14 liga 2",
         "U15 liga 2"
       ],
-      "cls": "B",
+      "cls": "AB",
       "pos": [
         "OM",
         "A"
@@ -403,7 +403,7 @@
         "U14 liga 2",
         "U15 liga 2"
       ],
-      "cls": "B",
+      "cls": "AB",
       "pos": [
         "VK",
         "HK"
@@ -421,12 +421,9 @@
             "udtaget": "nej"
           }
         ],
-        "skud": 0,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
-      }
+        "kampStats": {}
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodj07icnpsqkzif",
@@ -748,7 +745,7 @@
         "U14 liga 2",
         "U15 liga 2"
       ],
-      "cls": "A",
+      "cls": "AB",
       "pos": [
         "CB",
         "DM"
@@ -766,12 +763,9 @@
             "udtaget": "ja"
           }
         ],
-        "skud": 0,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
-      }
+        "kampStats": {}
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjru64dehr3xb",
@@ -781,7 +775,7 @@
         "U14 liga 2",
         "U15 liga 2"
       ],
-      "cls": "B",
+      "cls": "AB",
       "pos": [
         "HK",
         "VK"
@@ -845,7 +839,7 @@
       "team": [
         "U14 liga 2"
       ],
-      "cls": "C",
+      "cls": "BC",
       "pos": [],
       "jersey": "",
       "goal": "",
@@ -856,11 +850,7 @@
             "udtaget": "ja"
           }
         ],
-        "skud": 0,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
+        "kampStats": {}
       },
       "exercises": []
     },
@@ -938,7 +928,7 @@
         "U14 liga 2",
         "U15 liga 2"
       ],
-      "cls": "B",
+      "cls": "AB",
       "pos": [
         "A"
       ],
@@ -955,12 +945,9 @@
             "udtaget": "nej"
           }
         ],
-        "skud": 0,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
-      }
+        "kampStats": {}
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjn00ufiqe0ls",
@@ -1003,7 +990,7 @@
         "U14 liga 2",
         "U15 liga 2"
       ],
-      "cls": "B",
+      "cls": "AB",
       "pos": [
         "CB",
         "HB"
@@ -1021,12 +1008,9 @@
             "udtaget": "ja"
           }
         ],
-        "skud": 0,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
-      }
+        "kampStats": {}
+      },
+      "exercises": []
     },
     {
       "id": "mq4rdodjkfd21t4l0es",
@@ -1360,5 +1344,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-17T12:12:21.136Z"
+  "savedAt": "2026-06-17T17:31:12.974Z"
 }
