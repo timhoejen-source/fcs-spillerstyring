@@ -2424,6 +2424,8 @@ function updateTrainingSummary(trainingId){
   const ja=vals.filter(v=>v==='ja').length;
   const nej=vals.filter(v=>v==='nej').length;
   const none=players.length-ja-nej;
+  const guestCount=(t.guests||[]).length;
+  const jaWithGuests=ja+guestCount;
   el.innerHTML=
     '<span class="training-stat-pill" style="background:#DCFCE7;color:#16A34A;">✅ '+jaWithGuests+' deltaget'+(guestCount?' (inkl. '+guestCount+' gæster)':'')+' </span>'+
     '<span class="training-stat-pill" style="background:#FEE2E2;color:#dc2626;">❌ '+nej+' fraværende</span>'+
