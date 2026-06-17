@@ -922,6 +922,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
           <div class="fg"><label>Slutdato</label><input type="date" id="cup-date-to"></div>
         </div>
         <div class="fg"><label>Sted / By</label><input type="text" id="cup-location" placeholder="fx Silkeborg"></div>
+        <div class="fg"><label>Kamplængde <span style="font-weight:400;color:var(--text-soft);">(minutter per halvleg)</span></label><input type="number" id="cup-kamp-min" placeholder="fx 20" min="1" max="90" style="max-width:120px;"></div>
         <div style="display:flex;gap:8px;margin-top:8px;">
           <button class="btn-primary" style="margin-top:0;" onclick="saveNewCup()">Gem cup</button>
           <button class="btn-cancel" onclick="toggleNewCupForm()">Annuller</button>
@@ -3409,8 +3410,10 @@ function saveNewCup(){
   var dateTo=document.getElementById('cup-date-to').value;
   var location=document.getElementById('cup-location').value.trim();
   if(!name){ toast('⚠️ Skriv cup navn'); return; }
+  var kampMinEl=document.getElementById('cup-kamp-min');
+  var kampMin=kampMinEl?parseInt(kampMinEl.value)||20:20;
   cups.unshift({
-    id:uid(), name, dateFrom, dateTo, location,
+    id:uid(), name, dateFrom, dateTo, location, kampMin,
     holds:[] // [{id, name, players:[playerId], loanees:[{id,name,team,dob,contact}]}]
   });
   saveCups();
@@ -3573,7 +3576,17 @@ function renderCupBody(cupId){
   if(!cup) return;
   var isAdmin=currentRole==='admin';
 
-  bodyEl.innerHTML=
+  // kampMin edit section (admin only)
+  var kampMinHtml = isAdmin ?
+    '<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#F0F7FF;border-bottom:1px solid #bfdbfe;border-radius:8px 8px 0 0;margin-bottom:10px;">'+
+      '<span style="font-size:11px;font-weight:700;color:#1A6EC0;">⏱️ Kamplængde per halvleg</span>'+
+      '<input type="number" min="1" max="90" value="'+(cup.kampMin||20)+'" id="cupkmin-'+cupId+'" style="width:60px;font-size:12px;font-weight:700;text-align:center;padding:4px 6px;border:1.5px solid #bfdbfe;border-radius:5px;"> min'+
+      '<button onclick="saveCupKampMin(\''+cupId+'\')" style="background:#1A6EC0;color:#fff;border:none;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;">Gem</button>'+
+      '<span style="font-size:10px;color:#5A7A9F;">→ Maks '+(2*(cup.kampMin||20))+' min per spiller per kamp</span>'+
+    '</div>'
+  : '<div style="font-size:10px;color:var(--text-soft);padding:6px 14px;margin-bottom:6px;">⏱️ Kamplængde: '+(cup.kampMin||20)+' min × 2 halvlege = '+(2*(cup.kampMin||20))+' min per kamp</div>';
+
+  bodyEl.innerHTML= kampMinHtml +
     cup.holds.map(function(hold){ return renderCupHold(cup, hold); }).join('')+
     (isAdmin?
       '<div class="cup-add-hold-row">'+
@@ -4321,21 +4334,36 @@ function buildCupPuljeHtml(cupId, hold){
     var resBg=!hasRes?'#F1F5F9':parseInt(kamp.resH)>parseInt(kamp.resA)?'#DCFCE7':parseInt(kamp.resH)===parseInt(kamp.resA)?'#FEF9C3':'#FEE2E2';
     var resColor=!hasRes?'#64748B':parseInt(kamp.resH)>parseInt(kamp.resA)?'#16A34A':parseInt(kamp.resH)===parseInt(kamp.resA)?'#854D0E':'#dc2626';
 
+    // Kampmax from cup settings
+    var cup=cups.find(function(x){return x.id===cupId;});
+    var kampMax=2*(cup?cup.kampMin||20:20);
+
     // Player minute rows
     var pRows=allPlayers.map(function(p){
-      var min=(kamp.minutes||{})[p.id]||'';
+      var min=(kamp.minutes||{})[p.id]||0;
+      var pct=min?Math.round(min/kampMax*100):0;
+      var pctColor=pct>=80?'#16A34A':pct>=50?'#854D0E':'#94A3B8';
+      var minDisplay=min||'';
       return '<tr><td style="padding:5px 10px;font-size:12px;">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+'</td>'+
         '<td style="padding:5px 10px;text-align:center;">'+
-        (isAdmin?'<input type="number" min="0" max="120" placeholder="0" value="'+min+'" id="cpkmin-'+kamp.id+'-'+p.id+'" style="width:60px;font-size:12px;font-weight:700;text-align:center;padding:4px;border:1.5px solid #E2E8F0;border-radius:5px;">':'<strong>'+(min||'0')+'</strong>')+
+        (isAdmin?'<input type="number" min="0" max="'+kampMax+'" placeholder="0" value="'+minDisplay+'" id="cpkmin-'+kamp.id+'-'+p.id+'" style="width:60px;font-size:12px;font-weight:700;text-align:center;padding:4px;border:1.5px solid #E2E8F0;border-radius:5px;">':'<strong>'+(min||'0')+'</strong>')+
+        '</td>'+
+        '<td style="padding:5px 10px;text-align:center;font-size:11px;font-weight:700;color:'+pctColor+';">'+
+          (min?pct+'%':'–')+
         '</td></tr>';
     }).join('');
     var lRows=loanees.map(function(l){
-      var min=(kamp.minutes||{})[l.id]||'';
+      var min=(kamp.minutes||{})[l.id]||0;
+      var pct=min?Math.round(min/kampMax*100):0;
+      var pctColor=pct>=80?'#16A34A':pct>=50?'#854D0E':'#94A3B8';
       return '<tr style="background:#EBF2FB;"><td style="padding:5px 10px;font-size:12px;color:#1A6EC0;font-weight:600;">'+l.name+
         ' <span style="font-size:9px;background:#1A6EC0;color:#fff;padding:1px 4px;border-radius:3px;">LÅN</span>'+
         (l.team?' <span style="font-size:10px;font-weight:400;">('+l.team+')</span>':'')+
         '</td><td style="padding:5px 10px;text-align:center;">'+
-        (isAdmin?'<input type="number" min="0" max="120" placeholder="0" value="'+min+'" id="cpkmin-'+kamp.id+'-'+l.id+'" style="width:60px;font-size:12px;font-weight:700;text-align:center;padding:4px;border:1.5px solid #bfdbfe;border-radius:5px;">':'<strong>'+(min||'0')+'</strong>')+
+        (isAdmin?'<input type="number" min="0" max="'+kampMax+'" placeholder="0" value="'+(min||'')+'" id="cpkmin-'+kamp.id+'-'+l.id+'" style="width:60px;font-size:12px;font-weight:700;text-align:center;padding:4px;border:1.5px solid #bfdbfe;border-radius:5px;">':'<strong>'+(min||'0')+'</strong>')+
+        '</td>'+
+        '<td style="padding:5px 10px;text-align:center;font-size:11px;font-weight:700;color:'+pctColor+';">'+
+          (min?pct+'%':'–')+
         '</td></tr>';
     }).join('');
 
@@ -4362,7 +4390,8 @@ function buildCupPuljeHtml(cupId, hold){
         '<table style="width:100%;border-collapse:collapse;">'+
           '<thead><tr style="background:#0A2342;">'+
             '<th style="padding:5px 10px;text-align:left;font-size:9px;font-weight:700;color:#F5C400;text-transform:uppercase;letter-spacing:.08em;">Spiller</th>'+
-            '<th style="padding:5px 10px;text-align:center;font-size:9px;font-weight:700;color:#F5C400;text-transform:uppercase;letter-spacing:.08em;">Min. spillet</th>'+
+            '<th style="padding:5px 10px;text-align:center;font-size:9px;font-weight:700;color:#F5C400;text-transform:uppercase;letter-spacing:.08em;">Min. (maks '+kampMax+')</th>'+
+            '<th style="padding:5px 10px;text-align:center;font-size:9px;font-weight:700;color:#F5C400;text-transform:uppercase;letter-spacing:.08em;">% af kamp</th>'+
           '</tr></thead>'+
           '<tbody>'+pRows+lRows+'</tbody>'+
         '</table>'+
@@ -4383,9 +4412,45 @@ function buildCupPuljeHtml(cupId, hold){
       '<button id="cpkaddbtn-'+hold.id+'" data-addpkamp-cup="'+cupId+'" data-addpkamp-hold="'+hold.id+'" style="background:#0A2342;color:#F5C400;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">+ Kamp</button>'+
     '</div>':'';
 
+  // Total stats per player across all kampe
+  var totalMax=kampe.length*kampMax;
+  var totalRows='';
+  if(kampe.length>0 && allPlayers.length>0){
+    var playerTotals=allPlayers.concat(loanees).map(function(p){
+      var total=kampe.reduce(function(s,k){return s+((k.minutes||{})[p.id]||0);},0);
+      var pct=totalMax>0?Math.round(total/totalMax*100):0;
+      var pctColor=pct>=80?'#16A34A':pct>=50?'#854D0E':'#dc2626';
+      var isLoan=!!(p.isLoanee||(loanees.find(function(l){return l.id===p.id;})));
+      return {name:p.name,jersey:p.jersey||'',total,pct,pctColor,isLoan};
+    }).filter(function(r){return r.total>0;})
+      .sort(function(a,b){return b.total-a.total;});
+    if(playerTotals.length>0){
+      totalRows='<div style="margin-top:10px;border:1.5px solid #E2E8F0;border-radius:8px;overflow:hidden;">'+
+        '<div style="background:#0A2342;padding:6px 12px;font-size:10px;font-weight:700;color:#F5C400;text-transform:uppercase;letter-spacing:.08em;">📊 Samlet spilletid ('+kampe.length+' kampe · maks '+totalMax+' min)</div>'+
+        '<table style="width:100%;border-collapse:collapse;">'+
+          '<thead><tr style="background:#F1F5F9;">'+
+            '<th style="padding:5px 10px;text-align:left;font-size:9px;color:#64748B;font-weight:700;text-transform:uppercase;">Spiller</th>'+
+            '<th style="padding:5px 10px;text-align:center;font-size:9px;color:#64748B;font-weight:700;text-transform:uppercase;">Total min.</th>'+
+            '<th style="padding:5px 10px;text-align:center;font-size:9px;color:#64748B;font-weight:700;text-transform:uppercase;">% af total</th>'+
+          '</tr></thead><tbody>'+
+          playerTotals.map(function(r,i){
+            return '<tr style="background:'+(i%2===0?'#fff':'#F8FAFC')+'">'+
+              '<td style="padding:5px 10px;font-size:12px;">'+(r.jersey?'<strong>#'+r.jersey+'</strong> ':'')+r.name+(r.isLoan?' <span style="font-size:9px;background:#1A6EC0;color:#fff;padding:1px 4px;border-radius:3px;">LÅN</span>':'')+' </td>'+
+              '<td style="padding:5px 10px;text-align:center;font-weight:700;">'+r.total+' min</td>'+
+              '<td style="padding:5px 10px;text-align:center;">'+
+                '<span style="font-weight:700;color:'+r.pctColor+';">'+r.pct+'%</span>'+
+                '<div style="background:#E2E8F0;border-radius:4px;height:4px;margin-top:3px;"><div style="background:'+r.pctColor+';height:4px;border-radius:4px;width:'+r.pct+'%;"></div></div>'+
+              '</td>'+
+            '</tr>';
+          }).join('')+
+          '</tbody></table>'+
+        '</div>';
+    }
+  }
+
   return '<div style="border-top:1px solid #E2E8F0;margin-top:10px;padding-top:10px;">'+
-    '<div style="font-size:10px;font-weight:700;color:#0A2342;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">📋 Puljekampe ('+kampe.length+')</div>'+
-    kampCards+addForm+
+    '<div style="font-size:10px;font-weight:700;color:#0A2342;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">📋 Puljekampe ('+kampe.length+') · ⏱️ '+(cup?cup.kampMin||20:20)+' min × 2 halvlege</div>'+
+    kampCards+totalRows+addForm+
   '</div>';
 }
 
@@ -4479,6 +4544,17 @@ function exportCupExcel(cupId){
   toast('✅ Excel: '+cup.name+'.xlsx');
 }
 
+
+function saveCupKampMin(cupId){
+  var cup=cups.find(function(c){return c.id===cupId;});
+  if(!cup) return;
+  var inp=document.getElementById('cupkmin-'+cupId);
+  if(!inp) return;
+  cup.kampMin=parseInt(inp.value)||20;
+  saveCups();
+  renderCupBody(cupId);
+  toast('✅ Kamplængde gemt: '+cup.kampMin+' min × 2 = '+(2*cup.kampMin)+' min per kamp');
+}
 
 </script>
 </body>
