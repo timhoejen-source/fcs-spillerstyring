@@ -211,7 +211,7 @@
         "VK"
       ],
       "jersey": "",
-      "goal": "nærkampe, 1v1, skud på mål, stige",
+      "goal": "nærkampe, 1v1, skud på mål, stige, reaktion og hurtighed første meter",
       "stats": {
         "matches": [
           {
@@ -223,11 +223,7 @@
             "udtaget": "nej"
           }
         ],
-        "skud": 0,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
+        "kampStats": {}
       },
       "exercises": [
         "Stigeøvelser",
@@ -249,7 +245,7 @@
         "OM"
       ],
       "jersey": "",
-      "goal": "nærkamp, stige, ro og overblik, holde på bolden.",
+      "goal": "nærkamp, stige, ro og overblik, holde på bolden., styrke",
       "stats": {
         "matches": [
           {
@@ -261,12 +257,13 @@
             "udtaget": "ja"
           }
         ],
-        "skud": 0,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
-      }
+        "kampStats": {}
+      },
+      "exercises": [
+        "1v1",
+        "Kombinationsspil",
+        "Scanning"
+      ]
     },
     {
       "id": "mq4rdodj2bdm175960h",
@@ -282,7 +279,7 @@
         "A"
       ],
       "jersey": "",
-      "goal": "nærkamp, Overblik, holde på bolden, ligge af",
+      "goal": "nærkamp, Overblik, holde på bolden, ligge af, styrke",
       "stats": {
         "matches": [
           {
@@ -305,7 +302,12 @@
           }
         }
       },
-      "exercises": []
+      "exercises": [
+        "1v1",
+        "kig op",
+        "afslutninger",
+        "1. berøring"
+      ]
     },
     {
       "id": "mq4rdodjcijpk2cwa9m",
@@ -314,7 +316,7 @@
       "team": [
         "U14 liga 2"
       ],
-      "cls": "C",
+      "cls": "BC",
       "pos": [
         "HB",
         "VB"
@@ -328,11 +330,7 @@
             "udtaget": "ja"
           }
         ],
-        "skud": 0,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
+        "kampStats": {}
       },
       "exercises": []
     },
@@ -1344,5 +1342,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-17T17:33:12.100Z"
+  "savedAt": "2026-06-17T17:38:32.984Z"
 }
