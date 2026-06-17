@@ -17,7 +17,7 @@
   --white:#fff;--g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;
   --g400:#94A3B8;--g600:#475569;
   --text:#0A2342;--text-mid:#2C4A72;--text-soft:#5A7A9F;
-  --ca:#16A34A;--ca-bg:#DCFCE7;--cb:#1A6EC0;--cb-bg:#DBEAFE;--cc:#9333EA;--cc-bg:#F3E8FF;
+  --ca:#16A34A;--ca-bg:#DCFCE7;--cab:#0D9488;--cab-bg:#CCFBF1;--cb:#1A6EC0;--cb-bg:#DBEAFE;--cbc:#7C3AED;--cbc-bg:#EDE9FE;--cc:#9333EA;--cc-bg:#F3E8FF;
   --r:10px;--sh:0 8px 32px rgba(10,35,66,.14);--sidebar-w:300px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -76,7 +76,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .cls-btn{width:100%;padding:8px 12px;border:2px solid var(--g200);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;background:var(--white);color:var(--g400);transition:all .15s;text-align:left;}
 .cls-btn:hover{border-color:var(--g400);color:var(--g600);}
 .cls-btn.act-a{background:var(--ca-bg);border-color:var(--ca);color:var(--ca);}
+.cls-btn.act-ab{background:var(--cab-bg);border-color:var(--cab);color:var(--cab);}
 .cls-btn.act-b{background:var(--cb-bg);border-color:var(--cb);color:var(--cb);}
+.cls-btn.act-bc{background:var(--cbc-bg);border-color:var(--cbc);color:var(--cbc);}
 .cls-btn.act-c{background:var(--cc-bg);border-color:var(--cc);color:var(--cc);}
 .pos-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;}
 .pos-btn{padding:6px 2px;border:1.5px solid var(--g200);border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;background:var(--white);color:var(--g600);transition:all .12s;text-align:center;}
@@ -128,7 +130,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
 .tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em;}
 .tag-a{background:var(--ca-bg);color:var(--ca);}
+.tag-ab{background:var(--cab-bg);color:var(--cab);}
 .tag-b{background:var(--cb-bg);color:var(--cb);}
+.tag-bc{background:var(--cbc-bg);color:var(--cbc);}
 .tag-c{background:var(--cc-bg);color:var(--cc);}
 .tag-pos{background:var(--navy);color:var(--yellow);}
 .tag-jersey{background:var(--yellow);color:var(--navy);}
@@ -422,8 +426,10 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .card-summary-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .card-summary-meta{font-size:10px;color:var(--text-soft);margin-top:1px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
 .card-summary-pill{background:var(--g100);padding:1px 7px;border-radius:8px;font-size:9px;font-weight:600;color:var(--text-mid);}
-.card-summary-pill.cls-a{background:#fef9c3;color:#854d0e;}
+.card-summary-pill.cls-a{background:#DCFCE7;color:#16A34A;}
+.card-summary-pill.cls-ab{background:#CCFBF1;color:#0D9488;}
 .card-summary-pill.cls-b{background:#dbeafe;color:#1a6ec0;}
+.card-summary-pill.cls-bc{background:#EDE9FE;color:#7C3AED;}
 .card-summary-pill.cls-c{background:#f3e8ff;color:#7e22ce;}
 .card-chev{font-size:11px;color:var(--g400);transition:transform .2s;flex-shrink:0;}
 .card-chev.open{transform:rotate(180deg);}
@@ -912,9 +918,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <div class="filter-row">
         <span class="filter-label">Klasse</span>
         <button class="filter-btn active" onclick="setClsFilter('alle',this)">Alle</button>
-        <button class="filter-btn" onclick="setClsFilter('A',this)">A-spillere</button>
-        <button class="filter-btn" onclick="setClsFilter('B',this)">B-spillere</button>
-        <button class="filter-btn" onclick="setClsFilter('C',this)">C-spillere</button>
+        <button class="filter-btn" onclick="setClsFilter('A',this)">A</button>
+        <button class="filter-btn" onclick="setClsFilter('AB',this)">AB</button>
+        <button class="filter-btn" onclick="setClsFilter('B',this)">B</button>
+        <button class="filter-btn" onclick="setClsFilter('BC',this)">BC</button>
+        <button class="filter-btn" onclick="setClsFilter('C',this)">C</button>
         <input class="filter-search" type="text" placeholder="Søg…" oninput="searchFilter(this.value)">
       </div>
       <div class="filter-row" style="flex-wrap:nowrap;align-items:flex-start;">
@@ -1158,9 +1166,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     </div>
     <div class="fg"><label>Klassifikation</label>
       <div class="cls-picker" id="m-cls-picker">
-        <button class="cls-btn" data-c="A" onclick="pickCls('A',this,'m')">A-spiller</button>
-        <button class="cls-btn" data-c="B" onclick="pickCls('B',this,'m')">B-spiller</button>
-        <button class="cls-btn" data-c="C" onclick="pickCls('C',this,'m')">C-spiller</button>
+        <button class="cls-btn" data-c="A"  onclick="pickCls('A',this,'m')">A-spiller</button>
+        <button class="cls-btn" data-c="AB" onclick="pickCls('AB',this,'m')">AB-spiller</button>
+        <button class="cls-btn" data-c="B"  onclick="pickCls('B',this,'m')">B-spiller</button>
+        <button class="cls-btn" data-c="BC" onclick="pickCls('BC',this,'m')">BC-spiller</button>
+        <button class="cls-btn" data-c="C"  onclick="pickCls('C',this,'m')">C-spiller</button>
       </div>
     </div>
     <div class="fg"><label>Position</label>
@@ -2043,7 +2053,7 @@ function render(){
           +'<div class="card-summary-meta">'
             +'<span>'+ageStr+'</span>'
             +(pTeamsStr?'<span class="card-summary-pill">'+pTeamsStr+'</span>':'')
-            +'<span class="card-summary-pill '+clsCls+'">'+( p.cls||'B')+'-spiller</span>'
+            +'<span class="card-summary-pill cls-'+p.cls.toLowerCase()+'">'+p.cls+'-spiller</span>'
             +(posShort&&posShort!=='–'?'<span style="font-size:10px;color:var(--blue);font-weight:600;">'+posShort+'</span>':'')
           +'</div>'
         +'</div>'
@@ -2206,8 +2216,9 @@ function renderExportSelect(){
   if(cur) sel.value=cur;
 }
 
-function clsColor(cls){return cls==='A'?'#16A34A':cls==='B'?'#1A6EC0':'#9333EA';}
-function clsBg(cls){return cls==='A'?'#DCFCE7':cls==='B'?'#DBEAFE':'#F3E8FF';}
+function clsColor(cls){return cls==='A'?'#16A34A':cls==='AB'?'#0D9488':cls==='B'?'#1A6EC0':cls==='BC'?'#7C3AED':'#9333EA';}
+function clsOrder(cls){var o={'A':0,'AB':1,'B':2,'BC':3,'C':4};return o[cls]!==undefined?o[cls]:5;}
+function clsBg(cls){return cls==='A'?'#DCFCE7':cls==='AB'?'#CCFBF1':cls==='B'?'#DBEAFE':cls==='BC'?'#EDE9FE':'#F3E8FF';}
 function statVal(v){return v||0;}
 
 // ── Open print window ─────────────────────────────────────────────────────────
@@ -3203,10 +3214,10 @@ function exportTraeningPdf(){
   var totalAttended=jaCount+guestExportCount;
 
   // Sort by classification A→B→C then alphabetically
-  var clsOrder={'A':0,'B':1,'C':2};
+  var clsOrd={'A':0,'AB':1,'B':2,'BC':3,'C':4};
   var sortedPlayers=[].concat(players).sort(function(a,b){
-    var ca=clsOrder[a.cls]!==undefined?clsOrder[a.cls]:9;
-    var cb=clsOrder[b.cls]!==undefined?clsOrder[b.cls]:9;
+    var ca=clsOrd[a.cls]!==undefined?clsOrd[a.cls]:9;
+    var cb=clsOrd[b.cls]!==undefined?clsOrd[b.cls]:9;
     if(ca!==cb) return ca-cb;
     return a.name.localeCompare(b.name,'da');
   });
