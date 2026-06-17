@@ -374,7 +374,7 @@
         "CB"
       ],
       "jersey": "",
-      "goal": "- Agilitet\n- Hurtighed",
+      "goal": "reaktionstid, hurtighed, lyd og mere kontant og selvtillid",
       "stats": {
         "matches": [
           {
@@ -386,12 +386,14 @@
             "udtaget": "nej"
           }
         ],
-        "skud": 0,
-        "afl": 0,
-        "assists": 0,
-        "min": 0,
-        "vende": 0
-      }
+        "kampStats": {}
+      },
+      "exercises": [
+        "stige",
+        "1v1",
+        "selvtillidssnakke",
+        "sparketeknik"
+      ]
     },
     {
       "id": "mq4rdodj5856a8dde4o",
@@ -1342,5 +1344,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-17T17:38:32.984Z"
+  "savedAt": "2026-06-17T17:40:53.301Z"
 }
