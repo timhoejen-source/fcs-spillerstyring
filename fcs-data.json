@@ -92,7 +92,24 @@
               "opponent": "Ry Fodbold",
               "resH": "",
               "resA": "",
-              "minutes": {}
+              "minutes": {
+                "mq4rdodjhw1h8xwmdgm": 3,
+                "mq4rdodjmm8xblygcs": 0,
+                "mq4rdodjunxf94vgzw": 0,
+                "mq4rdodj2p61syd2m28": 3,
+                "mq4rdodjcww4yz9olkb": 0,
+                "mq4rdodjru64dehr3xb": 0,
+                "mq4rdodjwgaeo0u6p6h": 1,
+                "mqa2f9jkdk5k3zpx2ot": 0,
+                "mqa2fvqtplsa72o5yei": 0,
+                "mqa2g5l5my72eian71": 0,
+                "mqa2gswbz6znllvgqqa": 0,
+                "mqa2hpquqjq4n2knq": 5,
+                "mqa2i3pyrl34me21bya": 0,
+                "mqa2ik4awqm1j0sj49l": 0,
+                "mqa2k5ib4iuejjhdscb": 0,
+                "mqave6e3ipqxsyp6ofa": 0
+              }
             },
             {
               "id": "mqh2m827lr4kvvfctaq",
@@ -1334,5 +1351,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-16T20:13:08.099Z"
+  "savedAt": "2026-06-17T10:48:25.319Z"
 }
