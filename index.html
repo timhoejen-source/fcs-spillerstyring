@@ -3596,7 +3596,6 @@ function renderCupBody(cupId){
     '<div style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap;">'+
       (isAdmin?'<button class="btn-primary" style="margin-top:0;width:auto;padding:8px 16px;" data-savecup="'+cupId+'">☁️ Gem til GitHub</button>':'')+ 
       '<button class="btn-export" style="width:auto;padding:8px 16px;" data-exportcup="'+cupId+'">📄 Eksporter PDF</button>'+
-      '<button class="btn-export" style="width:auto;padding:8px 16px;background:#16A34A;color:#fff;border-color:#16A34A;" data-excelcup="'+cupId+'">📊 Excel eksport</button>'+
       (isAdmin?'<button class="cup-del-btn" data-delcup="'+cupId+'">🗑️ Slet cup</button>':'')+
     '</div>';
   // Attach pulje events to each hold
@@ -3673,9 +3672,6 @@ document.addEventListener('click', function(e){
   // Export cup PDF
   var expCup=e.target.closest('[data-exportcup]');
   if(expCup){ exportCupPdf(expCup.getAttribute('data-exportcup')); return; }
-  // Export cup Excel
-  var excelCup=e.target.closest('[data-excelcup]');
-  if(excelCup){ exportCupExcel(excelCup.getAttribute('data-excelcup')); return; }
   // Save cup to GitHub
   var saveCupBtn=e.target.closest('[data-savecup]');
   if(saveCupBtn){
@@ -3694,6 +3690,9 @@ function exportCupPdf(cupId){
   var cup=cups.find(function(c){ return c.id===cupId; });
   if(!cup){ toast('⚠️ Cup ikke fundet'); return; }
 
+  var kampMin=cup.kampMin||20;
+  var kampMax=2*kampMin;
+
   var dateStr='';
   if(cup.dateFrom&&cup.dateTo)
     dateStr=new Date(cup.dateFrom).toLocaleDateString('da-DK',{day:'numeric',month:'short'})+
@@ -3702,86 +3701,154 @@ function exportCupPdf(cupId){
     dateStr=new Date(cup.dateFrom).toLocaleDateString('da-DK',{day:'numeric',month:'long',year:'numeric'});
 
   var holdsHtml=cup.holds.map(function(hold){
-    var playerRows=hold.players.map(function(pid){
-      var p=players.find(function(x){return x.id===pid;});
-      if(!p) return '';
+    var holdPlayerIds=new Set(hold.players||[]);
+    var holdPlayers=players.filter(function(p){return holdPlayerIds.has(p.id);})
+      .sort(function(a,b){return a.name.localeCompare(b.name,'da');});
+    var loanees=hold.loanees||[];
+    var kampe=hold.puljeKampe||[];
+    var totalMax=kampe.length*kampMax;
+
+    // ── Spilleroversigt tabel ──────────────────────────────────────────────
+    var playerRows=holdPlayers.map(function(p){
       var posArr=Array.isArray(p.pos)?p.pos:(p.pos?[p.pos]:[]);
       var pTeams=Array.isArray(p.team)?p.team.join(', '):(p.team||'');
       return '<tr>'+
         '<td style="padding:4px 10px;font-weight:600;">'+(p.jersey?'<strong>#'+p.jersey+'</strong> ':'')+p.name+'</td>'+
         '<td style="padding:4px 10px;font-size:10px;color:#5A7A9F;">'+pTeams+'</td>'+
-        '<td style="padding:4px 10px;font-size:10px;color:#5A7A9F;">'+p.age+' år</td>'+
+        '<td style="padding:4px 10px;font-size:10px;">'+p.age+' år</td>'+
         '<td style="padding:4px 10px;font-size:10px;">'+posArr.map(function(px){return POS_LABELS[px]||px;}).join(' / ')+'</td>'+
         '<td style="padding:4px 10px;"><span style="background:'+clsBg(p.cls)+';color:'+clsColor(p.cls)+';font-size:8px;font-weight:700;padding:1px 6px;border-radius:3px;">'+p.cls+'</span></td>'+
       '</tr>';
     }).join('');
 
-    var loaneeRows=(hold.loanees||[]).map(function(l){
+    var loaneeRows=loanees.map(function(l){
       var dobStr=l.dob?new Date(l.dob).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'}):'–';
       return '<tr style="background:#EBF2FB;">'+
         '<td style="padding:4px 10px;font-weight:600;color:#1A6EC0;">'+l.name+' <span style="font-size:9px;font-weight:700;background:#1A6EC0;color:#fff;padding:1px 5px;border-radius:3px;">LÅN</span></td>'+
-        '<td style="padding:4px 10px;font-size:10px;">'+( l.team||'–')+'</td>'+
+        '<td style="padding:4px 10px;font-size:10px;">'+(l.team||'–')+'</td>'+
         '<td style="padding:4px 10px;font-size:10px;">'+dobStr+'</td>'+
-        '<td style="padding:4px 10px;font-size:10px;">'+( l.contact||'–')+'</td>'+
-        '<td></td>'+
+        '<td style="padding:4px 10px;font-size:10px;">–</td>'+
+        '<td style="padding:4px 10px;font-size:10px;">'+(l.contact||'–')+'</td>'+
       '</tr>';
     }).join('');
 
-    var total=hold.players.length+(hold.loanees||[]).length;
+    // ── Puljekampe tabel ──────────────────────────────────────────────────
+    var kampHeader=kampe.length>0?
+      '<div style="margin-top:6mm;">'+
+        '<div style="background:#0A2342;color:#F5C400;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 10px;border-radius:6px 6px 0 0;">'+
+          '📋 Puljekampe ('+kampe.length+' kampe · '+kampMin+' min × 2 halvlege = '+kampMax+' min maks per kamp)'+
+        '</div>'+
+        '<table style="width:100%;border-collapse:collapse;border:1px solid #E2E8F0;border-top:none;">'+
+          '<thead><tr style="background:#F1F5F9;">'+
+            '<th style="padding:4px 8px;text-align:left;font-size:9px;font-weight:700;color:#0A2342;">Dato</th>'+
+            '<th style="padding:4px 8px;text-align:left;font-size:9px;font-weight:700;color:#0A2342;">Modstander</th>'+
+            '<th style="padding:4px 8px;text-align:center;font-size:9px;font-weight:700;color:#0A2342;">Resultat</th>'+
+          '</tr></thead>'+
+          '<tbody>'+
+          kampe.map(function(k){
+            var d=k.date?new Date(k.date).toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'short'}):'–';
+            var res=(k.resH!==''&&k.resA!=='')?k.resH+'-'+k.resA:'–';
+            var fcs=parseInt(k.resH), opp=parseInt(k.resA);
+            var resBg=res==='–'?'':'background:'+(fcs>opp?'#DCFCE7':fcs===opp?'#FEF9C3':'#FEE2E2')+';';
+            return '<tr>'+
+              '<td style="padding:4px 8px;font-size:10px;">'+d+(k.time?' '+k.time:'')+'</td>'+
+              '<td style="padding:4px 8px;font-size:10px;font-weight:600;">vs. '+k.opponent+'</td>'+
+              '<td style="padding:4px 8px;text-align:center;font-size:10px;font-weight:700;'+resBg+'">'+res+'</td>'+
+            '</tr>';
+          }).join('')+
+          '</tbody></table>'+
+      '</div>' : '';
 
-    return '<div style="margin-bottom:8mm;">'+
-      '<div style="background:#0A2342;color:#F5C400;padding:5px 10px;border-radius:6px 6px 0 0;font-size:11px;font-weight:700;display:flex;justify-content:space-between;">'+
-        '<span>⚽ '+hold.name+'</span>'+
-        '<span>'+total+' spillere</span>'+
-      '</div>'+
-      '<table style="width:100%;border-collapse:collapse;border:1px solid #E2E8F0;border-top:none;">'+
-        '<thead><tr style="background:#F1F5F9;">'+
-          '<th style="padding:4px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.07em;">Spiller</th>'+
-          '<th style="padding:4px 10px;text-align:left;font-size:9px;text-transform:uppercase;">Hold</th>'+
-          '<th style="padding:4px 10px;text-align:left;font-size:9px;text-transform:uppercase;">Alder</th>'+
-          '<th style="padding:4px 10px;text-align:left;font-size:9px;text-transform:uppercase;">Position</th>'+
-          '<th style="padding:4px 10px;text-align:left;font-size:9px;text-transform:uppercase;">Klasse</th>'+
-        '</tr></thead>'+
-        '<tbody>'+playerRows+loaneeRows+'</tbody>'+
-      '</table>'+
+    // ── Spilletid tabel ───────────────────────────────────────────────────
+    var spilletidHtml='';
+    if(kampe.length>0){
+      var allP=holdPlayers.concat(loanees.map(function(l){
+        return {id:l.id,name:l.name,jersey:'',isLoanee:true,cls:'',pos:[]};
+      }));
+      var spilletidRows=allP.map(function(p){
+        var kampMins=kampe.map(function(k){return (k.minutes||{})[p.id]||0;});
+        var total=kampMins.reduce(function(s,m){return s+m;},0);
+        var totalPct=totalMax>0?Math.round(total/totalMax*100):0;
+        var pctColor=totalPct>=80?'#16A34A':totalPct>=50?'#854D0E':'#dc2626';
+        var kampCells=kampMins.map(function(min){
+          var pct=min?Math.round(min/kampMax*100):0;
+          var bg=min?(pct>=80?'background:#DCFCE7;':pct>=50?'background:#FEF9C3;':''):'';
+          return '<td style="padding:4px 6px;text-align:center;font-size:9px;'+bg+'">'+
+            (min?'<strong>'+min+'</strong><br><span style="color:#64748B;">'+pct+'%</span>':'–')+
+          '</td>';
+        }).join('');
+        return '<tr>'+
+          '<td style="padding:4px 8px;font-size:10px;font-weight:600;">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+(p.isLoanee?' <span style="font-size:8px;background:#1A6EC0;color:#fff;padding:1px 3px;border-radius:2px;">LÅN</span>':'')+'</td>'+
+          kampCells+
+          '<td style="padding:4px 8px;text-align:center;font-size:10px;font-weight:700;color:'+pctColor+';">'+total+' min</td>'+
+          '<td style="padding:4px 8px;text-align:center;font-size:10px;font-weight:700;color:'+pctColor+';">'+totalPct+'%</td>'+
+        '</tr>';
+      }).filter(function(row){return true;}); // show all
+
+      var kampHeaderCells=kampe.map(function(k){
+        var d=k.date?new Date(k.date).toLocaleDateString('da-DK',{day:'numeric',month:'short'}):'–';
+        return '<th style="padding:4px 6px;text-align:center;font-size:8px;font-weight:700;color:#0A2342;">vs. '+k.opponent+'<br><span style="font-weight:400;">'+d+'</span></th>';
+      }).join('');
+
+      spilletidHtml='<div style="margin-top:4mm;">'+
+        '<div style="background:#16A34A;color:#fff;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 10px;border-radius:6px 6px 0 0;">'+
+          '📊 Spilletidsoversigt · maks '+totalMax+' min total ('+kampe.length+' × '+kampMax+' min)'+
+        '</div>'+
+        '<table style="width:100%;border-collapse:collapse;border:1px solid #E2E8F0;border-top:none;font-size:10px;">'+
+          '<thead><tr style="background:#F1F5F9;">'+
+            '<th style="padding:4px 8px;text-align:left;font-size:9px;font-weight:700;color:#0A2342;">Spiller</th>'+
+            kampHeaderCells+
+            '<th style="padding:4px 8px;text-align:center;font-size:9px;font-weight:700;color:#0A2342;">Total</th>'+
+            '<th style="padding:4px 8px;text-align:center;font-size:9px;font-weight:700;color:#0A2342;">%</th>'+
+          '</tr></thead>'+
+          '<tbody>'+spilletidRows.join('')+'</tbody>'+
+        '</table></div>';
+    }
+
+    return '<div style="margin-bottom:8mm;padding-bottom:6mm;border-bottom:2px solid #E2E8F0;">'+
+      '<div style="font-size:14px;font-weight:700;color:#0A2342;margin-bottom:3mm;">⚽ '+hold.name+'</div>'+
+      (holdPlayers.length>0?
+        '<table style="width:100%;border-collapse:collapse;margin-bottom:2mm;">'+
+          '<thead><tr style="background:#0A2342;">'+
+            '<th style="padding:4px 10px;text-align:left;font-size:9px;font-weight:700;color:#F5C400;text-transform:uppercase;">Spiller</th>'+
+            '<th style="padding:4px 10px;font-size:9px;font-weight:700;color:#F5C400;text-transform:uppercase;">Hold</th>'+
+            '<th style="padding:4px 10px;font-size:9px;font-weight:700;color:#F5C400;text-transform:uppercase;">Alder</th>'+
+            '<th style="padding:4px 10px;font-size:9px;font-weight:700;color:#F5C400;text-transform:uppercase;">Position</th>'+
+            '<th style="padding:4px 10px;font-size:9px;font-weight:700;color:#F5C400;text-transform:uppercase;">Klasse</th>'+
+          '</tr></thead>'+
+          '<tbody>'+playerRows+loaneeRows+'</tbody>'+
+        '</table>' : '')+
+      kampHeader+
+      spilletidHtml+
     '</div>';
   }).join('');
 
-  var totalAll=cup.holds.reduce(function(a,h){return a+h.players.length+(h.loanees||[]).length;},0);
-
+  // ── HTML dokument ────────────────────────────────────────────────────────
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'+
-    '<style>@page{size:A4 portrait;margin:12mm 14mm;}'+
-    '@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap\');'+
-    '*{box-sizing:border-box;margin:0;padding:0;}'+
-    'body{font-family:\'DM Sans\',sans-serif;color:#0A2342;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}'+
-    'tbody tr:nth-child(even):not([style*="background:#EBF2FB"]){background:#F8FAFC;}'+
-    '</style></head><body>';
-
-  html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:4mm;border-bottom:3px solid #F5C400;margin-bottom:5mm;">'+
-    '<div>'+
-      '<div style="font-size:20px;font-weight:700;margin-bottom:2px;">'+cup.name+'</div>'+
-      '<div style="font-size:10px;color:#5A7A9F;">'+
-        (dateStr?'📅 '+dateStr+'  ':'')+
-        (cup.location?'📍 '+cup.location:'')+'</div>'+
-      '<div style="margin-top:3mm;display:flex;gap:8px;">'+
-        '<span style="background:#DBEAFE;color:#1A6EC0;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;">'+cup.holds.length+' hold</span>'+
-        '<span style="background:#DCFCE7;color:#16A34A;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;">'+totalAll+' spillere i alt</span>'+
+    '<style>@page{size:A4 portrait;margin:12mm 14mm;}body{font-family:"Segoe UI",sans-serif;color:#0F172A;font-size:11px;}'+
+    'table{width:100%;border-collapse:collapse;}th,td{border-bottom:1px solid #F1F5F9;}'+
+    'tr:last-child td{border-bottom:none;}</style>'+
+    '</head><body>'+
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6mm;padding-bottom:4mm;border-bottom:3px solid #0A2342;">'+
+      '<div style="width:44px;height:44px;background:#0A2342;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#F5C400;">FCS</div>'+
+      '<div>'+
+        '<div style="font-size:20px;font-weight:700;color:#0A2342;">'+cup.name+'</div>'+
+        '<div style="font-size:11px;color:#64748B;">'+
+          (dateStr?dateStr+' · ':'')+
+          (cup.location?cup.location+' · ':'')+
+          '⏱️ '+kampMin+' min × 2 halvlege'+
+        '</div>'+
       '</div>'+
     '</div>'+
-    '<div style="text-align:right;font-size:9px;color:#94A3B8;">FC Skanderborg · Pige talent<br>'+new Date().toLocaleDateString('da-DK')+'</div>'+
-  '</div>';
-
-  html+=holdsHtml;
-  html+='<div style="margin-top:5mm;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;font-size:8px;color:#94A3B8;">'+
-    '<span>FC Skanderborg · Pige talent</span>'+
-    '<span>'+cup.name+'</span>'+
-  '</div>';
-  html+='</body></html>';
+    holdsHtml+
+    '<div style="margin-top:auto;border-top:1px solid #E2E8F0;padding-top:3mm;display:flex;justify-content:space-between;">'+
+      '<span style="font-size:8px;color:#94A3B8;">FC Skanderborg · Pige talent</span>'+
+      '<span style="font-size:8px;color:#94A3B8;">'+cup.name+'</span>'+
+    '</div>'+
+  '<\/body><\/html>';
   openPdfWindow(html);
 }
 
-
-// ── Øvelser ───────────────────────────────────────────────────────────────────
 
 function renderExSection(t){
   var exs = t.exercises || [];
