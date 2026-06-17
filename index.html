@@ -4327,16 +4327,16 @@ function buildCupPuljeHtml(cupId, hold){
     .sort(function(a,b){ return a.name.localeCompare(b.name,'da'); });
   var loanees=hold.loanees||[];
 
+  // Cup kampMax at function scope (needed for totals)
+  var cup=cups.find(function(x){return x.id===cupId;});
+  var kampMax=2*(cup?cup.kampMin||20:20);
+
   var kampCards=kampe.map(function(kamp){
     var d=kamp.date?new Date(kamp.date).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'}):'';
     var hasRes=kamp.resH!==''&&kamp.resA!=='';
     var resText=hasRes?kamp.resH+'-'+kamp.resA:'–';
     var resBg=!hasRes?'#F1F5F9':parseInt(kamp.resH)>parseInt(kamp.resA)?'#DCFCE7':parseInt(kamp.resH)===parseInt(kamp.resA)?'#FEF9C3':'#FEE2E2';
     var resColor=!hasRes?'#64748B':parseInt(kamp.resH)>parseInt(kamp.resA)?'#16A34A':parseInt(kamp.resH)===parseInt(kamp.resA)?'#854D0E':'#dc2626';
-
-    // Kampmax from cup settings
-    var cup=cups.find(function(x){return x.id===cupId;});
-    var kampMax=2*(cup?cup.kampMin||20:20);
 
     // Player minute rows
     var pRows=allPlayers.map(function(p){
