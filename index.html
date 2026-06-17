@@ -4308,7 +4308,10 @@ function saveCupPKampMinutes(cupId, holdId, kampId){
 function buildCupPuljeHtml(cupId, hold){
   var isAdmin=currentRole==='admin';
   var kampe=hold.puljeKampe||[];
-  var allPlayers=[].concat(players).sort(function(a,b){return a.name.localeCompare(b.name,'da');});
+  // Only players assigned to this cup hold
+  var holdPlayerIds=new Set(hold.players||[]);
+  var allPlayers=players.filter(function(p){ return holdPlayerIds.has(p.id); })
+    .sort(function(a,b){ return a.name.localeCompare(b.name,'da'); });
   var loanees=hold.loanees||[];
 
   var kampCards=kampe.map(function(kamp){
