@@ -4540,8 +4540,23 @@ function saveCupPKampResult(cupId, holdId, kampId){
     if(inp) kamp.minutes[pid]=parseInt(inp.value)||0;
   });
   saveCups();
-  renderCupPuljeSection(cupId, holdId);
-  toast('✅ Gemt');
+  // Update result badge without re-rendering (keeps minute inputs open)
+  var kampRow = document.querySelector('[data-kampid="'+kampId+'"]');
+  if(kampRow){
+    var kamp2=(getCupHold(cupId,holdId).puljeKampe||[]).find(function(k){return k.id===kampId;});
+    if(kamp2){
+      var hasRes=kamp2.resH!==''&&kamp2.resA!=='';
+      var resCls='none'; var resText='–';
+      if(hasRes){
+        resText=kamp2.resH+'-'+kamp2.resA;
+        var fcs=parseInt(kamp2.resH),opp=parseInt(kamp2.resA);
+        resCls=fcs>opp?'win':fcs===opp?'draw':'loss';
+      }
+      var badge=kampRow.previousElementSibling&&kampRow.previousElementSibling.querySelector('.cup-pkamp-res');
+      if(!badge){ var row=document.getElementById('cpkamp-body-'+kampId); if(row) badge=row.previousElementSibling&&row.previousElementSibling.querySelector('.cup-pkamp-res'); }
+    }
+  }
+  toast('✅ Resultat gemt');
 }
 
 function renderCupPuljeSection(cupId, holdId){
@@ -4577,7 +4592,7 @@ function buildCupPuljeHtml(cupId, hold){
       var val=(kamp.minutes||{})[p.id]||'';
       return '<div class="cup-min-row">'+
         '<span class="cup-min-name">'+(p.jersey?'#'+p.jersey+' ':'')+p.name+'</span>'+
-        (isAdmin?'<input class="cup-min-inp" type="number" min="0" max="120" placeholder="–" value="'+val+'" id="cpkmin-'+kamp.id+'-'+p.id+'">'
+        (isAdmin?'<input class="cup-min-inp" type="number" min="0" max="120" placeholder="–" value="'+val+'" id="cpkmin-'+kamp.id+'-'+p.id+'" data-mincup="'+cupId+'" data-minhold="'+hold.id+'" data-minkamp="'+kamp.id+'" data-minpid="'+p.id+'">'
                 :'<span style="font-size:11px;font-weight:700;">'+( val||'–')+'</span>')+
       '</div>';
     }).join('');
@@ -4585,7 +4600,7 @@ function buildCupPuljeHtml(cupId, hold){
       var val=(kamp.minutes||{})[l.id]||'';
       return '<div class="cup-min-row" style="background:#EBF2FB;">'+
         '<span class="cup-min-name" style="color:#1A6EC0;">'+l.name+' <span style="font-size:9px;background:#1A6EC0;color:#fff;padding:1px 4px;border-radius:3px;">LÅN</span></span>'+
-        (isAdmin?'<input class="cup-min-inp" type="number" min="0" max="120" placeholder="–" value="'+val+'" id="cpkmin-'+kamp.id+'-'+l.id+'">'
+        (isAdmin?'<input class="cup-min-inp" type="number" min="0" max="120" placeholder="–" value="'+val+'" id="cpkmin-'+kamp.id+'-'+l.id+'" data-mincup="'+cupId+'" data-minhold="'+hold.id+'" data-minkamp="'+kamp.id+'" data-minpid="'+l.id+'">'
                 :'<span style="font-size:11px;font-weight:700;">'+( val||'–')+'</span>')+
       '</div>';
     }).join('');
@@ -4597,7 +4612,7 @@ function buildCupPuljeHtml(cupId, hold){
         (isAdmin?'<button class="cup-del-btn" style="font-size:10px;padding:2px 6px;" onclick="event.stopPropagation();deleteCupPKamp(\''+cupId+'\',\''+hold.id+'\',\''+kamp.id+'\')" >🗑️</button>':'')+
         '<span class="kamp-chev" id="cpkchev-'+kamp.id+'">▾</span>'+
       '</div>'+
-      '<div class="cup-pkamp-body" id="cpkamp-body-'+kamp.id+'">'+
+      '<div class="cup-pkamp-body" id="cpkamp-body-'+kamp.id+'" data-cupid="'+cupId+'" data-holdid="'+hold.id+'" data-kampid="'+kamp.id+'">'+ 
         (isAdmin?
           '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--g200);">'+
             '<span style="font-size:10px;font-weight:700;color:var(--text-soft);">Resultat</span>'+
@@ -4608,7 +4623,13 @@ function buildCupPuljeHtml(cupId, hold){
           '</div>'
         :'')+
         '<div style="font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Spiller (minutter)</div>'+
-        '<div class="cup-min-grid">'+minGrid+loaneeGrid+'</div>'+
+        (holdPlayers.length===0&&loanees.length===0?
+          '<div style="font-size:11px;color:var(--text-soft);padding:8px;background:var(--g50);border-radius:6px;">'+
+            '⚠️ Ingen spillere tilknyttet dette hold. Tilføj spillere ved at klikke på spillernavnene øverst i holdafsnittet.'+
+          '</div>'
+        :
+          '<div class="cup-min-grid">'+minGrid+loaneeGrid+'</div>'
+        )+
       '</div>'+
     '</div>';
   }).join('');
@@ -4681,6 +4702,23 @@ function exportCupExcel(cupId){
   toast('✅ Excel eksporteret: '+cup.name+'.xlsx');
 }
 
+
+// Live-save cup minutes on change
+document.addEventListener('change', function(e){
+  var inp = e.target.closest('[data-mincup]');
+  if(!inp) return;
+  var cupId  = inp.getAttribute('data-mincup');
+  var holdId = inp.getAttribute('data-minhold');
+  var kampId = inp.getAttribute('data-minkamp');
+  var pid    = inp.getAttribute('data-minpid');
+  var hold   = getCupHold(cupId, holdId);
+  if(!hold) return;
+  var kamp = (hold.puljeKampe||[]).find(function(k){ return k.id===kampId; });
+  if(!kamp) return;
+  if(!kamp.minutes) kamp.minutes={};
+  kamp.minutes[pid] = parseInt(inp.value)||0;
+  saveCups();
+});
 
 </script>
 </body>
