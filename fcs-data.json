@@ -137,6 +137,15 @@
               "resH": "",
               "resA": "",
               "minutes": {}
+            },
+            {
+              "id": "mqhyctc6dgljivjfcya",
+              "date": "2026-06-27",
+              "time": "21:15",
+              "opponent": "Skjern GF",
+              "resH": "",
+              "resA": "",
+              "minutes": {}
             }
           ]
         },
@@ -1351,5 +1360,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-17T10:48:55.586Z"
+  "savedAt": "2026-06-17T10:53:02.683Z"
 }
