@@ -1073,7 +1073,7 @@
         "mq4rdodjhw1h8xwmdgm": "ja",
         "mq4rdodj2cgix7j2jz8": "ja",
         "mq4rdodjmm8xblygcs": "ja",
-        "mq4rdodjldiuuabgdgi": "ja",
+        "mq4rdodjldiuuabgdgi": "nej",
         "mq4rdodjunxf94vgzw": "ja",
         "mq4rdodj2p61syd2m28": "ja",
         "mq4rdodjcww4yz9olkb": "nej",
@@ -1090,10 +1090,31 @@
         "mq4rdodj3dko74qwk7c": "ja",
         "mq4rdodjyjmnpj7iuao": "ja",
         "mq4rdodjn00ufiqe0ls": "ja",
-        "mq4rdodjkfd21t4l0es": "ja",
-        "mq4rdodj07icnpsqkzif": "nej"
+        "mq4rdodjkfd21t4l0es": "ja"
       },
-      "exercises": []
+      "exercises": [],
+      "guests": [
+        {
+          "name": "Kaya",
+          "team": "AGF"
+        },
+        {
+          "name": "Frida",
+          "team": "AGF"
+        },
+        {
+          "name": "Duddi",
+          "team": "AGF"
+        },
+        {
+          "name": "Ida",
+          "team": "AGF"
+        },
+        {
+          "name": "Alma",
+          "team": "AGF"
+        }
+      ]
     },
     {
       "id": "mq54rauscn0y15eb5ke",
@@ -1381,5 +1402,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-17T18:15:42.080Z"
+  "savedAt": "2026-06-17T18:17:30.198Z"
 }
