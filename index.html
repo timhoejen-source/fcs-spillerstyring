@@ -1060,6 +1060,11 @@ let players=(function(){
   }catch(e){console.warn('players parse error',e);return [];}
 })();
 let teams=(function(){try{return JSON.parse(localStorage.getItem('fcs-t5')||'null')||['U15 Liga2','U14 Liga2'];}catch(e){return ['U15 Liga2','U14 Liga2'];}})();
+let trainings=(function(){try{return JSON.parse(localStorage.getItem('fcs-trainings')||'[]');}catch(e){return [];}})();
+// PDFs loaded separately after DOM ready
+let matches=(function(){try{return JSON.parse(localStorage.getItem('fcs-matches')||'[]');}catch(e){return [];}})();
+let dbuStilling=(function(){try{return JSON.parse(localStorage.getItem('fcs-stilling')||'[]');}catch(e){return [];}})();
+let cups=(function(){try{return JSON.parse(localStorage.getItem('fcs-cups')||'[]');}catch(e){return [];}})();
 // GitHub — bruger og repo hardcoded, token indtastes manuelt
 const GH_USER='timhoejen-source';
 const GH_REPO='fcs-spillerstyring';
