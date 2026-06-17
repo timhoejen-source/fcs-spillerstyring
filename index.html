@@ -1483,7 +1483,7 @@ async function loadFromSheets(silent=false){
       saveTrainings();
     }
     // Board lineups already loaded above
-    saveAll();renderTeams();renderSelects();render();populateExportSelectors();
+    saveAll();renderTeams();renderSelects();render();renderKampe();populateExportSelectors();
     if(document.getElementById('tab-cup')&&document.getElementById('tab-cup').classList.contains('active')) renderCups();
     setSyncDot('ok');
     toast('✅ '+players.length+' spillere · '+matches.length+' kampe · '+trainings.length+' træninger hentet!');
