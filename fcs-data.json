@@ -1132,10 +1132,6 @@
       ],
       "guests": [
         {
-          "name": "Kaya",
-          "team": "AGF"
-        },
-        {
           "name": "Duddi",
           "team": "AGF"
         },
@@ -1439,5 +1435,5 @@
       "loanees": []
     }
   },
-  "savedAt": "2026-06-18T10:14:29.472Z"
+  "savedAt": "2026-06-18T14:35:34.698Z"
 }
